@@ -1,0 +1,12 @@
+[requires]
+sqlite3/[>=3.45.0]
+libtiff/[>=4.6.0]
+libcurl/[>=8.6.0]
+
+[generators]
+MesonToolchain
+PkgConfigDeps
+CMakeDeps
+
+[tool_requires]
+pkgconf/2.1.0

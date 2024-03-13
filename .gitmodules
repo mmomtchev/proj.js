@@ -1,0 +1,9 @@
+[submodule "PROJ"]
+	path = PROJ
+	url = https://github.com/OSGeo/PROJ.git
+[submodule "deps/PROJ"]
+	path = deps/PROJ
+	url = https://github.com/OSGeo/PROJ.git
+[submodule "subprojects/PROJ"]
+	path = subprojects/PROJ
+	url = https://github.com/osgeo/PROJ

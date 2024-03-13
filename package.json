@@ -1,0 +1,212 @@
+{
+  "name": "proj.js",
+  "version": "0.0.1",
+  "description": "PROJ bindings for JavaScript - with a native port for Node.js and a WASM port for the browser",
+  "type": "module",
+  "main": "./lib/native.cjs",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.cts",
+      "require": "./lib/native.cjs"
+    },
+    "./wasm": {
+      "types": "./wasm/index.d.mts",
+      "import": "./wasm/index.mjs"
+    }
+  },
+  "scripts": {
+    "test": "npm run test:nodejs && npm run test:browser",
+    "test:nodejs": "npx mocha",
+    "test:browser": "cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs",
+    "configure:native": "npx xpm run prepare --config native",
+    "configure:native-xpack": "npx xpm run prepare --config native-xpack",
+    "configure:wasm": "npx xpm run prepare --config wasm",
+    "swig": "npx xpm run generate",
+    "build:native": "npm run configure:native && npx xpm run build --config native",
+    "build:native-xpack": "npm run configure:native-xpack && npx xpm run build --config native-xpack",
+    "build:wasm": "npm run configure:wasm && npx xpm run build --config wasm",
+    "build:webpack": "cd test/browser && npx webpack --mode=production",
+    "build": "npm run build:native && npm run build:wasm",
+    "lint": "clang-format -i src/*.cc src/*.h && eslint test",
+    "prepare": "node -e \"console.log('\\x1b[32m', 'Run \\\"npx xpm install\\\" to install the xpm toolchains and \\\"npm run swig\\\" to generate the wrappers\\x1b[0m');\"",
+    "install": "node -e \"console.log('\\x1b[32m', 'Run \\\"npm run build\\\", \\\"npm run build:native\\\" or \\\"npm run build:wasm\\\" to build', '\\x1b[0m');\"",
+    "dev": "cd test/browser && npx webpack serve --mode=production",
+    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj.js/build -o ../build/Debug/obj.target/proj.js/src ../src/* ../build/*",
+    "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mmomtchev/proj.js.git"
+  },
+  "keywords": [
+    "PROJ",
+    "GIS",
+    "projection",
+    "maps",
+    "cartography",
+    "WGS",
+    "EPSG",
+    "javascript",
+    "node.js",
+    "node-api",
+    "napi",
+    "wasm",
+    "xpack"
+  ],
+  "author": "Momtchil Momtchev <momtchil@momtchev.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mmomtchev/proj.js/issues"
+  },
+  "homepage": "https://github.com/mmomtchev/proj.js#readme",
+  "dependencies": {
+    "@emnapi/runtime": "^1.0.0",
+    "emnapi": "^1.0.0",
+    "node-addon-api": "^7.1.0",
+    "prebuild-install": "^7.1.2",
+    "tar": "^6.2.0",
+    "xpm": "^0.19.1"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.3.12",
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.11.24",
+    "@types/tar": "^6.1.11",
+    "@typescript-eslint/eslint-plugin": "^7.1.1",
+    "@typescript-eslint/parser": "^7.1.1",
+    "c8": "^9.1.0",
+    "chai": "^5.1.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-mocha": "^10.3.0",
+    "karma": "^6.4.3",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-mocha": "^2.0.1",
+    "karma-verbose-reporter": "^0.0.8",
+    "mocha": "^10.3.0",
+    "ts-loader": "^9.5.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.3.3",
+    "webpack": "^5.90.3",
+    "webpack-cli": "^5.1.4",
+    "webpack-dev-server": "^5.0.2"
+  },
+  "binary": {
+    "napi_versions": [
+      6
+    ]
+  },
+  "xpack": {
+    "minimumXpmRequired": "0.14.0",
+    "dependencies": {},
+    "devDependencies": {
+      "@xpack-dev-tools/meson-build": "0.60.3-1.1",
+      "@xpack-dev-tools/ninja-build": "1.11.0-1.1"
+    },
+    "properties": {
+      "module_name": "proj.js",
+      "python": {
+        "win32": "python",
+        "linux": "python3",
+        "darwin": "python3"
+      },
+      "buildFolderRelativePath": "{{ 'build' | path_join: configuration.name | to_filename | downcase }}",
+      "commandDownloadEnvironment": "node hadron/hadron-download-headers",
+      "commandInit": "mkdir -p build",
+      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
+      "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user conan",
+      "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect || echo ok",
+      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }}",
+      "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }}",
+      "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} .",
+      "commandPrepareNative": "{{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini {{ env.HADRON_OPTS | default: '' }}",
+      "commandPrepareCross": "{{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini {{ env.HADRON_OPTS | default: '' }}",
+      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ env.HADRON_OPTS }}",
+      "commandBuild": "meson compile -C {{ properties.buildFolderRelativePath }} -v",
+      "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }} --destdir ..{{ path.sep }}..{{ path.sep }}lib{{ path.sep }}binding",
+      "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean"
+    },
+    "actions": {
+      "generate": [
+        "{{ properties.commandInit }}",
+        "{{ properties.commandGenerate }}"
+      ]
+    },
+    "buildConfigurations": {
+      "native": {
+        "properties": {
+          "buildType": "release",
+          "toolchain": "system"
+        },
+        "actions": {
+          "prepare": [
+            "{{ properties.commandDownloadEnvironment }}",
+            "{{ properties.commandConanInstall }}",
+            "{{ properties.commandConanInit }}",
+            "{{ properties.commandDependenciesNative }}",
+            "{{ properties.commandPrepareNative }}"
+          ],
+          "configure": "{{ properties.commandConfigure }}",
+          "build": [
+            "{{ properties.commandBuild }}",
+            "{{ properties.commandInstall }}"
+          ],
+          "clean": "{{ properties.commandClean }}"
+        }
+      },
+      "native-xpack": {
+        "inherit": [
+          "native"
+        ],
+        "properties": {
+          "buildType": "release",
+          "toolchain": "clang"
+        },
+        "devDependencies": {
+          "@xpack-dev-tools/clang": "17.0.6-1.1"
+        }
+      },
+      "wasm": {
+        "inherit": [
+          "native"
+        ],
+        "properties": {
+          "buildType": "release",
+          "toolchain": "emscripten"
+        },
+        "actions": {
+          "prepare": [
+            "{{ properties.commandDownloadEnvironment }}",
+            "{{ properties.commandConanInstall }}",
+            "{{ properties.commandConanInit }}",
+            "{{ properties.commandDependenciesCross }}",
+            "{{ properties.commandPrepareCross }}"
+          ]
+        }
+      },
+      "native-debug": {
+        "inherit": [
+          "native"
+        ],
+        "properties": {
+          "buildType": "debug"
+        }
+      },
+      "native-xpack-debug": {
+        "inherit": [
+          "native-xpack"
+        ],
+        "properties": {
+          "buildType": "debug"
+        }
+      },
+      "wasm-debug": {
+        "inherit": [
+          "wasm"
+        ],
+        "properties": {
+          "buildType": "debug"
+        }
+      }
+    }
+  }
+}
