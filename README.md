@@ -27,3 +27,28 @@ npm install
 python3 -m conans.conan install . -pr:b=default -pr:h=./hadron/system-linux.profile --build=missing -of build/native
 meson setup --backend ninja --buildtype release build/native . --native-file build/napi.ini --native-file hadron/system-linux.ini --native-file build/native/conan_meson_native.ini
 ```
+
+main `meson` build that includes a `CMake` subproject
+`conan` produces the dependencies
+`CMake` consumes `CMake` config files (via `CMAKE_PREFIX_PATH` from `meson`)
+`meson` consumes `pkg-config` files
+
+the `CMake` imported target in `meson` looks like this:
+
+```
+TARGET CMake TARGET:
+  -- name:      CURL::libcurl
+  -- type:      INTERFACE
+  -- imported:  True
+  -- properties: {
+      'INTERFACE_LINK_LIBRARIES': ['CURL::libcurl', 'APPEND']
+      'INTERFACE_LINK_OPTIONS': ['', 'APPEND']
+      'INTERFACE_INCLUDE_DIRECTORIES': ['', 'APPEND']
+      'INTERFACE_LINK_DIRECTORIES': ['', 'APPEND']
+      'INTERFACE_COMPILE_DEFINITIONS': ['', 'APPEND']
+      'INTERFACE_COMPILE_OPTIONS': ['', 'APPEND']
+     }
+  -- tline: CMake TRACE: /home/mmom/src/proj.js/build/native/CURLTargets.cmake:11 add_library(['CURL::libcurl', 'INTERFACE', 'IMPORTED'])
+```
+
+`APPEND`s appear in the final `meson.build` and prevent the link
