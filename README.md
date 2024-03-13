@@ -53,4 +53,21 @@ TARGET CMake TARGET:
 
 `APPEND`s appear in the final `meson.build` and prevent the link
 
-Only targets coming from `conan` have this `APPEND` and only when the target is imported in `meson`
+Only targets coming from `conan` have this `APPEND` and only when the target is imported in `meson`:
+
+From this `conan` statement:
+
+```
+set_property(TARGET sqlite3_SQLite_SQLite3_DEPS_TARGET
+              PROPERTY INTERFACE_LINK_LIBRARIES
+              $<$<CONFIG:Release>:${sqlite3_SQLite_SQLite3_FRAMEWORKS_FOUND_RELEASE}>
+              $<$<CONFIG:Release>:${sqlite3_SQLite_SQLite3_SYSTEM_LIBS_RELEASE}>
+              $<$<CONFIG:Release>:${sqlite3_SQLite_SQLite3_DEPENDENCIES_RELEASE}>
+              APPEND)
+```
+
+`meson` produces:
+
+```
+TARGET = [ 'SQLite::SQLite3', 'APPEND' ]
+```
