@@ -52,3 +52,5 @@ TARGET CMake TARGET:
 ```
 
 `APPEND`s appear in the final `meson.build` and prevent the link
+
+Only targets coming from `conan` have this `APPEND` and only when the target is imported in `meson`
