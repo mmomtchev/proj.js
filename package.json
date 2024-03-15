@@ -113,7 +113,7 @@
       "commandDownloadEnvironment": "node hadron/hadron-download-headers",
       "commandInit": "mkdir -p build",
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
-      "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user conan",
+      "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user git+https://github.com/conan-io/conan",
       "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect || echo ok",
       "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }}",
       "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }}",
