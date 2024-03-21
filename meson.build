@@ -14,17 +14,28 @@ sources = [
   'build/proj.js_wrap.cc'
   ]
 
-dependencies = []
+add_global_arguments([ '-Wno-attributes' ], language: 'cpp')
+
+dependencies = [
+  dependency('sqlite3', method : 'pkg-config'),
+  dependency('libcurl', method : 'pkg-config'),
+  dependency('libtiff-4', method : 'pkg-config')
+]
 cmake_dependencies = [
   {'project' : 'PROJ', 'target' : 'proj'}
   ]
 cmake_options = [
-  {'BUILD_TESTING' : false}
+  { 'BUILD_TESTING'         : false },
+  { 'BUILD_EXAMPLES'        : false },
+  # PROJ will be "installed" in ./lib/binding
+  { 'CMAKE_INSTALL_PREFIX'  : meson.global_source_root() / 'lib' / 'binding' }
   ]
 
 # ====================
 # Everything below this point is the SWIG+Node-API+emnapi system build
 # ====================
+
+install_dir = meson.global_source_root() / 'lib' / 'binding'
 
 # --------------------
 # SWIG compiler options
@@ -130,14 +141,18 @@ add_global_link_arguments(meson.get_external_property('node_lib', []), language 
 cmake = import('cmake')
 cmake_opts = cmake.subproject_options()
 cmake_opts.add_cmake_defines([
-  {'CMAKE_FIND_PACKAGE_PREFER_CONFIG': true },
-  {'CMAKE_PREFIX_PATH': meson.current_build_dir()}
+  { 'CMAKE_FIND_PACKAGE_PREFER_CONFIG'  : true },
+  { 'CMAKE_PREFIX_PATH'                 : meson.current_build_dir() },
+  { 'CMAKE_FIND_LIBRARY_SUFFIXES'       : '.a' },
+  { 'BUILD_SHARED_LIBS'                 : false },
+  { 'CMAKE_EXE_LINKER_FLAGS'            : '-static' },
+  { 'CMAKE_POSITION_INDEPENDENT_CODE'   : true }
   ])
 cmake_opts.add_cmake_defines(cmake_options)
 if get_option('debug')
-  cmake_opts.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Debug'})
+  cmake_opts.add_cmake_defines({ 'CMAKE_BUILD_TYPE' : 'Debug' })
 else
-  cmake_opts.add_cmake_defines({'CMAKE_BUILD_TYPE': 'Release'})
+  cmake_opts.add_cmake_defines({ 'CMAKE_BUILD_TYPE' : 'Release' })
 endif
 
 foreach cmake_dep : cmake_dependencies
@@ -155,8 +170,9 @@ main_target = shared_module(
   name_prefix         : '',
   name_suffix         : name_suffix,
   install             : true,
-  install_dir         : '/',
-  dependencies        : dependencies
+  install_dir         : install_dir,
+  dependencies        : dependencies,
+  install_rpath       : './lib'
 )
 
 # --------------------
@@ -170,17 +186,29 @@ if extra_output_files.length() > 0
     input               : main_target,
     output              : [ extra_output_files ],
     install             : true,
-    install_dir         : '/'
+    install_dir         : install_dir
   )
 endif
 
 # --------------------
 # Install the extra files produced by SWIG
 # --------------------
-copy_files = [ 'build' / module_name + '.d.ts', 'build' / module_name + '.cjs' ]
+copy_files = [ 'build' / module_name + '.d.ts', 'build' / 'proj.cjs' ]
 foreach copy_file : copy_files
   install_data(
     copy_file,
-    install_dir         : '/'
+    install_dir         : install_dir
   )
 endforeach
+
+# --------------------
+# The special case of proj.db
+# --------------------
+custom_target(
+  'proj.db',
+  command             : [ 'touch', '.proj.db' ],
+  depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
+  output              : [ '.proj.db' ],
+  install_dir         : install_dir,
+  build_by_default    : true
+  )

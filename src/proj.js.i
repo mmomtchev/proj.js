@@ -5,6 +5,7 @@
 #endif
 
 %include <exception.i>
+%include <std_string.i>
 
 // Rethrow all C++ exceptions as JS exceptions
 %exception {
@@ -16,36 +17,30 @@
   }
 }
 
-%nspace;
-
-// Bypass PROJ own namespace handling, we have to reimplement this the SWIG way
-#define NS_PROJ
-#define NS_PROJ_START
-#define NS_PROJ_END
+//%nspace;
+#define PROJ_MSVC_DLL
+#define PROJ_INTERNAL [[gnu::visibility("hidden")]]
+#define PROJ_DLL
+#define PROJ_GCC_DLL
+#define PROJ_FOR_TEST [[gnu::visibility("hidden")]]
 
 %{
-#define NS_PROJ
-#define NS_PROJ_START
-#define NS_PROJ_END
+#include <proj/util.hpp>
+#include <proj/coordinateoperation.hpp>
+#include <proj/crs.hpp>
+#include <proj/io.hpp>
+
+using namespace NS_PROJ;
 %}
 
-// https://www.youtube.com/watch?v=E0YHZXz5hEE
-%rename("$ignore", regextarget=1, fullname=1) "dropbox";
+%rename("$ignore", %$isgnuhidden) "";
 
-namespace util {
-  %include <proj/util.hpp>
-}
-
-namespace operation {
-  %include <proj/coordinateoperation.hpp>
-}
-
-#define DO_NOT_DEFINE_EXTERN_DERIVED_CRS_TEMPLATE
-namespace crs {
-  %include <proj/crs.hpp>
-}
-
+%include <proj/util.hpp>
+%include <proj/coordinateoperation.hpp>
+%include <proj/common.hpp>
+%include <proj/datum.hpp>
 %include "io.i"
+%include "crs.i"
 
 // Because of https://github.com/mmomtchev/swig/issues/23
 #if SWIG_VERSION < 0x050002

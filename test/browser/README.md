@@ -1,4 +1,4 @@
-# Browser (webpack) example
+# Browser (webpack) proj.js
 
 This directory contains a small webpack project that calls the WASM binary.
 

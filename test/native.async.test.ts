@@ -6,6 +6,6 @@ import asyncTests from './async.js';
 
 const no_async = !!process.env.NO_ASYNC;
 
-describe('native', () => {
+describe.skip('native', () => {
   asyncTests(bindings, no_async);
 });

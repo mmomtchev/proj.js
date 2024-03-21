@@ -7,7 +7,7 @@ import { assert } from 'chai';
 
 describe('native', () => {
   it('can be imported from JS', () => {
-        const b = new native.Blob;
-        assert.instanceOf(b, native.Blob);
+    const db = native.DatabaseContext.create();
+    assert.instanceOf(db, native.DatabaseContext);
   });
 });

@@ -1,1 +1,1 @@
-export * from './binding/example';
+export * from './binding/proj.js';

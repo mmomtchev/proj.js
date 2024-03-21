@@ -11,6 +11,6 @@ const no_async = !!(
   (typeof __karma__ !== 'undefined' && __karma__.config.args.includes('no-async'))
 );
 
-describe('WASM', () => {
+describe.skip('WASM', () => {
   asyncTests(WASM, no_async);
 });

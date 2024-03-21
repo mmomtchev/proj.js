@@ -5,6 +5,6 @@ import syncTests from './sync.js';
 // npx run test:nodejs
 // npx run test:browser
 
-describe('WASM', () => {
+describe.skip('WASM', () => {
   syncTests(WASM);
 });

@@ -6,7 +6,7 @@
   "main": "./lib/native.cjs",
   "exports": {
     ".": {
-      "types": "./lib/index.d.cts",
+      "types": "./lib/native.d.cts",
       "require": "./lib/native.cjs"
     },
     "./wasm": {
@@ -122,7 +122,7 @@
       "commandPrepareCross": "{{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini {{ env.HADRON_OPTS | default: '' }}",
       "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ env.HADRON_OPTS }}",
       "commandBuild": "meson compile -C {{ properties.buildFolderRelativePath }} -v",
-      "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }} --destdir ..{{ path.sep }}..{{ path.sep }}lib{{ path.sep }}binding",
+      "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }}",
       "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean"
     },
     "actions": {
