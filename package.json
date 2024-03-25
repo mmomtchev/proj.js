@@ -115,8 +115,8 @@
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
       "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user git+https://github.com/conan-io/conan",
       "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect || echo ok",
-      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }}",
-      "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }}",
+      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} {{ properties.conan_args }}",
+      "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} {{ properties.conan_args }}",
       "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} .",
       "commandPrepareNative": "{{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini {{ env.HADRON_OPTS | default: '' }}",
       "commandPrepareCross": "{{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini {{ env.HADRON_OPTS | default: '' }}",
@@ -135,7 +135,8 @@
       "native": {
         "properties": {
           "buildType": "release",
-          "toolchain": "system"
+          "toolchain": "system",
+          "conan_args": ""
         },
         "actions": {
           "prepare": [
@@ -188,7 +189,8 @@
           "native"
         ],
         "properties": {
-          "buildType": "debug"
+          "buildType": "debug",
+          "conan_args": "--settings=build_type=Debug"
         }
       },
       "native-xpack-debug": {
@@ -196,7 +198,8 @@
           "native-xpack"
         ],
         "properties": {
-          "buildType": "debug"
+          "buildType": "debug",
+          "conan_args": "--settings=build_type=Debug"
         }
       },
       "wasm-debug": {
@@ -204,7 +207,8 @@
           "wasm"
         ],
         "properties": {
-          "buildType": "debug"
+          "buildType": "debug",
+          "conan_args": "--settings=build_type=Debug"
         }
       }
     }
