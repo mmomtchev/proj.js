@@ -96,9 +96,9 @@ namespace dropbox {
 
 #ifdef SWIGTYPESCRIPT
 %typemap(ts) dropbox::oxygen::nn<std::shared_ptr<CONST TYPE>>, dropbox::oxygen::nn<std::shared_ptr<CONST TYPE>> &
-    "$typemap(ts, TYPE)"
+    "$typemap(ts, " #TYPE ")"
 %typemap(tsout) dropbox::oxygen::nn<std::shared_ptr<CONST TYPE>> &OUTPUT
-    "$typemap(ts, TYPE)"
+    "$typemap(ts, " #TYPE ")"
 #endif
 
 %enddef
@@ -107,4 +107,5 @@ namespace dropbox {
 %_const_nn_shared_ptr(, TYPE);
 %_const_nn_shared_ptr(const, TYPE);
 %shared_ptr(TYPE);
+%apply std::shared_ptr<TYPE> & { std::shared_ptr<TYPE> const & };
 %enddef

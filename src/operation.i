@@ -1,5 +1,7 @@
 %nn_shared_ptr(osgeo::proj::coordinates::CoordinateMetadata);
 %nn_shared_ptr(osgeo::proj::operation::CoordinateOperation);
+%nn_shared_ptr(osgeo::proj::operation::CoordinateOperationContext);
+%nn_shared_ptr(osgeo::proj::operation::CoordinateOperationFactory);
 %nn_shared_ptr(osgeo::proj::operation::Transformation);
 %nn_shared_ptr(osgeo::proj::operation::GeneralOperationParameter);
 %nn_shared_ptr(osgeo::proj::operation::OperationParameter);

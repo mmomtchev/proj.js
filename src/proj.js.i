@@ -38,12 +38,19 @@ using namespace NS_PROJ;
 // are not available from outside the library itself
 %rename("$ignore", %$isgnuhidden) "";
 
+%rename("clone") operator=;
+%rename("equal") operator==;
+%rename("not_equal") operator!=;
+%rename("lt") operator<;
+%rename("toString") operator std::string;
+
 %include "nn.i"
 %include "util.i"
-%include "operation.i"
-%include "common.i"
-%include "datum.i"
 %include "io.i"
+%include "common.i"
+%include "operation.i"
+%include "datum.i"
+%include "coordinatesystem.i"
 %include "crs.i"
 
 // Because of https://github.com/mmomtchev/swig/issues/23

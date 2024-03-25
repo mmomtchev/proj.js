@@ -16,5 +16,4 @@ On the other side:
 
 # Current status
 
-First successful native build, needs SWIG JSE dev branch, some functions work, `dropbox::oxygen:nn` works
-
+First successful native build, needs SWIG JSE dev branch, partially working, `dropbox::oxygen:nn` works for shared pointer but not for unique pointers
