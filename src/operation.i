@@ -15,5 +15,3 @@
 %nn_unique_ptr(osgeo::proj::operation::CoordinateOperationContext);
 %nn_unique_ptr(osgeo::proj::operation::CoordinateOperationFactory);
 %nn_unique_ptr(osgeo::proj::operation::CoordinateTransformer);
-
-%include <proj/coordinateoperation.hpp>

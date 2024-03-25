@@ -15,6 +15,3 @@
 
 // FIXME: this seems to trigger a bug in SWIG
 %ignore proj_create_from_name;
-
-%include <proj/io.hpp>
-%include <../src/proj.h>

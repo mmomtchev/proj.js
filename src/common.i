@@ -15,5 +15,3 @@
 %nn_shared_ptr(osgeo::proj::metadata::Extent)
 %nn_shared_ptr(osgeo::proj::metadata::Identifier)
 %nn_shared_ptr(osgeo::proj::metadata::PositionalAccuracy)
-
-%include <proj/common.hpp>

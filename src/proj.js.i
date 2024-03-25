@@ -46,12 +46,24 @@ using namespace NS_PROJ;
 
 %include "nn.i"
 %include "util.i"
-%include "io.i"
 %include "common.i"
+%include "io.i"
 %include "operation.i"
 %include "datum.i"
 %include "coordinatesystem.i"
 %include "crs.i"
+
+
+%include <proj/util.hpp>
+%include <proj/common.hpp>
+%include <../src/proj.h>
+%include <proj/io.hpp>
+%include <proj/datum.hpp>
+%include <proj/coordinatesystem.hpp>
+%include <proj/coordinateoperation.hpp>
+%include <proj/coordinatesystem.hpp>
+%include <proj/crs.hpp>
+
 
 // Because of https://github.com/mmomtchev/swig/issues/23
 #if SWIG_VERSION < 0x050002

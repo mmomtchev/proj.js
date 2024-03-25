@@ -8,5 +8,3 @@
 %nn_shared_ptr(osgeo::proj::util::GenericName);
 %nn_shared_ptr(osgeo::proj::util::IComparable);
 %nn_shared_ptr(osgeo::proj::util::IComparable);
-
-%include <proj/util.hpp>

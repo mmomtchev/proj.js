@@ -16,4 +16,4 @@ On the other side:
 
 # Current status
 
-First successful native build, needs SWIG JSE dev branch, partially working, `dropbox::oxygen:nn` works for shared pointer but not for unique pointers
+First successful native build, needs SWIG JSE dev branch, almost working, still missing `dropbox::oxygen:nn_dynamic_pointer_cast`.

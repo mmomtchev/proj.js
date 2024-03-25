@@ -12,5 +12,3 @@
 %nn_shared_ptr(osgeo::proj::cs::DateTimeTemporalCS)
 %nn_shared_ptr(osgeo::proj::cs::TemporalCountCS)
 %nn_shared_ptr(osgeo::proj::cs::TemporalMeasureCS)
-
-%include <proj/coordinatesystem.hpp>

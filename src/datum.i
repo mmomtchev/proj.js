@@ -9,5 +9,3 @@
 %nn_shared_ptr(osgeo::proj::datum::ParametricDatum)
 %nn_shared_ptr(osgeo::proj::datum::DynamicGeodeticReferenceFrame)
 %nn_shared_ptr(osgeo::proj::datum::DynamicVerticalReferenceFrame)
-
-%include <proj/datum.hpp>
