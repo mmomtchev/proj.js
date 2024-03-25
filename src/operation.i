@@ -1,7 +1,5 @@
 %nn_shared_ptr(osgeo::proj::coordinates::CoordinateMetadata);
 %nn_shared_ptr(osgeo::proj::operation::CoordinateOperation);
-%nn_shared_ptr(osgeo::proj::operation::CoordinateOperationContext);
-%nn_shared_ptr(osgeo::proj::operation::CoordinateOperationFactory);
 %nn_shared_ptr(osgeo::proj::operation::Transformation);
 %nn_shared_ptr(osgeo::proj::operation::GeneralOperationParameter);
 %nn_shared_ptr(osgeo::proj::operation::OperationParameter);
@@ -13,5 +11,9 @@
 %nn_shared_ptr(osgeo::proj::operation::Conversion);
 %nn_shared_ptr(osgeo::proj::operation::PointMotionOperation);
 %nn_shared_ptr(osgeo::proj::operation::ConcatenatedOperation);
+
+%nn_unique_ptr(osgeo::proj::operation::CoordinateOperationContext);
+%nn_unique_ptr(osgeo::proj::operation::CoordinateOperationFactory);
+%nn_unique_ptr(osgeo::proj::operation::CoordinateTransformer);
 
 %include <proj/coordinateoperation.hpp>
