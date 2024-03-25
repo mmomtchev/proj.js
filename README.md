@@ -16,5 +16,5 @@ On the other side:
 
 # Current status
 
-First successful native build, needs SWIG JSE dev branch, a few functions work
-Still lots of work in SWIG JSE needed for `dropbox::nn`
+First successful native build, needs SWIG JSE dev branch, some functions work, `dropbox::oxygen:nn` works
+

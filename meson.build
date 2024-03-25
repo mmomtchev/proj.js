@@ -17,8 +17,8 @@ sources = [
 add_global_arguments([ '-Wno-attributes' ], language: 'cpp')
 
 dependencies = [
-  dependency('sqlite3', method : 'pkg-config'),
-  dependency('libcurl', method : 'pkg-config'),
+  dependency('sqlite3',   method : 'pkg-config'),
+  dependency('libcurl',   method : 'pkg-config'),
   dependency('libtiff-4', method : 'pkg-config')
 ]
 cmake_dependencies = [
@@ -145,7 +145,6 @@ cmake_opts.add_cmake_defines([
   { 'CMAKE_PREFIX_PATH'                 : meson.current_build_dir() },
   { 'CMAKE_FIND_LIBRARY_SUFFIXES'       : '.a' },
   { 'BUILD_SHARED_LIBS'                 : false },
-  { 'CMAKE_EXE_LINKER_FLAGS'            : '-static' },
   { 'CMAKE_POSITION_INDEPENDENT_CODE'   : true }
   ])
 cmake_opts.add_cmake_defines(cmake_options)

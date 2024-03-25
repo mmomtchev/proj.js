@@ -24,6 +24,7 @@
 #define PROJ_GCC_DLL
 #define PROJ_FOR_TEST [[gnu::visibility("hidden")]]
 
+// Include this in the wrapper
 %{
 #include <proj/util.hpp>
 #include <proj/coordinateoperation.hpp>
@@ -33,12 +34,15 @@
 using namespace NS_PROJ;
 %}
 
+// PROJ makes extensive use of class methods that are public but are hidden and
+// are not available from outside the library itself
 %rename("$ignore", %$isgnuhidden) "";
 
-%include <proj/util.hpp>
-%include <proj/coordinateoperation.hpp>
-%include <proj/common.hpp>
-%include <proj/datum.hpp>
+%include "nn.i"
+%include "util.i"
+%include "operation.i"
+%include "common.i"
+%include "datum.i"
 %include "io.i"
 %include "crs.i"
 

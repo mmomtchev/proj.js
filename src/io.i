@@ -5,6 +5,10 @@
 %rename("$ignore", regextarget=1, fullname=1) "AuthorityFactory::CelestialBodyInfo";
 %ignore "PROJJSON_v0_7";
 
+%nn_shared_ptr(osgeo::proj::io::DatabaseContext);
+%nn_shared_ptr(osgeo::proj::io::AuthorityFactory);
+%nn_shared_ptr(osgeo::proj::io::DatabaseContext);
+
 // FIXME: this seems to trigger a bug in SWIG
 %ignore proj_create_from_name;
 
