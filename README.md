@@ -16,4 +16,4 @@ On the other side:
 
 # Current status
 
-First successful native build, needs SWIG JSE dev branch, almost working, still missing `dropbox::oxygen:nn_dynamic_pointer_cast`.
+First successful native build, needs SWIG JSE dev branch, almost working, still missing lists and arrays.
