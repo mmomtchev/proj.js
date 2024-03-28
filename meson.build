@@ -14,8 +14,6 @@ sources = [
   'build/proj_wrap.cc'
   ]
 
-add_global_arguments([ '-Wno-attributes' ], language: 'cpp')
-
 dependencies = [
   dependency('sqlite3',   method : 'pkg-config'),
   dependency('libcurl',   method : 'pkg-config'),
@@ -58,7 +56,8 @@ gcc_cpp_args = [
   '-Wno-deprecated-declarations',
   '-Wno-unused-function',
   '-Wno-type-limits',
-  '-Wno-deprecated-copy'
+  '-Wno-deprecated-copy',
+  '-Wno-attributes'
   ]
 clang_cpp_args = gcc_cpp_args + [
   '-Wno-sometimes-uninitialized',
