@@ -64,7 +64,7 @@ clang_cpp_args = gcc_cpp_args + [
   '-Wpotentially-evaluated-expression',
   '-Wundefined-inline'
 ]
-msvc_cpp_args = [ '/wo6246', '/wo28182' ]
+msvc_cpp_args = [ '/wo6246', '/wo28182', '/Zc:__cplusplus', '/bigobj' ]
 
 name_suffix = 'node'
 if meson.get_compiler('cpp').get_id() == 'clang'
@@ -224,7 +224,7 @@ endforeach
 # --------------------
 custom_target(
   'proj.db',
-  command             : [ 'touch', '.proj.db' ],
+  command             : [ 'node', '-e', '""' ],
   depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
   output              : [ '.proj.db' ],
   install_dir         : install_dir,
