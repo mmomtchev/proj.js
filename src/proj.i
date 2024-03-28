@@ -25,6 +25,7 @@
 #define PROJ_DLL
 #define PROJ_GCC_DLL
 #define PROJ_FOR_TEST [[gnu::visibility("hidden")]]
+#define PROJ_PRIVATE private
 
 // Include this in the wrapper
 %{
