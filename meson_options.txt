@@ -1,2 +1,1 @@
-option('no_async', type : 'boolean', value : false)
-option('with_zlib', type : 'boolean', value : false)
+option('no_async', type : 'boolean', value : true)

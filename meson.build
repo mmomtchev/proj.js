@@ -8,10 +8,10 @@ project('JavaScript bindings for PROJ',
     'c_std=c11',
     'cpp_std=c++17'
   ])
-module_name = 'proj.js'
+module_name = 'proj'
  
 sources = [
-  'build/proj.js_wrap.cc'
+  'build/proj_wrap.cc'
   ]
 
 add_global_arguments([ '-Wno-attributes' ], language: 'cpp')
@@ -27,9 +27,23 @@ cmake_dependencies = [
 cmake_options = [
   { 'BUILD_TESTING'         : false },
   { 'BUILD_EXAMPLES'        : false },
+  { 'BUILD_APPS'            : false },
   # PROJ will be "installed" in ./lib/binding
   { 'CMAKE_INSTALL_PREFIX'  : meson.global_source_root() / 'lib' / 'binding' }
   ]
+
+if meson.get_compiler('cpp').get_id() == 'emscripten'
+  # Alas, speciyfing a different location at compile-time is not possible
+  #add_global_arguments([ '-DPROJ_DATA=proj.db' ], language: [ 'c', 'cpp' ])
+  add_global_link_arguments([
+      '--embed-file', meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db@/proj.db',
+      # Optional, allows the calling JS code to interact with
+      # the embedded file system
+      '-sEXPORTED_RUNTIME_METHODS=["FS"]'
+      ],
+    language: [ 'c', 'cpp' ]
+    )
+endif
 
 # ====================
 # Everything below this point is the SWIG+Node-API+emnapi system build
@@ -46,7 +60,11 @@ gcc_cpp_args = [
   '-Wno-type-limits',
   '-Wno-deprecated-copy'
   ]
-clang_cpp_args = gcc_cpp_args + [ '-Wno-sometimes-uninitialized' ]
+clang_cpp_args = gcc_cpp_args + [
+  '-Wno-sometimes-uninitialized',
+  '-Wpotentially-evaluated-expression',
+  '-Wundefined-inline'
+]
 msvc_cpp_args = [ '/wo6246', '/wo28182' ]
 
 name_suffix = 'node'
@@ -85,6 +103,8 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
     add_global_arguments(async_opts, language : [ 'c', 'cpp' ])
     add_global_link_arguments(async_opts, language: [ 'c', 'cpp' ])
     extra_output_files += [ module_name + '.worker.mjs' ]
+  else
+    add_global_arguments([ '-DNO_ASYNC=1' ], language: [ 'c', 'cpp' ])
   endif
   add_global_link_arguments([
     '-sDEFAULT_PTHREAD_STACK_SIZE=1MB',
@@ -192,7 +212,7 @@ endif
 # --------------------
 # Install the extra files produced by SWIG
 # --------------------
-copy_files = [ 'build' / module_name + '.d.ts', 'build' / 'proj.cjs' ]
+copy_files = [ 'build' / module_name + '.d.ts', 'build' / module_name + '_wrap.cjs' ]
 foreach copy_file : copy_files
   install_data(
     copy_file,

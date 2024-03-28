@@ -31,7 +31,7 @@
     "prepare": "node -e \"console.log('\\x1b[32m', 'Run \\\"npx xpm install\\\" to install the xpm toolchains and \\\"npm run swig\\\" to generate the wrappers\\x1b[0m');\"",
     "install": "node -e \"console.log('\\x1b[32m', 'Run \\\"npm run build\\\", \\\"npm run build:native\\\" or \\\"npm run build:wasm\\\" to build', '\\x1b[0m');\"",
     "dev": "cd test/browser && npx webpack serve --mode=production",
-    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj.js/build -o ../build/Debug/obj.target/proj.js/src ../src/* ../build/*",
+    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj_js/build -o ../build/Debug/obj.target/proj_js/src ../src/* ../build/*",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
   },
   "repository": {
@@ -103,7 +103,7 @@
       "@xpack-dev-tools/ninja-build": "1.11.0-1.1"
     },
     "properties": {
-      "module_name": "proj.js",
+      "module_name": "proj",
       "python": {
         "win32": "python",
         "linux": "python3",
@@ -115,8 +115,8 @@
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
       "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user git+https://github.com/conan-io/conan",
       "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect || echo ok",
-      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} {{ properties.conan_args }}",
-      "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} {{ properties.conan_args }}",
+      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} ",
+      "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
       "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} .",
       "commandPrepareNative": "{{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini {{ env.HADRON_OPTS | default: '' }}",
       "commandPrepareCross": "{{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini {{ env.HADRON_OPTS | default: '' }}",
@@ -135,8 +135,7 @@
       "native": {
         "properties": {
           "buildType": "release",
-          "toolchain": "system",
-          "conan_args": ""
+          "toolchain": "system"
         },
         "actions": {
           "prepare": [
@@ -189,8 +188,7 @@
           "native"
         ],
         "properties": {
-          "buildType": "debug",
-          "conan_args": "--settings=build_type=Debug"
+          "buildType": "debug"
         }
       },
       "native-xpack-debug": {
@@ -198,8 +196,7 @@
           "native-xpack"
         ],
         "properties": {
-          "buildType": "debug",
-          "conan_args": "--settings=build_type=Debug"
+          "buildType": "debug"
         }
       },
       "wasm-debug": {
@@ -207,8 +204,7 @@
           "wasm"
         ],
         "properties": {
-          "buildType": "debug",
-          "conan_args": "--settings=build_type=Debug"
+          "buildType": "debug"
         }
       }
     }

@@ -5,12 +5,12 @@ import { assert } from 'chai';
 // npx run test:nodejs
 // npx run test:browser
 
-describe.skip('WASM', () => {
+describe('WASM', () => {
   it('can be imported from JS', (done) => {
     WASM
       .then((bindings) => {
-        const b = new bindings.AuthorityFactory;
-        assert.instanceOf(b, bindings.AuthorityFactory);
+        const db = bindings.DatabaseContext.create();
+        assert.instanceOf(db, bindings.DatabaseContext);
         done();
       })
       .catch(done);

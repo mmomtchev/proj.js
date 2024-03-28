@@ -2,11 +2,20 @@
 %apply double[4] { double v[4] };
 
 // Per V8-isolate initialization
-%header {
+%header %{
 struct proj_instance_data {
   PJ_CONTEXT *context;
 };
-}
+#ifdef __EMSCRIPTEN__
+extern const char *rootPath;
+#endif
+%}
+
+%wrapper %{
+#ifdef __EMSCRIPTEN__
+const char *rootPath = "/";
+#endif
+%}
 
 %init {
   auto *instance_data = new proj_instance_data;
@@ -20,6 +29,12 @@ struct proj_instance_data {
     delete instance_data;
   });
 }
+
+%init %{
+#ifdef __EMSCRIPTEN__
+  proj_context_set_search_paths(instance_data->context, 1, &rootPath);
+#endif
+%}
 
 // Completely hide PJ_CONTEXT from the module user, always insert the argument from
 // the environment context

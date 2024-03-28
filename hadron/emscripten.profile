@@ -1,9 +1,5 @@
 include(default)
 
-[buildenv]
-CC=emcc
-CXX=em++
-
 [settings]
 os=Emscripten
 arch=wasm
@@ -15,3 +11,6 @@ compiler.version=17
 tools.build:sharedlinkflags=['-sSTACK_SIZE=2MB']
 
 [options]
+
+[tool_requires]
+emsdk/3.1.50

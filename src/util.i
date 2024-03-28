@@ -6,7 +6,8 @@
 %template(Util_BaseObjectPtr) dropbox::oxygen::nn<std::shared_ptr<osgeo::proj::util::BaseObject>>;
 
 // Do not expose any of those constructors
-%rename("$ignore", regextarget=1, fullname=1) "BaseObjectNNPtr::BaseObjectNNPtr";
+// (for JavaScript this is an abstract class)
+%rename("$ignore", fullname=1) osgeo::proj::util::BaseObjectNNPtr::BaseObjectNNPtr;
 
 %shared_ptr(osgeo::proj::util::BaseObject);
 %nn_shared_ptr(osgeo::proj::util::BoxedValue);
@@ -28,10 +29,7 @@
  */
 
 %define DOWNCAST_TABLE_ENTRY(TYPE)
-downcast_table.insert({
-  typeid(TYPE).name(),
-  $descriptor(TYPE *)
-})
+downcast_table.insert({typeid(TYPE).name(), $descriptor(TYPE *)})
 %enddef
 
 // %fragment supports $descriptor, while %init does not

@@ -107,16 +107,19 @@ using namespace NS_PROJ;
 %include <proj/crs.hpp>
 
 
-// Because of https://github.com/mmomtchev/swig/issues/23
-#if SWIG_VERSION < 0x050002
-#error Generating this project requires SWIG JSE 5.0.2
+// Because of a large number of improvements for proj.js
+#if SWIG_VERSION < 0x050003
+#error Generating this project requires SWIG JSE 5.0.4
 #endif
 %{
 // Because of https://github.com/emscripten-core/emscripten/pull/21041
-#ifdef __EMSCRIPTEN__
-#include <emscripten/version.h>
-#if __EMSCRIPTEN_major__ < 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ < 1) || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ < 52)
-#error Building this project requires emscripten 3.1.52
-#endif
+#ifndef NO_ASYNC
+  #ifdef __EMSCRIPTEN__
+    #include <emscripten/version.h>
+    #if __EMSCRIPTEN_major__ < 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ < 1) || \
+        (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ < 52)
+      #error Building this project with async support requires emscripten 3.1.52
+    #endif
+  #endif
 #endif
 %}
