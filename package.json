@@ -100,7 +100,8 @@
     "dependencies": {},
     "devDependencies": {
       "@xpack-dev-tools/meson-build": "0.60.3-1.1",
-      "@xpack-dev-tools/ninja-build": "1.11.0-1.1"
+      "@xpack-dev-tools/ninja-build": "1.11.0-1.1",
+      "@xpack-dev-tools/cmake": "3.26.5-1.1"
     },
     "properties": {
       "module_name": "proj",
