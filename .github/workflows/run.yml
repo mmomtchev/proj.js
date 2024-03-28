@@ -12,6 +12,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - uses: mmomtchev/setup-swig@main
       with:
         branch: jse
@@ -45,6 +47,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
@@ -86,6 +90,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: setup Node.js 20
       uses: actions/setup-node@v4
       with:
@@ -120,6 +126,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
@@ -141,8 +149,6 @@ jobs:
         npm run configure:native
         npx xpm run configure --config native -- -Db_sanitize=address
         npm run build:native
-      env:
-        HADRON_OPTS: -Dwith_zlib=true
 
     - name: Upload native artifact (ASAN instrumented)
       uses: actions/upload-artifact@v4
@@ -159,6 +165,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
@@ -180,8 +188,6 @@ jobs:
         npm run configure:native
         npx xpm run configure --config native -- -Db_coverage=true
         npm run build:native
-      env:
-        HADRON_OPTS: -Dwith_zlib=true
 
     - name: Upload native artifact (code coverage instrumented)
       uses: actions/upload-artifact@v4
