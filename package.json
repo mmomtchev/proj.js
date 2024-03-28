@@ -120,7 +120,7 @@
       "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} .",
       "commandPrepareNative": "{{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini {{ env.HADRON_OPTS | default: '' }}",
       "commandPrepareCross": "{{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini {{ env.HADRON_OPTS | default: '' }}",
-      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ env.HADRON_OPTS }}",
+      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ env.HADRON_OPTS | default: '' }}",
       "commandBuild": "meson compile -C {{ properties.buildFolderRelativePath }} -v",
       "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }}",
       "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean"
