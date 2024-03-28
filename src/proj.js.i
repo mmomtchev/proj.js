@@ -50,9 +50,7 @@ using namespace NS_PROJ;
 %apply(std::vector RETURN)            { std::vector };
 %apply(std::vector *RETURN)           { std::vector *, std::vector & };
 
-// PJ_COORD
-%apply double[4] { double v[4] };
-
+%include "capi.i"
 %include "nn.i"
 %include "util.i"
 %include "common.i"

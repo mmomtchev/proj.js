@@ -28,16 +28,12 @@ export default function (dll: (typeof Bindings) | Promise<typeof Bindings>) {
       const targetCRS = bindings.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
       const list = bindings.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
 
-      // This should probably be hidden from the user in JavaScript
-      const ctx = bindings.proj_context_create();
-
-      const transformer = list[0].coordinateTransformer(ctx);
+      const transformer = list[0].coordinateTransformer();
       const c0 = new bindings.PJ_COORD;
       c0.v = [49, 2, 0, 0];
       const c1 = transformer.transform(c0);
-      console.log(c1.v);
-
-      bindings.proj_context_destroy(ctx);
+      assert.closeTo(c1.v[0], 426857.988, 1e-3);
+      assert.closeTo(c1.v[1], 5427937.523, 1e-3);
     });
   });
 }
