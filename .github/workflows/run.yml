@@ -75,49 +75,6 @@ jobs:
         path: lib/binding/*
 
 
-  build-native-xpack:
-    runs-on: ${{ matrix.platform }}
-    name: Build native self-contained ${{ matrix.platform }}
-    needs: swig
-
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: []
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Setup Visual Studio (Windows)
-      uses: ilammy/msvc-dev-cmd@v1
-      if: runner.os == 'Windows'
-
-    - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
-      with:
-        name: swig-generated
-        path: build
-        
-    - name: Install dependencies
-      run: |
-        npm install
-        npx xpm install
-
-    - name: Build the native version (self-contained build)
-      run: npm run build:native
-    
-    - name: Upload native artifact ${{ matrix.platform }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: native-xpack-${{ matrix.platform }}
-        path: lib/binding/*
-
-
   build-wasm:
     runs-on: ubuntu-latest
     name: Build WASM
@@ -255,51 +212,6 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: native-${{ matrix.platform }}
-        path: lib/binding
-
-    - name: Download the WASM artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: wasm
-        path: lib/binding
-
-    - name: Install dependencies
-      run: npm install
-    
-    - name: Run the Node.js tests
-      run: npm run test:nodejs
-
-    - name: Run the browser tests
-      uses: coactions/setup-xvfb@v1
-      with:
-        run: npm run test:browser
-
-    - name: Test building the webpack project
-      run: npm run build:webpack
-
-
-  test-xpack:
-    runs-on: ${{ matrix.platform }}
-    name: Test self-contained ${{ matrix.platform }}
-    needs: [ build-wasm, build-native-xpack ]
-
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: []
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Download the native artifact ${{ matrix.platform }} (self-contained xpack build)
-      uses: actions/download-artifact@v4
-      with:
-        name: native-xpack-${{ matrix.platform }}
         path: lib/binding
 
     - name: Download the WASM artifact
