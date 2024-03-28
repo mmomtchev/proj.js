@@ -28,3 +28,7 @@ struct proj_instance_data {
 %typemap(in, numinputs=0, noblock=1) PJ_CONTEXT * {
   $1 = static_cast<proj_instance_data *>(SWIG_NAPI_GetInstanceData(env))->context;
 }
+
+// Using a typedef enum with the same name as the enum is an edge case
+// especially when supporting both C++ and C
+#pragma SWIG nowarn=302

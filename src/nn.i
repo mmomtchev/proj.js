@@ -22,6 +22,10 @@ namespace dropbox {
       public:
         nn() = delete;
     };
+    using i_promise_i_checked_for_null = void;
+    using nn_dynamic_pointer_cast = void;
+    using nn_make_shared = void;
+    using nn_static_pointer_cast = void;
   }
 }
 

@@ -2,7 +2,11 @@
  * BaseObject is a special case, pointers to BaseObjects are a special
  * type that can automatically use nn_dynamic_cast when needed.
  */
-%template(BaseObjectPtr)    std::shared_ptr<osgeo::proj::util::BaseObject>;
+%template(BaseObjectPtr)      std::shared_ptr<osgeo::proj::util::BaseObject>;
+%template(Util_BaseObjectPtr) dropbox::oxygen::nn<std::shared_ptr<osgeo::proj::util::BaseObject>>;
+
+// Do not expose any of those constructors
+%rename("$ignore", regextarget=1, fullname=1) "BaseObjectNNPtr::BaseObjectNNPtr";
 
 %shared_ptr(osgeo::proj::util::BaseObject);
 %nn_shared_ptr(osgeo::proj::util::BoxedValue);
