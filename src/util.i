@@ -30,9 +30,11 @@ downcast_table.insert({
 })
 %enddef
 
+// %fragment supports $descriptor, while %init does not
 %fragment("baseobject_downcast_table", "header") {
   #include <map>
   std::map<std::string, swig_type_info *> downcast_table;
+  #define BASEOBJECT_DOWNCAST_ENABLED
 
   void init_baseobject_downcast_table() {
     DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
@@ -58,9 +60,11 @@ downcast_table.insert({
   }
 }
 
-%init {
+%init %{
+  #ifdef BASEOBJECT_DOWNCAST_ENABLED
   init_baseobject_downcast_table();
-}
+  #endif
+%}
 
 /*
  * This typemap checks all returned objects of BaseObjectNNPtr and tries
@@ -73,7 +77,7 @@ downcast_table.insert({
   std::string rtti_name = typeid(*$1.get()).name();
   if (downcast_table.count(rtti_name) > 0) {
     swig_type_info *info = downcast_table.at(rtti_name);
-    %set_output(SWIG_NewPointerObj($1.get(), downcast_table.at(rtti_name), SWIG_POINTER_OWN | %newpointer_flags));
+    %set_output(SWIG_NewPointerObj($1.get(), info, SWIG_POINTER_OWN | %newpointer_flags));
     auto *owner = new std::shared_ptr<osgeo::proj::util::BaseObject>(*&$1);
     auto finalizer = new SWIG_NAPI_Finalizer([owner](){
       delete owner;
@@ -83,3 +87,11 @@ downcast_table.insert({
     $typemap(out, std::shared_ptr<osgeo::proj::util::BaseObject>);
   }
 }
+
+/*
+ * TypeScript has static compile-time checking just like C++, which means that
+ * the explicit cast cannot be avoided
+ */
+#ifdef SWIGTYPESCRIPT
+%typemap(ts) osgeo::proj::util::BaseObjectNNPtr "BaseObject"
+#endif

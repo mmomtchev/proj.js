@@ -6,6 +6,8 @@
 
 %include <exception.i>
 %include <std_string.i>
+%include <std_vector.i>
+%include <arrays_javascript.i>
 
 // Rethrow all C++ exceptions as JS exceptions
 %exception {
@@ -44,6 +46,13 @@ using namespace NS_PROJ;
 %rename("lt") operator<;
 %rename("toString") operator std::string;
 
+// Convert all returned std::vectors to JavaScript arrays
+%apply(std::vector RETURN)            { std::vector };
+%apply(std::vector *RETURN)           { std::vector *, std::vector & };
+
+// PJ_COORD
+%apply double[4] { double v[4] };
+
 %include "nn.i"
 %include "util.i"
 %include "common.i"
@@ -52,7 +61,6 @@ using namespace NS_PROJ;
 %include "datum.i"
 %include "coordinatesystem.i"
 %include "crs.i"
-
 
 %include <proj/util.hpp>
 %include <proj/common.hpp>

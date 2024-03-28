@@ -30,7 +30,14 @@ export default function (dll: (typeof Bindings) | Promise<typeof Bindings>) {
 
       // This should probably be hidden from the user in JavaScript
       const ctx = bindings.proj_context_create();
-      const transformer = list.get(0).coordinateTransformer(ctx);
+
+      const transformer = list[0].coordinateTransformer(ctx);
+      const c0 = new bindings.PJ_COORD;
+      c0.v = [49, 2, 0, 0];
+      const c1 = transformer.transform(c0);
+      console.log(c1.v);
+
+      bindings.proj_context_destroy(ctx);
     });
   });
 }
