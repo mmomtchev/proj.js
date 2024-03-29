@@ -172,6 +172,8 @@ if get_option('debug')
 else
   cmake_opts.add_cmake_defines({ 'CMAKE_BUILD_TYPE' : 'Release' })
 endif
+cmake_opts.set_install(false)
+cmake_opts.set_install(true, target : 'generate_proj_db')
 
 foreach cmake_dep : cmake_dependencies
   project = cmake.subproject(cmake_dep.get('project'), options : cmake_opts)
@@ -223,9 +225,9 @@ endforeach
 # --------------------
 custom_target(
   'proj.db',
-  command             : [ 'node', '-e', 'fs.copyFileSync("@INPUT@", path.resolve("' + install_dir + '", "proj.db"))' ],
+  command             : [ 'node', '-e', 'fs.copyFileSync("' + meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db' + '", "' + install_dir  / 'proj.db' + '")' ],
   depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
-  input               : meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db',
+  input               : [],
   output              : 'proj.db',
   build_by_default    : true
   )
