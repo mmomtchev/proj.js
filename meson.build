@@ -225,7 +225,11 @@ endforeach
 # --------------------
 custom_target(
   'proj.db',
-  command             : [ 'node', '-e', 'fs.copyFileSync("' + meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db' + '", "' + install_dir  / 'proj.db' + '")' ],
+  command             : [
+    'node',
+    '-e',
+    'fs.copyFileSync("' + meson.current_build_dir() / 'subprojects' / 'PROJ' / '__CMake_build' / 'data' / 'proj.db' + '", "' + install_dir  / 'proj.db' + '")'
+    ],
   depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
   input               : [],
   output              : 'proj.db',
