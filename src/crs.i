@@ -18,4 +18,11 @@
 %nn_shared_ptr(osgeo::proj::crs::DerivedParametricCRS)
 %nn_shared_ptr(osgeo::proj::crs::DerivedTemporalCRS)
 
+// These are declared inline in the header files, but their definitions
+// are in the source files. They happen to work when called from inside
+// the library, but cannot be used from the outside.
+%ignore CRSName;
+%ignore WKTKeyword;
+%ignore WKTBaseKeyword;
+
 #define DO_NOT_DEFINE_EXTERN_DERIVED_CRS_TEMPLATE

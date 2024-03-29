@@ -10,3 +10,4 @@ CMakeDeps
 
 [tool_requires]
 pkgconf/2.1.0
+sqlite3/[>=3.45.0]

@@ -25,6 +25,7 @@
 #define PROJ_DLL
 #define PROJ_GCC_DLL
 #define PROJ_FOR_TEST [[gnu::visibility("hidden")]]
+#define PROJ_PRIVATE private
 
 // Include this in the wrapper
 %{
@@ -59,6 +60,7 @@ using namespace NS_PROJ;
 %include "datum.i"
 %include "coordinatesystem.i"
 %include "crs.i"
+%include "factory.i"
 
 // This is because "const char*" is not really "const"
 %immutable id;

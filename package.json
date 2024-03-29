@@ -110,19 +110,30 @@
         "linux": "python3",
         "darwin": "python3"
       },
+      "conanbuild": {
+        "win32": "conanbuild.bat",
+        "linux": "conanbuild.sh",
+        "darwin": "conanbuild.sh"
+      },
+      "conansource": {
+        "win32": "",
+        "linux": ".",
+        "darwin": "."
+      },
       "buildFolderRelativePath": "{{ 'build' | path_join: configuration.name | to_filename | downcase }}",
       "commandDownloadEnvironment": "node hadron/hadron-download-headers",
       "commandInit": "mkdir -p build",
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
       "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user git+https://github.com/conan-io/conan",
-      "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect || echo ok",
-      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} ",
+      "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect --exist-ok",
+      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
       "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
       "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} .",
-      "commandPrepareNative": "{{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini {{ env.HADRON_OPTS | default: '' }}",
+      "commandConanBuildEnv": "{{ properties.conansource[os.platform] }} {{ properties.buildFolderRelativePath }}{{ path.sep }}{{ properties.conanbuild[os.platform] }}",
+      "commandPrepareNative": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini {{ env.HADRON_OPTS | default: '' }}",
       "commandPrepareCross": "{{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini {{ env.HADRON_OPTS | default: '' }}",
-      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ env.HADRON_OPTS }}",
-      "commandBuild": "meson compile -C {{ properties.buildFolderRelativePath }} -v",
+      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ env.HADRON_OPTS | default: '' }}",
+      "commandBuild": "{{ properties.commandConanBuildEnv }} && meson compile -C {{ properties.buildFolderRelativePath }} -v",
       "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }}",
       "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean"
     },

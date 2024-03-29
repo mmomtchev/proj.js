@@ -16,4 +16,17 @@ On the other side:
 
 # Current status
 
-First successful native build, needs SWIG JSE dev branch, almost working, still missing lists and arrays.
+Both the browser WASM and the Node.js native version compile, no prebuilt binaries, no `npm` package, the quickstart example works both in Node.js and in the browser, library may be usable in some cases, there is still no documentation whatsoever.
+
+Currently building the project requires having SWIG JSE git `HEAD`.
+
+# Target status
+
+I am only an occasional user of `PROJ` and although I plan to bring this project to a fully usable state with prebuilt binaries for all three OS and WASM, I do not plan to cover all of its features with unit tests - though I will gladly accept any PRs testing features that you need.
+
+ This project serves the following purposes:
+ * As an experimenting field for the new `meson` + `conan` build system for SWIG JSE generated modules
+ * As an experimenting field for new SWIG JSE features
+ * To occasionally convert between geographical projections - both for my paragliding weather site and my Star Citizen mapping site
+ * To continue raising awareness for the still ongoing extortion related to the affair on my homepage
+

@@ -14,8 +14,6 @@ sources = [
   'build/proj_wrap.cc'
   ]
 
-add_global_arguments([ '-Wno-attributes' ], language: 'cpp')
-
 dependencies = [
   dependency('sqlite3',   method : 'pkg-config'),
   dependency('libcurl',   method : 'pkg-config'),
@@ -58,14 +56,15 @@ gcc_cpp_args = [
   '-Wno-deprecated-declarations',
   '-Wno-unused-function',
   '-Wno-type-limits',
-  '-Wno-deprecated-copy'
+  '-Wno-deprecated-copy',
+  '-Wno-attributes'
   ]
 clang_cpp_args = gcc_cpp_args + [
   '-Wno-sometimes-uninitialized',
   '-Wpotentially-evaluated-expression',
   '-Wundefined-inline'
 ]
-msvc_cpp_args = [ '/wo6246', '/wo28182' ]
+msvc_cpp_args = [ '/wo6246', '/wo28182', '/Zc:__cplusplus', '/bigobj' ]
 
 name_suffix = 'node'
 if meson.get_compiler('cpp').get_id() == 'clang'
@@ -173,6 +172,8 @@ if get_option('debug')
 else
   cmake_opts.add_cmake_defines({ 'CMAKE_BUILD_TYPE' : 'Release' })
 endif
+cmake_opts.set_install(false)
+cmake_opts.set_install(true, target : 'generate_proj_db')
 
 foreach cmake_dep : cmake_dependencies
   project = cmake.subproject(cmake_dep.get('project'), options : cmake_opts)
@@ -190,8 +191,7 @@ main_target = shared_module(
   name_suffix         : name_suffix,
   install             : true,
   install_dir         : install_dir,
-  dependencies        : dependencies,
-  install_rpath       : './lib'
+  dependencies        : dependencies
 )
 
 # --------------------
@@ -225,9 +225,14 @@ endforeach
 # --------------------
 custom_target(
   'proj.db',
-  command             : [ 'touch', '.proj.db' ],
+  command             : [
+    'node',
+    '-e',
+    'fs.mkdirSync("' + install_dir + '", { recursive: true }); ' +
+    'fs.copyFileSync("' + meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db' + '", "' + install_dir  / 'proj.db' + '");'
+    ],
   depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
-  output              : [ '.proj.db' ],
-  install_dir         : install_dir,
+  input               : [],
+  output              : 'proj.db',
   build_by_default    : true
   )

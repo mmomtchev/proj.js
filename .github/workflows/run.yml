@@ -1,58 +1,64 @@
-name: 'Test'
-#on: [pull_request, push]
-on: []
+name: 'CI'
+on: [pull_request, push]
 
 jobs:
   swig:
     runs-on: ubuntu-latest
-    name: Generate the SWIG wrappers ${{ matrix.no_async }}
+    name: Generate the SWIG wrappers
 
     strategy:
       fail-fast: false
-      matrix:
-        no_async: ['', '-no_async']
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - uses: mmomtchev/setup-swig@main
       with:
         branch: jse
-
+        version: main
+        cache: false
+        
     - name: Verify SWIG
       run: swig-jse -version
 
-    - name: Run SWIG to generated the wrappers
+    - name: Run SWIG to generate the wrappers
       run: npm run swig
-      env:
-        SWIG_FEATURES: ${{ matrix.no_async && '-DNO_ASYNC' || '' }}
 
     - name: Upload SWIG-generated wrappers
       uses: actions/upload-artifact@v4
       with:
-        name: swig-generated${{ matrix.no_async }}
+        name: swig-generated
         path: |
           build/*
 
   
   build-native:
     runs-on: ${{ matrix.platform }}
-    name: Build native ${{ matrix.platform }}${{ matrix.no_async }}
+    name: Build native ${{ matrix.platform }}
     needs: swig
 
     strategy:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
-        no_async: ['', '-no_async']
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: 20
+    - name: Cache conan artifacts
+      id: conan-artifacts
+      uses: actions/cache@v4
+      with:
+        path: ~/.conan2
+        key: ${{ runner.os }}-conan
 
     - name: Setup Visual Studio (Windows)
       uses: ilammy/msvc-dev-cmd@v1
@@ -61,101 +67,56 @@ jobs:
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
       with:
-        name: swig-generated${{ matrix.no_async }}
+        name: swig-generated
         path: build
         
     - name: Install dependencies
       run: |
         npm install
         npx xpm install
+
+    - name: Horrible kludge for https://github.com/xpack-dev-tools/cmake-xpack/issues/8
+      run: del node_modules\.bin\rc
+      if: runner.os == 'Windows'
 
     - name: Build the native version
       run: npm run build:native
-      env:
-        HADRON_OPTS: -Dwith_zlib=true ${{ matrix.no_async && '-Dno_async=true' || '' }}
     
     - name: Upload native artifact ${{ matrix.platform }}
       uses: actions/upload-artifact@v4
       with:
-        name: native-${{ matrix.platform }}${{ matrix.no_async }}
-        path: lib/binding/*
-
-
-  build-native-xpack:
-    runs-on: ${{ matrix.platform }}
-    name: Build native self-contained ${{ matrix.platform }}${{ matrix.no_async }}
-    needs: swig
-
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ubuntu-latest, macos-latest]
-        no_async: ['', '-no_async']
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Setup Visual Studio (Windows)
-      uses: ilammy/msvc-dev-cmd@v1
-      if: runner.os == 'Windows'
-
-    - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
-      with:
-        name: swig-generated${{ matrix.no_async }}
-        path: build
-        
-    - name: Install dependencies
-      run: |
-        npm install
-        npx xpm install
-
-    - name: Build the native version (self-contained build)
-      run: npm run build:native
-      env:
-        HADRON_OPTS: -Dwith_zlib=true ${{ matrix.no_async && '-Dno_async=true' || '' }}
-    
-    - name: Upload native artifact ${{ matrix.platform }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: native-xpack-${{ matrix.platform }}${{ matrix.no_async }}
+        name: native-${{ matrix.platform }}
         path: lib/binding/*
 
 
   build-wasm:
     runs-on: ubuntu-latest
-    name: Build WASM ${{ matrix.no_async }}
+    name: Build WASM
     needs: swig
 
     strategy:
       fail-fast: false
-      matrix:
-        no_async: ['', '-no_async']
 
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: setup Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: 20
-    - name: Setup emscripten
-      uses: mymindstorm/setup-emsdk@v13
+    - name: Cache conan artifacts
+      id: conan-artifacts
+      uses: actions/cache@v4
       with:
-        version: 3.1.53
-        
-    - name: Verify emscripten
-      run: emcc -v
+        path: ~/.conan2
+        key: wasm-conan
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
       with:
-        name: swig-generated${{ matrix.no_async }}
+        name: swig-generated
         path: build
 
     - name: Install dependencies
@@ -165,13 +126,11 @@ jobs:
 
     - name: Build the WASM version
       run: npm run build:wasm
-      env:
-        HADRON_OPTS: -Dwith_zlib=true ${{ matrix.no_async && '-Dno_async=true' || '' }}
     
     - name: Upload WASM artifact
       uses: actions/upload-artifact@v4
       with:
-        name: wasm${{ matrix.no_async }}
+        name: wasm
         path: lib/binding/*
 
 
@@ -183,10 +142,18 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: 20
+    - name: Cache conan artifacts
+      id: conan-artifacts
+      uses: actions/cache@v4
+      with:
+        path: ~/.conan2
+        key: asan-conan
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
@@ -201,11 +168,9 @@ jobs:
 
     - name: Build the native version
       run: |
-        npm run configure:native
-        npx xpm run configure --config native -- -Db_sanitize=address
-        npm run build:native
-      env:
-        HADRON_OPTS: -Dwith_zlib=true
+        npx xpm run prepare --config native-debug
+        npx xpm run configure --config native-debug -- -Db_sanitize=address
+        npx xpm run build --config native-debug
 
     - name: Upload native artifact (ASAN instrumented)
       uses: actions/upload-artifact@v4
@@ -222,10 +187,18 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v4
       with:
         node-version: 20
+    - name: Cache conan artifacts
+      id: conan-artifacts
+      uses: actions/cache@v4
+      with:
+        path: ~/.conan2
+        key: codecov-conan
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
@@ -243,8 +216,6 @@ jobs:
         npm run configure:native
         npx xpm run configure --config native -- -Db_coverage=true
         npm run build:native
-      env:
-        HADRON_OPTS: -Dwith_zlib=true
 
     - name: Upload native artifact (code coverage instrumented)
       uses: actions/upload-artifact@v4
@@ -255,14 +226,13 @@ jobs:
 
   test:
     runs-on: ${{ matrix.platform }}
-    name: Test ${{ matrix.platform }}${{ matrix.no_async }}
+    name: Test ${{ matrix.platform }}
     needs: [ build-wasm, build-native ]
 
     strategy:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
-        no_async: ['', '-no_async']
 
     steps:
     - name: Checkout
@@ -275,13 +245,13 @@ jobs:
     - name: Download the native artifact ${{ matrix.platform }}
       uses: actions/download-artifact@v4
       with:
-        name: native-${{ matrix.platform }}${{ matrix.no_async }}
+        name: native-${{ matrix.platform }}
         path: lib/binding
 
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm${{ matrix.no_async }}
+        name: wasm
         path: lib/binding
 
     - name: Install dependencies
@@ -289,72 +259,14 @@ jobs:
     
     - name: Run the Node.js tests
       run: npm run test:nodejs
-      env:
-        NO_ASYNC: ${{ matrix.no_async && '1' || '' }}
 
     - name: Run the browser tests
       uses: coactions/setup-xvfb@v1
       with:
         run: npm run test:browser
-      env:
-        NO_ASYNC: ${{ matrix.no_async && '1' || '' }}
 
     - name: Test building the webpack project
       run: npm run build:webpack
-      env:
-        NO_ASYNC: ${{ matrix.no_async && '1' || '' }}
-
-
-  test-xpack:
-    runs-on: ${{ matrix.platform }}
-    name: Test self-contained ${{ matrix.platform }}${{ matrix.no_async }}
-    needs: [ build-wasm, build-native-xpack ]
-
-    strategy:
-      fail-fast: false
-      matrix:
-        platform: [ubuntu-latest, macos-latest,]
-        no_async: ['', '-no_async']
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Download the native artifact ${{ matrix.platform }} (self-contained xpack build)
-      uses: actions/download-artifact@v4
-      with:
-        name: native-xpack-${{ matrix.platform }}${{ matrix.no_async }}
-        path: lib/binding
-
-    - name: Download the WASM artifact
-      uses: actions/download-artifact@v4
-      with:
-        name: wasm${{ matrix.no_async }}
-        path: lib/binding
-
-    - name: Install dependencies
-      run: npm install
-    
-    - name: Run the Node.js tests
-      run: npm run test:nodejs
-      env:
-        NO_ASYNC: ${{ matrix.no_async && '1' || '' }}
-
-    - name: Run the browser tests
-      uses: coactions/setup-xvfb@v1
-      with:
-        run: npm run test:browser
-      env:
-        NO_ASYNC: ${{ matrix.no_async && '1' || '' }}
-
-    - name: Test building the webpack project
-      run: npm run build:webpack
-      env:
-        NO_ASYNC: ${{ matrix.no_async && '1' || '' }}
 
 
   asan:
@@ -437,4 +349,4 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
         directory: coverage
-        slug: mmomtchev/swig-napi-example-project
+        slug: mmomtchev/proj.js
