@@ -1,1 +1,3 @@
-option('no_async', type : 'boolean', value : true)
+option('no_async',  type : 'boolean', value : true)
+option('TIFF',      type : 'boolean', value : true)
+option('CURL',      type : 'boolean', value : true)

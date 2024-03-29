@@ -15,10 +15,15 @@ sources = [
   ]
 
 dependencies = [
-  dependency('sqlite3',   method : 'pkg-config'),
-  dependency('libcurl',   method : 'pkg-config'),
-  dependency('libtiff-4', method : 'pkg-config')
+  dependency('sqlite3',                   method : 'pkg-config')
 ]
+if (get_option('TIFF'))
+  dependencies += dependency('libtiff-4', method : 'pkg-config')
+endif
+if (get_option('CURL') and meson.get_compiler('cpp').get_id() != 'emscripten')
+  dependencies += dependency('libcurl',   method : 'pkg-config')
+endif
+
 cmake_dependencies = [
   {'project' : 'PROJ', 'target' : 'proj'}
   ]
@@ -26,13 +31,13 @@ cmake_options = [
   { 'BUILD_TESTING'         : false },
   { 'BUILD_EXAMPLES'        : false },
   { 'BUILD_APPS'            : false },
+  { 'ENABLE_TIFF'           : get_option('TIFF') },
+  { 'ENABLE_CURL'           : get_option('CURL') and meson.get_compiler('cpp').get_id() != 'emscripten' },
   # PROJ will be "installed" in ./lib/binding
   { 'CMAKE_INSTALL_PREFIX'  : meson.global_source_root() / 'lib' / 'binding' }
   ]
 
 if meson.get_compiler('cpp').get_id() == 'emscripten'
-  # Alas, speciyfing a different location at compile-time is not possible
-  #add_global_arguments([ '-DPROJ_DATA=proj.db' ], language: [ 'c', 'cpp' ])
   add_global_link_arguments([
       '--embed-file', meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db@/proj.db',
       # Optional, allows the calling JS code to interact with
