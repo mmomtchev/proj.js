@@ -47,3 +47,20 @@ const char *rootPath = "/";
 // Using a typedef enum with the same name as the enum is an edge case
 // especially when supporting both C++ and C
 #pragma SWIG nowarn=302
+
+// Windows at its best
+// Mixing std::getenv with the WIN32 API (used by Node.js/libuv) does not always work
+// (it seems to depend on the C++ runtime, the compiler used and probably the planetary alignment of the week)
+%header %{
+#if defined(_WIN32) || defined(__WIN32__)
+#include <windows.h>
+#include <tchar.h>
+#endif
+%}
+%init %{
+#if defined(_WIN32) || defined(__WIN32__)
+  char _win_proj_data[1024];
+  GetEnvironmentVariable(TEXT("PROJ_DATA"), _win_proj_data, sizeof(_win_proj_data));
+  _putenv((std::string("PROJ_DATA=") + std::string(_win_proj_data)).c_str());
+#endif
+%}
