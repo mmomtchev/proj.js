@@ -126,7 +126,7 @@
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
       "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user git+https://github.com/conan-io/conan",
       "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect --exist-ok",
-      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} ",
+      "commandDependenciesNative": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
       "commandDependenciesCross": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default -pr:h=./hadron/{{ properties.toolchain }}.profile --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
       "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} .",
       "commandConanBuildEnv": "{{ properties.conansource[os.platform] }} {{ properties.buildFolderRelativePath }}{{ path.sep }}{{ properties.conanbuild[os.platform] }}",
