@@ -60,6 +60,7 @@ using namespace NS_PROJ;
 %include "datum.i"
 %include "coordinatesystem.i"
 %include "crs.i"
+%include "factory.i"
 
 // This is because "const char*" is not really "const"
 %immutable id;

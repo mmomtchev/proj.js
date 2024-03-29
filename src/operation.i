@@ -15,8 +15,3 @@
 %nn_unique_ptr(osgeo::proj::operation::CoordinateOperationContext);
 %nn_unique_ptr(osgeo::proj::operation::CoordinateOperationFactory);
 %nn_unique_ptr(osgeo::proj::operation::CoordinateTransformer);
-
-// This would greatly benefit from a regex matcher for feature since
-// there is a very large amount of create* functions
-%newobject osgeo::proj::operation::CoordinateOperationFactory::createOperations;
-%feature("new", "1") *::create;
