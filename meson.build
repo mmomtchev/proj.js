@@ -189,8 +189,7 @@ main_target = shared_module(
   name_suffix         : name_suffix,
   install             : true,
   install_dir         : install_dir,
-  dependencies        : dependencies,
-  install_rpath       : './lib'
+  dependencies        : dependencies
 )
 
 # --------------------
@@ -224,9 +223,9 @@ endforeach
 # --------------------
 custom_target(
   'proj.db',
-  command             : [ 'node', '-e', '""' ],
+  command             : [ 'node', '-e', 'fs.copyFileSync("@INPUT@", path.resolve("' + install_dir + '", "proj.db"))' ],
   depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
-  output              : [ '.proj.db' ],
-  install_dir         : install_dir,
+  input               : meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db',
+  output              : 'proj.db',
   build_by_default    : true
   )
