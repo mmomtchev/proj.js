@@ -16,7 +16,7 @@ On the other side:
 
 # Current status
 
-Both the browser WASM and the Node.js native version compile, no prebuilt binaries, no `npm` package, the quickstart example works both in Node.js and in the browser, library may be usable in some cases.
+Both the browser WASM and the Node.js native version compile, no prebuilt binaries, no `npm` package, the quickstart example works both in Node.js and in the browser, library may be usable in some cases, there is still no documentation whatsoever.
 
 Currently building the project requires having SWIG JSE git `HEAD`.
 
