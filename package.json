@@ -60,8 +60,8 @@
   },
   "homepage": "https://github.com/mmomtchev/proj.js#readme",
   "dependencies": {
-    "@emnapi/runtime": "^1.1.0",
-    "emnapi": "^1.1.0",
+    "@emnapi/runtime": "^1.1.1",
+    "emnapi": "^1.1.1",
     "node-addon-api": "^8.0.0",
     "prebuild-install": "^7.1.2",
     "tar": "^6.2.0",
