@@ -1,5 +1,5 @@
 // All factory methods extracted by grepping the sources
-// (this would greatly benefit from a regex matcher for feature since)
+// (this would greatly benefit from a regex matcher for %feature)
 %feature("new", "1") *::create;
 %feature("new", "1") *::createAbridgedMolodensky;
 %feature("new", "1") *::createAlbersEqualArea;
@@ -126,7 +126,6 @@
 %feature("new", "1") *::createObject;
 %feature("new", "1") *::createObjectsFromName;
 %feature("new", "1") *::createObjectsFromNameEx;
-%feature("new", "1") *::create<object_t>;
 %feature("new", "1") *::createObliqueStereographic;
 %feature("new", "1") *::createOGC_CRS84;
 %feature("new", "1") *::createOperation;
@@ -147,13 +146,11 @@
 %feature("new", "1") *::createQuadrilateralizedSphericalCube;
 %feature("new", "1") *::createREFERENCE_MERIDIAN;
 %feature("new", "1") *::createRobinson;
-%feature("new", "1") *::creates;
 %feature("new", "1") *::createSinusoidal;
 %feature("new", "1") *::createSouthPoleEastingNorthNorthingNorth;
 %feature("new", "1") *::createSphere;
 %feature("new", "1") *::createSphericalCrossTrackHeight;
 %feature("new", "1") *::createStereographic;
-%feature("new", "1") *::create<string_t>;
 %feature("new", "1") *::createTimeDependentCoordinateFrameRotation;
 %feature("new", "1") *::createTimeDependentPositionVector;
 %feature("new", "1") *::createTOWGS84;
