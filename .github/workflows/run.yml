@@ -168,9 +168,9 @@ jobs:
 
     - name: Build the native version
       run: |
-        npm run configure:native-debug
+        npx xpm run prepare --config native-debug
         npx xpm run configure --config native-debug -- -Db_sanitize=address
-        npm run build:native-debug
+        npx xpm run build --config native-debug
 
     - name: Upload native artifact (ASAN instrumented)
       uses: actions/upload-artifact@v4
