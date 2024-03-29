@@ -65,6 +65,11 @@ namespace dropbox {
     shared_ptr
   );
 }
+%typemap(freearg)
+    dropbox::oxygen::nn<std::shared_ptr<CONST TYPE>> *,
+    dropbox::oxygen::nn<std::shared_ptr<CONST TYPE>> & {
+  delete $1;
+}
 
 %template() dropbox::oxygen::nn<std::shared_ptr<CONST TYPE>>;
 
@@ -109,6 +114,12 @@ namespace dropbox {
     dropbox::oxygen::i_promise_i_checked_for_null,
     std::move(unique_ptr)
   );
+}
+%typemap(freearg)
+    dropbox::oxygen::nn<std::unique_ptr<CONST TYPE>> *,
+    dropbox::oxygen::nn<std::unique_ptr<CONST TYPE>> &,
+    dropbox::oxygen::nn<std::unique_ptr<CONST TYPE>> && {
+  delete $1;
 }
 
 // nn pointers do not allow a direct release, they must
