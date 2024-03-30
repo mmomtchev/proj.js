@@ -42,7 +42,7 @@ Currently, the bundle size remains an issue.
 | `proj.wasm` w/o TIFF w/o `proj.db` | 13M | 1.58M |
 | `proj.db` | 8.7M | 1.3M |
 
-It should be noted that while using `-Os` in `emscripten` can lead two a two-fold decrease in raw size, the size of the compressed build will always remain the same.
+It should be noted that while using `-Os` in `emscripten` can lead to a two-fold reduction of the raw size, the size of the compressed build will always remain the same.
 
 `curl` support is enabled only in the native build - there is no simple solution to networking for the WASM build.
 
