@@ -6,22 +6,24 @@ class PROJDependencies(ConanFile):
   settings = 'os', 'compiler', 'build_type', 'arch'
 
   options = {
-    'CURL': [ True, False ],
-    'TIFF': [ True, False ]
+    'enable_tiff':    [ True, False ],
+    'enable_curl':    [ True, False ],
+    'inline_projdb':  [ True, False ]
   }
 
   default_options = {
-    'CURL': True,
-    'TIFF': True
+    'enable_tiff':    True,
+    'enable_curl':    True,
+    'inline_projdb':  False
   }
 
   generators = [ 'MesonToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
 
   def requirements(self):
-    if self.options.CURL and self.settings.arch != 'wasm':
+    if self.options.enable_curl and self.settings.arch != 'wasm':
       self.requires('libcurl/[>=8.6.0 <8.7.0]')
 
-    if self.options.TIFF:
+    if self.options.enable_tiff:
       self.requires('libtiff/[>=4.6.0 <4.7.0]')
 
     self.requires('sqlite3/[>=3.45.0 <3.46.0]')

@@ -8,12 +8,26 @@ struct proj_instance_data {
 };
 #ifdef __EMSCRIPTEN__
 extern const char *rootPath;
+extern const bool inline_projdb;
 #endif
+extern const char *build;
 %}
+
+%immutable;
+const char *build;
+%mutable;
 
 %wrapper %{
 #ifdef __EMSCRIPTEN__
 const char *rootPath = "/";
+const char *build = "wasm";
+#ifdef INLINE_PROJDB
+const bool inline_projdb = true;
+#else
+const bool inline_projdb = false;
+#endif
+#else
+const char *build = "native";
 #endif
 %}
 

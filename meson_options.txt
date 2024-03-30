@@ -1,3 +1,4 @@
-option('no_async',  type : 'boolean', value : true)
-option('TIFF',      type : 'boolean', value : true)
-option('CURL',      type : 'boolean', value : true)
+option('no_async',         type : 'boolean', value : true)
+option('enable_curl',      type : 'boolean', value : true)
+option('enable_tiff',      type : 'boolean', value : true)
+option('inline_projdb',    type : 'boolean', value : true)

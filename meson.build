@@ -17,12 +17,34 @@ sources = [
 dependencies = [
   dependency('sqlite3',                   method : 'pkg-config')
 ]
-if (get_option('TIFF'))
+
+enable_curl = false
+enable_tiff = false
+inline_projdb = false
+async = false
+
+if get_option('enable_tiff')
   dependencies += dependency('libtiff-4', method : 'pkg-config')
+  enable_tiff = true
 endif
-if (get_option('CURL') and meson.get_compiler('cpp').get_id() != 'emscripten')
+if get_option('enable_curl') and meson.get_compiler('cpp').get_id() != 'emscripten'
   dependencies += dependency('libcurl',   method : 'pkg-config')
+  enable_curl = true
 endif
+if get_option('inline_projdb') and meson.get_compiler('cpp').get_id() == 'emscripten'
+  add_project_arguments([ '-DINLINE_PROJDB' ], language: 'cpp')
+  inline_projdb = true
+endif
+if not get_option('no_async')
+  async = true
+endif
+
+summary({
+  'async enabled'           : async,
+  'libcurl enabled'         : enable_curl,
+  'libtiff enabled'         : enable_tiff,
+  'inline proj.db'          : inline_projdb
+})
 
 cmake_dependencies = [
   {'project' : 'PROJ', 'target' : 'proj'}
@@ -31,18 +53,15 @@ cmake_options = [
   { 'BUILD_TESTING'         : false },
   { 'BUILD_EXAMPLES'        : false },
   { 'BUILD_APPS'            : false },
-  { 'ENABLE_TIFF'           : get_option('TIFF') },
-  { 'ENABLE_CURL'           : get_option('CURL') and meson.get_compiler('cpp').get_id() != 'emscripten' },
+  { 'ENABLE_TIFF'           : enable_tiff },
+  { 'ENABLE_CURL'           : enable_curl },
   # PROJ will be "installed" in ./lib/binding
   { 'CMAKE_INSTALL_PREFIX'  : meson.global_source_root() / 'lib' / 'binding' }
   ]
 
-if meson.get_compiler('cpp').get_id() == 'emscripten'
+if inline_projdb
   add_global_link_arguments([
       '--embed-file', meson.current_build_dir() / 'subprojects' / 'PROJ' / 'proj.db@/proj.db',
-      # Optional, allows the calling JS code to interact with
-      # the embedded file system
-      '-sEXPORTED_RUNTIME_METHODS=["FS"]'
       ],
     language: [ 'c', 'cpp' ]
     )
@@ -73,23 +92,20 @@ msvc_cpp_args = [ '/wo6246', '/wo28182', '/Zc:__cplusplus', '/bigobj' ]
 
 name_suffix = 'node'
 if meson.get_compiler('cpp').get_id() == 'clang'
-  add_global_arguments(clang_cpp_args, language : 'cpp')
+  add_project_arguments(clang_cpp_args, language : 'cpp')
   if host_machine.system() == 'windows'
-    add_global_arguments([ '-fms-extensions' ], language: 'cpp')
+    add_project_arguments([ '-fms-extensions' ], language: 'cpp')
   endif
 endif
 if meson.get_compiler('cpp').get_id() == 'gcc'
-  add_global_arguments(gcc_cpp_args, language : 'cpp')
+  add_project_arguments(gcc_cpp_args, language : 'cpp')
 endif
 if meson.get_compiler('cpp').get_id() == 'msvc'
-  add_global_arguments(msvc_cpp_args, language : 'cpp')
+  add_project_arguments(msvc_cpp_args, language : 'cpp')
 endif
 if meson.get_compiler('cpp').get_id() == 'emscripten'
-  add_global_arguments(
-    clang_cpp_args +
-    [ '-sNO_DISABLE_EXCEPTION_CATCHING' ],
-    language : 'cpp'
-  )
+  add_project_arguments(clang_cpp_args, language : 'cpp')
+  add_global_arguments([ '-sNO_DISABLE_EXCEPTION_CATCHING' ], language : 'cpp')
   add_global_arguments([ '-D__STDC_FORMAT_MACROS' ], language: [ 'c', 'cpp' ])
   name_suffix = 'mjs'
 endif
@@ -102,13 +118,14 @@ extra_output_files = []
 if meson.get_compiler('cpp').get_id() == 'emscripten'
   extra_output_files += [ module_name + '.wasm' ]
 
-  if not get_option('no_async')
+  if async
     async_opts = [ '-pthread', '-DEMNAPI_WORKER_POOL_SIZE=4' ]
     add_global_arguments(async_opts, language : [ 'c', 'cpp' ])
     add_global_link_arguments(async_opts, language: [ 'c', 'cpp' ])
     extra_output_files += [ module_name + '.worker.mjs' ]
+    add_project_arguments([ '-DASYNC=1' ], language: [ 'c', 'cpp' ])
   else
-    add_global_arguments([ '-DNO_ASYNC=1' ], language: [ 'c', 'cpp' ])
+    add_project_arguments([ '-DNO_ASYNC=1' ], language: [ 'c', 'cpp' ])
   endif
   add_global_link_arguments([
     '-sDEFAULT_PTHREAD_STACK_SIZE=1MB',
@@ -117,6 +134,8 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
     '-Wno-pthreads-mem-growth',
     '-sALLOW_MEMORY_GROWTH=1',
     '-sEXPORTED_FUNCTIONS=["_napi_register_wasm_v1","_malloc","_free"]',
+    '-sEXPORTED_RUNTIME_METHODS=["FS"]',
+    '-sINCOMING_MODULE_JS_API=[]',
     '-sNO_DISABLE_EXCEPTION_CATCHING',
     '--bind',
     '-sMODULARIZE',

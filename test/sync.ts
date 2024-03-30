@@ -1,16 +1,22 @@
 import { assert } from 'chai';
-import type Bindings from '..';
+import type Native from '..';
+import type WASM from '../lib/wasm.mjs';
 
 // These are all the synchronous tests
 // They are shared between the Node.js native version and the WASM version
 // (the only difference being that WASM must be loaded by resolving its Promise)
 
-export default function (dll: (typeof Bindings) | Promise<typeof Bindings>) {
-  let bindings: typeof Bindings;
+export default function (dll: typeof Native | typeof WASM, proj_db?: ArrayBufferView) {
+  let bindings: typeof Native;
   if (dll instanceof Promise) {
     before('load WASM', (done) => {
       dll.then((loaded) => {
         bindings = loaded;
+        // If proj_db is not inlined, load it in the embedded filesystem
+        // (only available in WASM)
+        if (proj_db && loaded.FS) {
+          loaded.FS.writeFile('/proj.db', proj_db, {encoding: 'binary'});
+        }
         done();
       });
     });
