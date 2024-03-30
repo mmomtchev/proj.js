@@ -96,6 +96,8 @@ jobs:
 
     strategy:
       fail-fast: false
+      matrix:
+        inline_projdb: [true, false]
 
     steps:
     - name: Checkout
@@ -111,7 +113,7 @@ jobs:
       uses: actions/cache@v4
       with:
         path: ~/.conan2
-        key: wasm-conan
+        key: wasm-conan-${{ matrix.inline_projdb }}
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
@@ -126,11 +128,13 @@ jobs:
 
     - name: Build the WASM version
       run: npm run build:wasm
+      env:
+        npm_config_inline_projdb: ${{ matrix.inline_projdb }}
     
     - name: Upload WASM artifact
       uses: actions/upload-artifact@v4
       with:
-        name: wasm
+        name: wasm-inline-${{ matrix.inline_projdb }}
         path: lib/binding/*
 
 
@@ -233,6 +237,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
+        inline_projdb: [true, false]
 
     steps:
     - name: Checkout
@@ -251,7 +256,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm
+        name: wasm-inline-${{ matrix.inline_projdb }}
         path: lib/binding
 
     - name: Install dependencies
@@ -285,7 +290,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm
+        name: wasm-inline-true
         path: lib/binding
 
     - name: Download the ASAN instrumented artifact
@@ -322,7 +327,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm
+        name: wasm-inline-true
         path: lib/binding
 
     - name: Download the code coverage artifact

@@ -8,13 +8,15 @@ class PROJDependencies(ConanFile):
   options = {
     'enable_tiff':    [ True, False ],
     'enable_curl':    [ True, False ],
-    'inline_projdb':  [ True, False ]
+    'inline_projdb':  [ True, False ],
+    'no_async':       [ True, False ]
   }
 
   default_options = {
     'enable_tiff':    True,
     'enable_curl':    True,
-    'inline_projdb':  False
+    'inline_projdb':  True,
+    'no_async':       True
   }
 
   generators = [ 'MesonToolchain', 'PkgConfigDeps', 'CMakeDeps' ]

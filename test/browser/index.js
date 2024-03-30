@@ -2,6 +2,12 @@
 
 import WASM from '../../lib/wasm.mjs';
 
+// @ts-ignore
+import proj_db_url from '../../lib/binding/proj.db';
+const proj_db = fetch(proj_db_url)
+  .then((r) => r.arrayBuffer())
+  .then((r) => new Uint8Array(r));
+
 console.log('Hello from WASM');
 
 function print(msg) {
@@ -12,9 +18,15 @@ function print(msg) {
 }
 
 print('Loading WASM');
-WASM.then((bindings) => {
+Promise.all([WASM, proj_db]).then((bindings) => {
   print('WASM loaded and transpiled');
   console.log('WASM', bindings);
+
+  print(`proj.db is inlined: ${bindings.proj_js_inline_projdb}`);
+
+  if (!bindings.proj_js_inline_projdb) {
+    bindings.FS.writeFile('/proj.db', globalThis.proj_db, { encoding: 'binary' });
+  }
 
   const dbContext = bindings.DatabaseContext.create();
   const authFactory = bindings.AuthorityFactory.create(dbContext, 'string');

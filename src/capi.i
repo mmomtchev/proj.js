@@ -8,26 +8,29 @@ struct proj_instance_data {
 };
 #ifdef __EMSCRIPTEN__
 extern const char *rootPath;
-extern const bool inline_projdb;
+extern const bool proj_js_inline_projdb;
 #endif
-extern const char *build;
+extern const char *proj_js_build;
 %}
 
 %immutable;
-const char *build;
+%typemap(ts) const char *proj_js_build "'wasm' | 'native'";
+const char *proj_js_build;
+const bool proj_js_inline_projdb;
 %mutable;
 
 %wrapper %{
 #ifdef __EMSCRIPTEN__
 const char *rootPath = "/";
-const char *build = "wasm";
+const char *proj_js_build = "wasm";
 #ifdef INLINE_PROJDB
-const bool inline_projdb = true;
+const bool proj_js_inline_projdb = true;
 #else
-const bool inline_projdb = false;
+const bool proj_js_inline_projdb = false;
 #endif
 #else
-const char *build = "native";
+const char *proj_js_build = "native";
+const bool proj_js_inline_projdb = false;
 #endif
 %}
 
