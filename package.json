@@ -62,7 +62,7 @@
   "dependencies": {
     "@emnapi/runtime": "^1.1.0",
     "emnapi": "^1.1.0",
-    "node-addon-api": "^8.0.0",
+    "node-addon-api": "^8.1.0",
     "prebuild-install": "^7.1.2",
     "tar": "^6.2.0",
     "xpm": "^0.19.1"
@@ -99,9 +99,11 @@
     "minimumXpmRequired": "0.14.0",
     "dependencies": {},
     "devDependencies": {
-      "@xpack-dev-tools/meson-build": "0.60.3-1.1",
-      "@xpack-dev-tools/ninja-build": "1.11.0-1.1",
-      "@xpack-dev-tools/cmake": "3.26.5-1.1"
+      "@mmomtchev/python-xpack": "3.10.15-1",
+      "@mmomtchev/meson-xpack": "1.5.2-1",
+      "@mmomtchev/conan-xpack": "2.7.0-1",
+      "@xpack-dev-tools/cmake": "3.27.9-1.2",
+      "@xpack-dev-tools/ninja-build": "1.11.1-3.1"
     },
     "properties": {
       "module_name": "proj",
@@ -120,26 +122,19 @@
         "linux": ".",
         "darwin": "."
       },
-      "options": {
-        "inline_projdb": "boolean",
-        "no_async": "boolean"
-      },
-      "optionsConan": "{% for item in properties.options %} {% assign envvar = 'npm_config_' | append: item[0] %} {% if env[envvar] %}-o {{ item[0] }}={{ env[envvar] | replace_first: 'true', 'True' | replace_first: 'false', 'False' }} {% endif %}{% endfor %}",
-      "optionsMeson": "{% for item in properties.options %} {% assign envvar = 'npm_config_' | append: item[0] %} {% if env[envvar] %}-D{{ item[0] }}={{ env[envvar] }} {% endif %}{% endfor %}",
+      "cwd": "{{ path.sep | path_relative: '.' }}",
       "buildFolderRelativePath": "{{ 'build' | path_join: configuration.name | to_filename | downcase }}",
-      "commandDownloadEnvironment": "node hadron/hadron-download-headers",
+      "installFolderPath": "{{ '/' | path_join: properties.cwd | path_join: 'lib' | path_join: 'binding' | path_join: properties.platformId }}",
       "commandInit": "mkdir -p build",
-      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Isubprojects{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
-      "commandConanInstall": "{{ properties.python[os.platform] }} -m pip install --user git+https://github.com/conan-io/conan ",
-      "commandConanInit": "{{ properties.python[os.platform] }} -m conans.conan profile detect --exist-ok",
-      "commandConanDependencies": "{{ properties.python[os.platform] }} -m conans.conan install . -pr:b=default --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }} {{ properties.optionsConan }}",
+      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
+      "commandConanDependencies": "conan install . -pr:b=default --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
       "commandDependenciesNative": "{{ properties.commandConanDependencies }} -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile",
       "commandDependenciesCross": "{{ properties.commandConanDependencies }} -pr:h=./hadron/{{ properties.toolchain }}.profile",
-      "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} . {{ properties.optionsMeson }}",
+      "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} . -Dprefix={{ properties.installFolderPath }}",
       "commandConanBuildEnv": "{{ properties.conansource[os.platform] }} {{ properties.buildFolderRelativePath }}{{ path.sep }}{{ properties.conanbuild[os.platform] }}",
-      "commandPrepareNative": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --native-file build/napi.ini --native-file hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini",
-      "commandPrepareCross": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --cross-file build/napi.ini --cross-file hadron{{ path.sep }}{{ properties.toolchain }}.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini",
-      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }} {{ properties.optionsMeson }}",
+      "commandPrepareNative": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini",
+      "commandPrepareCross": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini",
+      "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }}",
       "commandBuild": "{{ properties.commandConanBuildEnv }} && meson compile -C {{ properties.buildFolderRelativePath }} -v",
       "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }}",
       "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean"
@@ -154,13 +149,11 @@
       "native": {
         "properties": {
           "buildType": "release",
-          "toolchain": "system"
+          "toolchain": "system",
+          "platformId": "{{ os.platform | concat: '-' | concat: os.arch }}"
         },
         "actions": {
           "prepare": [
-            "{{ properties.commandDownloadEnvironment }}",
-            "{{ properties.commandConanInstall }}",
-            "{{ properties.commandConanInit }}",
             "{{ properties.commandDependenciesNative }}",
             "{{ properties.commandPrepareNative }}"
           ],
@@ -190,13 +183,11 @@
         ],
         "properties": {
           "buildType": "release",
-          "toolchain": "emscripten"
+          "toolchain": "emscripten",
+          "platformId": "emscripten-wasm32"
         },
         "actions": {
           "prepare": [
-            "{{ properties.commandDownloadEnvironment }}",
-            "{{ properties.commandConanInstall }}",
-            "{{ properties.commandConanInit }}",
             "{{ properties.commandDependenciesCross }}",
             "{{ properties.commandPrepareCross }}"
           ]

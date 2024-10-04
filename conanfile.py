@@ -1,34 +1,39 @@
 from conan import ConanFile
-import subprocess
-import json
+from os import environ
 
-required_conan_version = ">=2.0.0"
+required_conan_version = ">=2.7.0"
+
+def npm_option(option, default):
+    npm_enable_opt = f'npm_config_enable_{option}'
+    npm_disable_opt = f'npm_config_disable_{option}'
+    if npm_disable_opt in environ:
+      return False
+    if npm_enable_opt in environ:
+      return True
+    return default
 
 class PROJDependencies(ConanFile):
   settings = 'os', 'compiler', 'build_type', 'arch'
 
-  options = {}
-  default_options = {}
-  meson_json = subprocess.Popen(['meson', 'introspect', '--buildoptions', 'meson.build'], shell=False, stdout=subprocess.PIPE)
-  meson_json.wait()
-  data, err = meson_json.communicate()
-  meson_opts = [opt for opt in json.loads(data) if opt['section'] == 'user']
-  for o in meson_opts:
-    # Conan supports only booleans and combos
-    if o['type'] == 'boolean':
-      options[o['name']] = [ True, False ]
-      default_options[o['name']] = o['value']
-    elif o['type'] == 'combo':
-      options[o['name']] = o['choices']
-      default_options[o['name']] = o['value']
+  options = {
+    'conan': [ 'True', 'False' ],
+    'tiff':  [ 'True', 'False' ],
+    'curl':  [ 'True', 'False' ]
+  }
+
+  default_options = {
+    'conan': npm_option('conan', False),
+    'tiff':  npm_option('tiff', True) and npm_option('tiff-conan', True),
+    'curl':  npm_option('curl', True) and npm_option('curl-conan', True)
+  }
 
   generators = [ 'MesonToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
 
   def requirements(self):
-    if self.options.enable_curl and self.settings.arch != 'wasm':
+    if self.options.curl and self.settings.arch != 'wasm':
       self.requires('libcurl/[>=8.6.0 <8.7.0]')
 
-    if self.options.enable_tiff:
+    if self.options.tiff:
       self.requires('libtiff/[>=4.6.0 <4.7.0]')
 
     self.requires('sqlite3/[>=3.45.0 <3.46.0]')
