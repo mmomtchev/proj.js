@@ -1,4 +1,5 @@
 from conan import ConanFile
+from conan.tools.cmake import CMakeToolchain
 from os import environ
 
 required_conan_version = ">=2.7.0"
@@ -27,7 +28,7 @@ class PROJDependencies(ConanFile):
     'curl':  npm_option('curl', True) and npm_option('curl-conan', True)
   }
 
-  generators = [ 'MesonToolchain', 'CMakeToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
+  generators = [ 'MesonToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
 
   def requirements(self):
     if self.options.curl and self.settings.arch != 'wasm':
@@ -44,3 +45,22 @@ class PROJDependencies(ConanFile):
   def configure(self):
     if self.settings.arch == 'wasm':
       self.options['libwebp/*'].with_simd = False
+
+  # We don't want the conan build system - conan works best with the platforms' defaults
+  # We always use ninja on all platforms (this is the meson approach)
+  #
+  # conan uses its own meson and ninja
+  # we use our own meson (hadron xpack) and ninja (xpack)
+  # however everyone shares the same Python (hadron xpack) and cmake (xpack)
+  # (although conan supports replacing its meson and ninja,
+  # this is a source of trouble and brings no benefits)
+  #
+  # This is the least opionated approach - no one imposes anything
+  # and conan remains optional
+  #
+  # This should probably be included in the future conan library
+  #
+  def generate(self):
+    tc = CMakeToolchain(self)
+    tc.blocks.remove('generic_system')
+    tc.generate()
