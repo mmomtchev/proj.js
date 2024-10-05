@@ -68,7 +68,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: swig-generated
-        path: build
+        path: swig
         
     - name: Install dependencies
       run: |
@@ -119,7 +119,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: swig-generated
-        path: build
+        path: swig
 
     - name: Install dependencies
       run: |
@@ -163,7 +163,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: swig-generated
-        path: build
+        path: swig
         
     - name: Install dependencies
       run: |
@@ -208,7 +208,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: swig-generated
-        path: build
+        path: swig
         
     - name: Install dependencies
       run: |
