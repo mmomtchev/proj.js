@@ -96,7 +96,7 @@
     ]
   },
   "xpack": {
-    "minimumXpmRequired": "0.14.0",
+    "minimumXpmRequired": "0.19.1",
     "dependencies": {},
     "devDependencies": {
       "@mmomtchev/python-xpack": "3.10.15-1",
