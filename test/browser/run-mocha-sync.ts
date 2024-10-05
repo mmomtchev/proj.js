@@ -1,7 +1,7 @@
 // This runs only the sync mocha tests in the browser using karma
 
 // @ts-ignore
-import proj_db from '../../lib/binding/proj.db';
+import proj_db from '../../lib/binding/proj/proj.db';
 
 // @ts-ignore
 globalThis.proj_db = fetch(proj_db)

@@ -14,13 +14,15 @@ project('JavaScript bindings for PROJ',
 module_name = 'proj'
  
 sources = [
-  'build/proj_wrap.cc'
+  'swig/proj_wrap.cc'
 ]
 
 enable_curl = false
 enable_tiff = false
 inline_projdb = false
 async = false
+
+data_dir = meson.project_source_root() / 'lib' / 'binding'
 
 dependencies = [
   dependency('sqlite3', method : 'pkg-config')
@@ -50,17 +52,6 @@ summary({
   'inline proj.db'          : inline_projdb
 })
 
-cmake_dependencies = [
-  {'project' : 'PROJ', 'target' : 'proj'}
-]
-cmake_options = [
-  { 'BUILD_TESTING'         : false },
-  { 'BUILD_EXAMPLES'        : false },
-  { 'BUILD_APPS'            : false },
-  { 'ENABLE_TIFF'           : enable_tiff },
-  { 'ENABLE_CURL'           : enable_curl }
-]
-
 if inline_projdb
   add_global_link_arguments([
       '--embed-file', meson.current_build_dir() / 'deps' / 'PROJ' / 'proj.db@/proj.db',
@@ -70,18 +61,23 @@ if inline_projdb
 endif
 
 cmake_opts = cmake.subproject_options()
-# Buiild proj as a static library to be included in a shared module
+# Build proj as a static library to be included in a shared module
 cmake_opts.add_cmake_defines([
+  { 'BUILD_TESTING'                     : false },
+  { 'BUILD_EXAMPLES'                    : false },
+  { 'BUILD_APPS'                        : false },
+  { 'ENABLE_TIFF'                       : enable_tiff },
+  { 'ENABLE_CURL'                       : enable_curl },
   { 'BUILD_SHARED_LIBS'                 : false },
-  { 'CMAKE_POSITION_INDEPENDENT_CODE'   : true }
+  { 'CMAKE_POSITION_INDEPENDENT_CODE'   : true },
+  { 'CMAKE_INSTALL_DATADIR'             : data_dir },
+  # The PROJ CMake hasn't been updated with those policies (but it works)
+  { 'CMAKE_POLICY_WARNING_CMP0112'      : false },
+  { 'CMAKE_POLICY_WARNING_CMP0126'      : false }
 ])
-cmake_opts.set_install(false)
-cmake_opts.set_install(true, target : 'generate_proj_db')
 
-foreach cmake_dep : cmake_dependencies
-  project = cmake.subproject(cmake_dep.get('project'), options : cmake_opts)
-  dependencies += [ project.dependency(cmake_dep.get('target')) ]
-endforeach
+cmake_proj = cmake.subproject('PROJ', options: cmake_opts)
+dependencies += [ cmake_proj.dependency('proj') ]
 
 # --------------------
 # Build the module
@@ -98,12 +94,17 @@ main_target = napi.extension_module(
     # Node.js is excluded from the WASM loader on purpose:
     # * it has its own native build that is much better than WASM
     # * and including it produces a loader that confuses web bundlers such as Webpack
-    'environments': ['web','webview','worker'],
+    # 'environments': ['web','webview','worker'],
     # Export the FS subsystem
     'exported_runtime_methods': ['emnapiInit', 'FS']
   }
 )
 
+# --------------------
+# SWIG generated JS/TS
+# --------------------
+install_data('swig' / 'proj.d.ts', install_dir: data_dir)
+install_data('swig' / 'proj_wrap.cjs', install_dir: '.')
 
 # --------------------
 # The special case of proj.db
@@ -114,10 +115,12 @@ custom_target(
     'node',
     '-e',
     'fs.mkdirSync("' + get_option('prefix') + '", { recursive: true }); ' +
-    'fs.copyFileSync("' + meson.current_build_dir() / 'deps' / 'PROJ' / 'proj.db' + '", "' + get_option('prefix')  / 'proj.db' + '");'
+    'fs.copyFileSync("' + meson.current_build_dir() / 'deps' / 'PROJ' / 'proj.db' + '", "' + meson.current_build_dir() / 'proj.db' + '");'
   ],
   depends             : cmake.subproject('PROJ', options : cmake_opts).target('generate_proj_db'),
   input               : [],
   output              : 'proj.db',
-  build_by_default    : true
+  build_by_default    : true,
+  install             : true,
+  install_dir         : data_dir / 'proj'
 )

@@ -112,32 +112,40 @@
         "linux": "python3",
         "darwin": "python3"
       },
-      "conanbuild": {
-        "win32": "conanbuild.bat",
-        "linux": "conanbuild.sh",
-        "darwin": "conanbuild.sh"
+      "commandConanBuildEnv": {
+        "win32": "{{ properties.buildFolderRelativePath }}\\conanbuild.bat && ",
+        "linux": ". {{ properties.buildFolderRelativePath }}/conanbuild.sh && ",
+        "darwin": ". {{ properties.buildFolderRelativePath }}/conanbuild.sh && "
       },
-      "conansource": {
-        "win32": "",
-        "linux": ".",
-        "darwin": "."
+      "commandShowEnv": {
+        "win32": "set",
+        "linux": "env",
+        "darwin": "env"
       },
       "cwd": "{{ path.sep | path_relative: '.' }}",
       "buildFolderRelativePath": "{{ 'build' | path_join: configuration.name | to_filename | downcase }}",
       "installFolderPath": "{{ '/' | path_join: properties.cwd | path_join: 'lib' | path_join: 'binding' | path_join: properties.platformId }}",
-      "commandInit": "mkdir -p build",
-      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir build -exports './{{ properties.module_name }}.node' -o build{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
-      "commandConanDependencies": "conan install . -pr:b=default --build=missing -of {{ properties.buildFolderRelativePath }} --settings=build_type={{ properties.buildType | capitalize }}",
-      "commandDependenciesNative": "{{ properties.commandConanDependencies }} -pr:h=./hadron/{{ properties.toolchain }}-{{ os.platform }}.profile",
-      "commandDependenciesCross": "{{ properties.commandConanDependencies }} -pr:h=./hadron/{{ properties.toolchain }}.profile",
-      "commandPrepare": "meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} . -Dprefix={{ properties.installFolderPath }}",
-      "commandConanBuildEnv": "{{ properties.conansource[os.platform] }} {{ properties.buildFolderRelativePath }}{{ path.sep }}{{ properties.conanbuild[os.platform] }}",
-      "commandPrepareNative": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini",
-      "commandPrepareCross": "{{ properties.commandConanBuildEnv }} && {{ properties.commandPrepare }} --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini",
+      "commandInit": "mkdir -p swig",
+      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports './{{ properties.module_name }}.node' -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
+      "argsConanShared": "--build=missing --settings=build_type={{ properties.buildType | capitalize }}",
+      "argsConanNative": "-pr:h=.{{ path.sep }}hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.profile -pr:b=.{{ path.sep }}hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.profile",
+      "argsConanWASM": "-pr:b=default -pr:h=.{{ path.sep }}hadron{{ path.sep }}{{ properties.toolchain }}.profile",
+      "commandConanDependencies": "conan install . {{ properties.argsConanShared }} -of {{ properties.buildFolderRelativePath }}",
+      "commandDependenciesNative": "{{ properties.commandConanDependencies }} {{ properties.argsConanNative }}",
+      "commandDependenciesWASM": "{{ properties.commandConanDependencies }} {{ properties.argsConanWASM }}",
+      "commandConanLock": "conan lock create . {{ properties.argsConanShared }}",
+      "commandConanLockNative": "{{ properties.commandConanLock }} {{ properties.argsConanNative }}",
+      "commandConanLockWASM": "{{ properties.commandConanLock }} {{ properties.argsConanWASM }}",
+      "commandPrepare": "{{ properties.commandConanBuildEnv[os.platform] }} meson setup --backend ninja --buildtype {{ properties.buildType }} {{ properties.buildFolderRelativePath }} . -Dprefix={{ properties.installFolderPath }}",
+      "commandPrepareNative": "{{ properties.commandPrepare }} --native-file hadron{{ path.sep }}conan.ini --native-file {{ properties.buildFolderRelativePath }}/conan_meson_native.ini",
+      "commandPrepareWASM": "{{ properties.commandPrepare }} --cross-file hadron{{ path.sep }}conan.ini --cross-file {{ properties.buildFolderRelativePath }}/conan_meson_cross.ini",
       "commandConfigure": "meson configure {{ properties.buildFolderRelativePath }}",
-      "commandBuild": "{{ properties.commandConanBuildEnv }} && meson compile -C {{ properties.buildFolderRelativePath }} -v",
+      "commandBuild": "{{ properties.commandConanBuildEnv[os.platform] }} meson compile -C {{ properties.buildFolderRelativePath }} -v",
       "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }}",
-      "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean"
+      "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean",
+      "verbose": "{% if env.npm_config_loglevel %}--verbose{% endif %}",
+      "scriptInstallNative": "npx prebuild-install -d {{ properties.verbose }} || ( npx xpm install && npx xpm install --config {{ properties.configNative }} && xpm run prepare --config {{ properties.configNative }} && xpm run build --config {{ properties.configNative }} )",
+      "scriptInstallWASM": "npx prebuild-install --platform emscripten --arch wasm32 -d {{ properties.verbose }} || ( npx xpm install && xpm run prepare --config wasm && xpm run build --config wasm )"
     },
     "actions": {
       "generate": [
@@ -188,8 +196,8 @@
         },
         "actions": {
           "prepare": [
-            "{{ properties.commandDependenciesCross }}",
-            "{{ properties.commandPrepareCross }}"
+            "{{ properties.commandDependenciesWASM }}",
+            "{{ properties.commandPrepareWASM }}"
           ]
         }
       },

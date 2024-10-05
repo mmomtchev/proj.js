@@ -3,7 +3,7 @@
 import WASM from '../../lib/wasm.mjs';
 
 // @ts-ignore
-import proj_db_url from '../../lib/binding/proj.db';
+import proj_db_url from '../../lib/binding/proj/proj.db';
 const proj_db = fetch(proj_db_url)
   .then((r) => r.arrayBuffer())
   .then((r) => new Uint8Array(r));

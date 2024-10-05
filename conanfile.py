@@ -27,7 +27,7 @@ class PROJDependencies(ConanFile):
     'curl':  npm_option('curl', True) and npm_option('curl-conan', True)
   }
 
-  generators = [ 'MesonToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
+  generators = [ 'MesonToolchain', 'CMakeToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
 
   def requirements(self):
     if self.options.curl and self.settings.arch != 'wasm':
@@ -40,3 +40,7 @@ class PROJDependencies(ConanFile):
 
     self.tool_requires('pkgconf/2.1.0')
     self.tool_requires('sqlite3/[>=3.45.0]')
+
+  def configure(self):
+    if self.settings.arch == 'wasm':
+      self.options['libwebp/*'].with_simd = False
