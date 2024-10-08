@@ -53,7 +53,7 @@ jobs:
       enable_tiff: ${{ matrix.enable_tiff }}
 
   build-wasm:
-    name: Build WASM inline_proj.db=${{ matrix.inline_projdb }} tiff=${{ matrix.enable_tiff }}
+    name: Build WASM
     needs: swig
 
     strategy:
