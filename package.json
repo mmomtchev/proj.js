@@ -63,8 +63,6 @@
     "@emnapi/runtime": "^1.1.1",
     "emnapi": "^1.1.1",
     "node-addon-api": "^8.1.0",
-    "prebuild-install": "^7.1.2",
-    "tar": "^7.0.1",
     "xpm": "^0.19.1"
   },
   "devDependencies": {
