@@ -98,14 +98,12 @@ jobs:
     - name: Build the native version
       run: |
         npx xpm run prepare --config native
-        npx xpm run configure --config native
         npx xpm run build --config native
       if: inputs.native
 
     - name: Build the WASM version
       run: |
         npx xpm run prepare --config wasm
-        npx xpm run configure --config wasm
         npx xpm run build --config wasm
       if: inputs.wasm
 
