@@ -41,6 +41,7 @@ jobs:
       fail-fast: false
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
+        enable_tiff: [true, false]
 
     uses:
       mmomtchev/proj.js/.github/workflows/build.yml@modular-build
@@ -48,16 +49,18 @@ jobs:
       platform: ${{ matrix.platform }}
       native: true
       wasm: false
-      id: native-${{ matrix.platform }}
+      id: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
+      enable_tiff: ${{ matrix.enable_tiff }}
 
   build-wasm:
-    name: Build WASM
+    name: Build WASM inline_proj.db=${{ matrix.inline_projdb }} tiff=${{ matrix.enable_tiff }}
     needs: swig
 
     strategy:
       fail-fast: false
       matrix:
         inline_projdb: [true, false]
+        enable_tiff: [true, false]
 
     uses:
       mmomtchev/proj.js/.github/workflows/build.yml@modular-build
@@ -65,7 +68,8 @@ jobs:
       platform: ubuntu-latest
       native: false
       wasm: true
-      id: wasm-inline-${{ matrix.inline_projdb }}
+      enable_tiff: ${{ matrix.enable_tiff }}
+      id: wasm-${{ matrix.inline_projdb && 'inlined' || 'external' }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
 
 
   build-asan:
@@ -98,7 +102,7 @@ jobs:
 
   test:
     runs-on: ${{ matrix.platform }}
-    name: Test ${{ matrix.platform }}
+    name: Test ${{ matrix.platform }} inline_proj.db=${{ matrix.inline_projdb }} tiff=${{ matrix.enable_tiff }}
     needs: [ build-wasm, build-native ]
 
     strategy:
@@ -106,6 +110,7 @@ jobs:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
         inline_projdb: [true, false]
+        enable_tiff: [true, false]
 
     steps:
     - name: Checkout
@@ -118,13 +123,13 @@ jobs:
     - name: Download the native artifact ${{ matrix.platform }}
       uses: actions/download-artifact@v4
       with:
-        name: native-${{ matrix.platform }}
+        name: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
         path: lib/binding
 
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm-inline-${{ matrix.inline_projdb }}
+        name: wasm-${{ matrix.inline_projdb && 'inlined' || 'external' }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
         path: lib/binding
 
     - name: Install dependencies
@@ -158,7 +163,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm-inline-true
+        name: wasm-inlined-tiff
         path: lib/binding
 
     - name: Download the ASAN instrumented artifact
@@ -195,7 +200,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm-inline-true
+        name: wasm-inlined-tiff
         path: lib/binding
 
     - name: Download the code coverage artifact
