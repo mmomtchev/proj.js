@@ -53,8 +53,8 @@ Currently, the bundle size remains an issue.
 
 | Component | raw | brotli |
 | --- | --- | --- |
-| `proj.wasm` w/  TIFF w/o `proj.db` | 15M | 3187K |
-| `proj.wasm` w/o TIFF w/o `proj.db` | 13M | 1580K |
+| `proj.wasm` w/  TIFF w/o `proj.db` | 15M | 1813K |
+| `proj.wasm` w/o TIFF w/o `proj.db` | 13M | 1382K |
 | `proj.db` | 9240K | 1320K |
 
 It should be noted that while using `-Os` in `emscripten` can lead to a two-fold reduction of the raw size, the size of the compressed build will always remain the same.
