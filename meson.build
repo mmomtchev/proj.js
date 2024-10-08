@@ -72,6 +72,7 @@ cmake_opts.add_cmake_defines([
   { 'ENABLE_TIFF'                       : enable_tiff },
   { 'ENABLE_CURL'                       : enable_curl },
   { 'BUILD_SHARED_LIBS'                 : false },
+  { 'CMAKE_DISABLE_FIND_PACKAGE_Threads': true },
   { 'CMAKE_POSITION_INDEPENDENT_CODE'   : true },
   { 'CMAKE_INSTALL_DATADIR'             : data_dir },
   # The PROJ CMake hasn't been updated with those policies (but it works)
