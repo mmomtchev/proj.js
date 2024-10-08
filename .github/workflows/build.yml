@@ -105,6 +105,8 @@ jobs:
       run: |
         npx xpm run prepare --config wasm
         npx xpm run build --config wasm
+        ${EMSDK}/upstream/bin/wasm-opt --enable-bulk-memory --enable-threads --converge -Oz lib/binding/emscripten-wasm32/proj.wasm -o proj.opt.wasm
+        mv proj.opt.wasm lib/binding/emscripten-wasm32/proj.wasm
       if: inputs.wasm
 
     - name: Build the native ASAN version

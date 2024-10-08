@@ -51,17 +51,19 @@ When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be
 
 Currently, the bundle size remains an issue.
 
-| Component | raw | brotli |
+| Component | raw | brotli | brotli
 | --- | --- | --- |
-| `proj.wasm` w/  TIFF w/o `proj.db` | 15M | 1813K |
-| `proj.wasm` w/o TIFF w/o `proj.db` | 13M | 1382K |
+| `proj.wasm` w/  TIFF w/o `proj.db` | 15M | 1815K |
+| `proj.wasm` w/o TIFF w/o `proj.db` | 13M | 1379K |
 | `proj.db` | 9240K | 1320K |
 
-It should be noted that while using `-Os` in `emscripten` can lead to a two-fold reduction of the raw size, the size of the compressed build will always remain the same.
+It should be noted that while using `-Os` in `emscripten` can lead to a two-fold reduction of the raw size, the size of the compressed build will always remain the same. Sames goes for optimizing with `binaryen` - despite the very significant raw size gain, the gain compressed gain size is insignificant.
 
 `curl` support is enabled only in the native build - there is no simple solution to networking for the WASM build.
 
 Linking with my own `sqlite-wasm-http` project to access a remote `proj.db`, using SQL over HTTP, is a very significant project that will further increase the bundle size to the point nullifying the gains from `proj.db`. It does not seem to be a logical option at the moment.
+
+Currently the biggest contributor to code size is SWIG JSE which produces lots of duplicated code for each function. This may me improved in a future version. Also it is worth investigating what can be gained from modularization of the SWIG wrappers and if it is really necessary to wrap separately all derived classes.
 
 # Performance
 
