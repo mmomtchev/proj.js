@@ -60,6 +60,11 @@ if inline_projdb
   )
 endif
 
+# We don't use SWIG code splitting (for now)
+if meson.get_compiler('cpp').get_id() == 'msvc'
+  add_global_arguments([ '/bigobj' ], language: 'cpp')
+endif
+
 cmake_opts = cmake.subproject_options()
 # Build proj as a static library to be included in a shared module
 cmake_opts.add_cmake_defines([
