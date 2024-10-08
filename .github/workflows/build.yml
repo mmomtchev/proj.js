@@ -38,7 +38,7 @@ on:
 jobs:    
   build:
     runs-on: ${{ inputs.platform }}
-    name: Build ${{ inputs.native && 'native ' || '' }}${{ inputs.wasm && 'wasm ' || '' }}${{ inputs.asan && 'ASAN ' || '' }}${{ inputs.codecov && 'codecov ' || '' }}on ${{ inputs.platform }}${{ inputs.enable_tiff && '' || ' w/o libtiff' }}${{ inputs.inline_projdb && '' || ' w/o proj.db' }}
+    name: Build ${{ inputs.native && 'native ' || '' }}${{ inputs.wasm && 'wasm ' || '' }}${{ inputs.asan && 'ASAN ' || '' }}${{ inputs.codecov && 'codecov ' || '' }}on ${{ inputs.platform }}${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}
 
     strategy:
       fail-fast: false
@@ -121,9 +121,9 @@ jobs:
 
     - name: Check WASM module size
       run: |
-        echo "::notice::WASM version is $(( `cat lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes raw${{ inputs.enable_tiff && '' || ' w/o libtiff' }}${{ inputs.inline_projdb && '' || ' w/o proj.db' }}"
-        echo "::notice::WASM version is $(( `gzip -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes gzipped${{ inputs.enable_tiff && '' || ' w/o libtiff' }}${{ inputs.inline_projdb && '' || ' w/o proj.db' }}"
-        echo "::notice::WASM version is $(( `brotli -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes brotlied${{ inputs.enable_tiff && '' || ' w/o libtiff' }}${{ inputs.inline_projdb && '' || ' w/o proj.db' }}"
+        echo "::notice::WASM version is $(( `cat lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes raw${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"
+        echo "::notice::WASM version is $(( `gzip -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes gzipped${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"
+        echo "::notice::WASM version is $(( `brotli -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes brotlied${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"
       if: inputs.wasm
     - name: Locate addon file
       shell: bash
@@ -132,7 +132,7 @@ jobs:
       if: inputs.native
     - name: Check native module size
       run: |
-        node -p '"::notice::native version is " + (fs.statSync(path.resolve(__dirname, "lib", "binding", `${os.platform()}-${os.arch()}`, "proj.node")).size / 1024).toFixed(0) + " KBytes${{ inputs.enable_tiff && '' || ' w/o libtiff' }}${{ inputs.inline_projdb && '' || ' w/o proj.db' }}"'
+        node -p '"::notice::native version is " + (fs.statSync(path.resolve(__dirname, "lib", "binding", `${os.platform()}-${os.arch()}`, "proj.node")).size / 1024).toFixed(0) + " KBytes${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"'
       if: inputs.native
     - name: List linked libraries (Linux)
       run: ldd ${{ steps.addon.outputs.addon }}
