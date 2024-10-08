@@ -44,7 +44,7 @@ jobs:
         enable_tiff: [true, false]
 
     uses:
-      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+      mmomtchev/proj.js/.github/workflows/build.yml@main
     with:
       platform: ${{ matrix.platform }}
       native: true
@@ -63,7 +63,7 @@ jobs:
         enable_tiff: [true, false]
 
     uses:
-      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+      mmomtchev/proj.js/.github/workflows/build.yml@main
     with:
       platform: ubuntu-latest
       native: false
@@ -78,7 +78,7 @@ jobs:
     needs: swig
 
     uses:
-      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+      mmomtchev/proj.js/.github/workflows/build.yml@main
     with:
       platform: ubuntu-latest
       native: false
@@ -92,7 +92,7 @@ jobs:
     needs: swig
 
     uses:
-      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+      mmomtchev/proj.js/.github/workflows/build.yml@main
     with:
       platform: ubuntu-latest
       native: false
