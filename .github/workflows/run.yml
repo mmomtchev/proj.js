@@ -85,10 +85,6 @@ jobs:
         path: ${{ steps.conan_home.outputs.path }}
         key: conan-native-${{ matrix.platform }}
 
-    - name: Horrible kludge for https://github.com/xpack-dev-tools/cmake-xpack/issues/8
-      run: del node_modules\.bin\rc
-      if: runner.os == 'Windows'
-
     - name: Build the native version
       run: npm run build:native
     
