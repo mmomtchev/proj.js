@@ -35,15 +35,13 @@ on:
         default: true
         description: include TIFF support
 
-jobs:
+jobs:    
   build:
     runs-on: ${{ inputs.platform }}
-    name: Build ${{ inputs.native && 'native' || '' }} ${{ inputs.wasm && 'wasm' || '' }}
+    name: Build ${{ inputs.native && 'native' || '' }}${{ inputs.wasm && 'wasm' || '' }}${{ inputs.asan && 'ASAN' || '' }}${{ inputs.codecov && 'codecov' || '' }}
 
     strategy:
       fail-fast: false
-      matrix:
-        platform: [ubuntu-latest, macos-latest, windows-latest]
 
     steps:
     - name: Checkout
@@ -115,7 +113,29 @@ jobs:
         npx xpm run configure --config native -- -Db_coverage=true
         npm run build:native
 
-    - name: Upload native artifact ${{ matrix.platform }}
+    - name: Check WASM module size
+      run: |
+        echo "::notice::WASM version is $(( `cat lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes raw"
+        echo "::notice::WASM version is $(( `gzip -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes gzipped"
+        echo "::notice::WASM version is $(( `brotli -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes brotlied"
+      if: inputs.wasm
+    - name: Locate addon file
+      shell: bash
+      id: addon
+      run: node -p '"addon=" + path.resolve(__dirname, "lib", "binding", `${os.platform()}-${os.arch()}`, "proj.node")' >> $GITHUB_OUTPUT
+      if: inputs.native
+    - name: Check native module size
+      run: |
+        node -p '"::notice::native version is " + (fs.statSync(path.resolve(__dirname, "lib", "binding", `${os.platform()}-${os.arch()}`, "proj.node")).size / 1024).toFixed(0) + " KBytes"'
+      if: inputs.native
+    - name: List linked libraries (Linux)
+      run: ldd ${{ steps.addon.outputs.addon }}
+      if: runner.os == 'Linux' && inputs.native
+    - name: List linked libraries (macOS)
+      run: otool -L ${{ steps.addon.outputs.addon }}
+      if: runner.os == 'macOS' && inputs.native
+
+    - name: Upload artifact ${{ inputs.id }}
       uses: actions/upload-artifact@v4
       with:
         name: ${{ inputs.id }}

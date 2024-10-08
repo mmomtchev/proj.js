@@ -35,7 +35,6 @@ jobs:
 
   
   build-native:
-    runs-on: ${{ matrix.platform }}
     name: Build native ${{ matrix.platform }}
     needs: swig
 
@@ -44,59 +43,15 @@ jobs:
       matrix:
         platform: [ubuntu-latest, macos-latest, windows-latest]
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Setup Visual Studio (Windows)
-      uses: ilammy/msvc-dev-cmd@v1
-      if: runner.os == 'Windows'
-
-    - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
-      with:
-        name: swig-generated
-        path: swig
-        
-    - name: Install dependencies
-      run: |
-        npm install
-        npx xpm install
-
-    - name: Install the xpacks
-      run: |
-        npm install xpm
-        npx xpm install
-    - name: Get conan home
-      shell: bash
-      id: conan_home
-      run: |
-        npx xpm run -q conan -- version
-        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
-    - name: Cache conan artifacts
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.conan_home.outputs.path }}
-        key: conan-native-${{ matrix.platform }}
-
-    - name: Build the native version
-      run: npm run build:native
-    
-    - name: Upload native artifact ${{ matrix.platform }}
-      uses: actions/upload-artifact@v4
-      with:
-        name: native-${{ matrix.platform }}
-        path: lib/binding/*
-
+    uses:
+      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+    with:
+      platform: ${{ matrix.platform }}
+      native: true
+      wasm: false
+      id: native-${{ matrix.platform }}
 
   build-wasm:
-    runs-on: ubuntu-latest
     name: Build WASM
     needs: swig
 
@@ -105,152 +60,41 @@ jobs:
       matrix:
         inline_projdb: [true, false]
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-    - name: Setup emscripten
-      uses: mymindstorm/setup-emsdk@v14
-      with:
-        version: 3.1.53
-
-    - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
-      with:
-        name: swig-generated
-        path: swig
-
-    - name: Install the xpacks
-      run: |
-        npm install xpm
-        npx xpm install
-    - name: Get conan home
-      shell: bash
-      id: conan_home
-      run: |
-        npx xpm run -q conan -- version
-        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
-    - name: Cache conan artifacts
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.conan_home.outputs.path }}
-        key: conan-wasm-inline-proj-${{ matrix.inline_projdb }}
-
-    - name: Build the WASM version
-      run: npm run build:wasm
-      env:
-        npm_config_inline_projdb: ${{ matrix.inline_projdb }}
-    
-    - name: Upload WASM artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: wasm-inline-${{ matrix.inline_projdb }}
-        path: lib/binding/*
+    uses:
+      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+    with:
+      platform: ubuntu-latest
+      native: false
+      wasm: true
+      id: wasm-inline-${{ matrix.inline_projdb }}
 
 
   build-asan:
-    runs-on: ubuntu-latest
     name: Build ASAN instrumented version
     needs: swig
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
-      with:
-        name: swig-generated
-        path: swig
-        
-    - name: Install the xpacks
-      run: |
-        npm install xpm
-        npx xpm install
-    - name: Get conan home
-      shell: bash
-      id: conan_home
-      run: |
-        npx xpm run -q conan -- version
-        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
-    - name: Cache conan artifacts
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.conan_home.outputs.path }}
-        key: conan-asan
-
-    - name: Build the native version
-      run: |
-        npx xpm run prepare --config native-debug
-        npx xpm run configure --config native-debug -- -Db_sanitize=address
-        npx xpm run build --config native-debug
-
-    - name: Upload native artifact (ASAN instrumented)
-      uses: actions/upload-artifact@v4
-      with:
-        name: native-asan
-        path: lib/binding/*
+    uses:
+      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+    with:
+      platform: ubuntu-latest
+      native: false
+      wasm: false
+      asan: true
+      id: native-asan
 
 
   build-codecov:
-    runs-on: ubuntu-latest
     name: Build code coverage instrumented version
     needs: swig
 
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - name: Setup Node.js 20
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20
-
-    - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
-      with:
-        name: swig-generated
-        path: swig
-        
-    - name: Install the xpacks
-      run: |
-        npm install xpm
-        npx xpm install
-    - name: Get conan home
-      shell: bash
-      id: conan_home
-      run: |
-        npx xpm run -q conan -- version
-        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
-    - name: Cache conan artifacts
-      uses: actions/cache@v4
-      with:
-        path: ${{ steps.conan_home.outputs.path }}
-        key: conan-codecov
-
-    - name: Build the native version
-      run: |
-        npm run configure:native
-        npx xpm run configure --config native -- -Db_coverage=true
-        npm run build:native
-
-    - name: Upload native artifact (code coverage instrumented)
-      uses: actions/upload-artifact@v4
-      with:
-        name: native-codecov
-        path: lib/binding/*
+    uses:
+      mmomtchev/proj.js/.github/workflows/build.yml@modular-build
+    with:
+      platform: ubuntu-latest
+      native: false
+      wasm: false
+      codecov: true
+      id: native-codecov
 
 
   test:
