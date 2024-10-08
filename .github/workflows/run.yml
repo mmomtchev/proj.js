@@ -139,10 +139,12 @@ jobs:
     - name: Run the Node.js tests
       run: npm run test:nodejs
 
-    - name: Run the browser tests
-      uses: coactions/setup-xvfb@v1
-      with:
-        run: npm run test:browser
+    - name: Run the browser tests (macOS / Windows)
+      if: runner.os != 'Linux'
+      run: npm run test:browser
+    - name: Run the browser tests (Linux)
+      if: runner.os == 'Linux'
+      run: xvfb-run npm run test:browser
 
     - name: Test building the webpack project
       run: npm run build:webpack
