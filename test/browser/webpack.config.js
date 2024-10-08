@@ -73,6 +73,15 @@ export default [
       'vm': 'vm',
       './': '"./"'
     },
+    module: {
+      rules: [
+        // This bundles proj.db if it is not inlined
+        {
+          test: /proj\.db/,
+          type: 'asset/resource'
+        }
+      ]
+    },
     ignoreWarnings,
     devServer: {
       port: 8030,
@@ -109,6 +118,11 @@ export default [
           options: {
             onlyCompileBundledFiles: true
           }
+        },
+        // This bundles proj.db if it is not inlined
+        {
+          test: /proj\.db/,
+          type: 'asset/resource'
         }
       ]
     },

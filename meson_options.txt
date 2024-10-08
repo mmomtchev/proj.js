@@ -1,1 +1,0 @@
-option('no_async', type : 'boolean', value : true)

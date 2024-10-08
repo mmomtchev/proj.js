@@ -3,5 +3,8 @@ module.exports = {
   'node-option': [
     'no-warnings',
     'loader=ts-node/esm'
+  ],
+  'require': [
+    'test/wasm.node_js.proj_db.ts'
   ]
 };

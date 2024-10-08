@@ -1,0 +1,148 @@
+name: Build proj.js
+
+on:
+  workflow_call:
+    inputs:
+      platform:
+        type: string
+        required: true
+      native:
+        type: boolean
+        required: true
+        description: build the native module
+      wasm:
+        type: boolean
+        required: true
+        description: build the WASM module
+      asan:
+        type: boolean
+        default: false
+        description: build the ASAN version
+      codecov:
+        type: boolean
+        default: false
+        description: build the codecov version
+      id:
+        type: string
+        required: true
+        description: artifact id
+      inline_projdb:
+        type: boolean
+        default: true
+        description: inline proj.db for WASM
+      enable_tiff:
+        type: boolean
+        default: true
+        description: include TIFF support
+
+jobs:    
+  build:
+    runs-on: ${{ inputs.platform }}
+    name: Build ${{ inputs.native && 'native ' || '' }}${{ inputs.wasm && 'wasm ' || '' }}${{ inputs.asan && 'ASAN ' || '' }}${{ inputs.codecov && 'codecov ' || '' }}on ${{ inputs.platform }}${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Setup Visual Studio (Windows)
+      uses: ilammy/msvc-dev-cmd@v1
+      if: runner.os == 'Windows'
+    - name: Setup emscripten (WASM)
+      uses: mymindstorm/setup-emsdk@v14
+      if: inputs.wasm
+      with:
+        version: 3.1.53
+
+    - name: Download the SWIG-generated wrappers
+      uses: actions/download-artifact@v4
+      with:
+        name: swig-generated
+        path: swig
+        
+    - name: Install dependencies
+      run: |
+        npm install
+        npx xpm install
+
+    - name: Install the xpacks
+      run: |
+        npm install xpm
+        npx xpm install
+    - name: Get conan home
+      shell: bash
+      id: conan_home
+      run: |
+        npx xpm run -q conan -- version
+        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
+    - name: Cache conan artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.conan_home.outputs.path }}
+        key: conan-${{ inputs.id }}
+
+    - name: Build the native version
+      run: |
+        npx xpm run prepare --config native
+        npx xpm run configure --config native -- -Dtiff=${{ inputs.enable_tiff }}
+        npx xpm run build --config native
+      if: inputs.native
+
+    - name: Build the WASM version
+      run: |
+        npx xpm run prepare --config wasm
+        npx xpm run configure --config wasm -- -Dtiff=${{ inputs.enable_tiff }}
+        npx xpm run build --config wasm
+      if: inputs.wasm
+      env:
+        npm_config_inline_projdb: ${{ inputs.inline_projdb }}
+
+    - name: Build the native ASAN version
+      if: inputs.asan
+      run: |
+        npx xpm run prepare --config native-debug
+        npx xpm run configure --config native-debug -- -Db_sanitize=address
+        npx xpm run build --config native-debug
+
+    - name: Build the native codecov version
+      if: inputs.codecov
+      run: |
+        npm run configure:native
+        npx xpm run configure --config native -- -Db_coverage=true
+        npm run build:native
+
+    - name: Check WASM module size
+      run: |
+        echo "::notice::WASM version is $(( `cat lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes raw${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"
+        echo "::notice::WASM version is $(( `gzip -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes gzipped${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"
+        echo "::notice::WASM version is $(( `brotli -9c lib/binding/emscripten-wasm32/proj.wasm | wc -c` / 1024 )) KBytes brotlied${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"
+      if: inputs.wasm
+    - name: Locate addon file
+      shell: bash
+      id: addon
+      run: node -p '"addon=" + path.resolve(__dirname, "lib", "binding", `${os.platform()}-${os.arch()}`, "proj.node")' >> $GITHUB_OUTPUT
+      if: inputs.native
+    - name: Check native module size
+      run: |
+        node -p '"::notice::native version is " + (fs.statSync(path.resolve(__dirname, "lib", "binding", `${os.platform()}-${os.arch()}`, "proj.node")).size / 1024).toFixed(0) + " KBytes${{ inputs.enable_tiff && ' ' || ' w/o libtiff' }}${{ inputs.inline_projdb && ' ' || ' w/o proj.db' }}"'
+      if: inputs.native
+    - name: List linked libraries (Linux)
+      run: ldd ${{ steps.addon.outputs.addon }}
+      if: runner.os == 'Linux' && inputs.native
+    - name: List linked libraries (macOS)
+      run: otool -L ${{ steps.addon.outputs.addon }}
+      if: runner.os == 'macOS' && inputs.native
+
+    - name: Upload artifact ${{ inputs.id }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ inputs.id }}
+        path: lib/binding/*

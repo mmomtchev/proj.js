@@ -1,0 +1,4 @@
+option('no_async',        type : 'boolean', value : true)
+option('curl',            type : 'boolean', value : true)
+option('tiff',            type : 'boolean', value : true)
+option('inline_projdb',   type : 'boolean', value : true)

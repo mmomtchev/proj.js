@@ -8,12 +8,29 @@ struct proj_instance_data {
 };
 #ifdef __EMSCRIPTEN__
 extern const char *rootPath;
+extern const bool proj_js_inline_projdb;
 #endif
+extern const char *proj_js_build;
 %}
+
+%immutable;
+%typemap(ts) const char *proj_js_build "'wasm' | 'native'";
+const char *proj_js_build;
+const bool proj_js_inline_projdb;
+%mutable;
 
 %wrapper %{
 #ifdef __EMSCRIPTEN__
 const char *rootPath = "/";
+const char *proj_js_build = "wasm";
+#ifdef INLINE_PROJDB
+const bool proj_js_inline_projdb = true;
+#else
+const bool proj_js_inline_projdb = false;
+#endif
+#else
+const char *proj_js_build = "native";
+const bool proj_js_inline_projdb = false;
 #endif
 %}
 
@@ -55,6 +72,13 @@ const char *rootPath = "/";
 #if defined(_WIN32) || defined(__WIN32__)
 #include <windows.h>
 #include <tchar.h>
+#endif
+
+// PROJ and windows.h have a rather unfortunate conflict for STRICT
+// that is solved if the header files are included normally
+// https://github.com/OSGeo/PROJ/pull/2949
+#ifdef STRICT
+#undef STRICT
 #endif
 %}
 %init %{
