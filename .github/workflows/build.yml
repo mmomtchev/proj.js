@@ -89,14 +89,18 @@ jobs:
         path: ${{ steps.conan_home.outputs.path }}
         key: conan-${{ inputs.id }}
 
+    - name: Set the npm build options
+      shell: bash
+      run: |
+        echo "${{ inputs.inline_projdb && 'npm_config_enable_inline_projdb' || 'npm_config_disable_inline_projdb' }}=true" >> $GITHUB_ENV
+        echo "${{ inputs.enable_tiff && 'npm_config_enable_tiff' || 'npm_config_disable_tiff' }}=true" >> $GITHUB_ENV
+
     - name: Build the native version
       run: |
         npx xpm run prepare --config native
         npx xpm run configure --config native
         npx xpm run build --config native
       if: inputs.native
-      env:
-        npm_config_disable_tiff: ${{ (!inputs.enable_tiff) && 'true' || '' }}
 
     - name: Build the WASM version
       run: |
@@ -104,10 +108,6 @@ jobs:
         npx xpm run configure --config wasm
         npx xpm run build --config wasm
       if: inputs.wasm
-      env:
-        npm_config_enable_inline_projdb: ${{ inputs.inline_projdb && 'true' || '' }}
-        npm_config_disable_inline_projdb: ${{ (!inputs.inline_projdb) && 'true' || '' }}
-        npm_config_disable_tiff: ${{ (!inputs.enable_tiff) && 'true' || '' }}
 
     - name: Build the native ASAN version
       if: inputs.asan
