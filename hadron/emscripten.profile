@@ -12,9 +12,7 @@ compiler.libcxx=libc++
 compiler.version=17
 
 [conf]
-tools.build:cflags=['-pthread']
-tools.build:cxxflags=['-pthread']
-tools.build:sharedlinkflags=['-pthread', '-sDEFAULT_PTHREAD_STACK_SIZE=2MB', '-sSTACK_SIZE=2MB']
+tools.build:sharedlinkflags=['-sSTACK_SIZE=2MB']
 tools.cmake.cmaketoolchain:user_toolchain=['{{ os.getenv("EMSDK") }}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake']
 
 [options]
