@@ -34,7 +34,7 @@ jobs:
 
   
   build-native:
-    name: Build native ${{ matrix.platform }}
+    name: Build native ${{ matrix.platform && '' || '' }}
     needs: swig
 
     strategy:
