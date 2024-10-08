@@ -73,6 +73,13 @@ const bool proj_js_inline_projdb = false;
 #include <windows.h>
 #include <tchar.h>
 #endif
+
+// PROJ and windows.h have a rather unfortunate conflict for STRICT
+// that is solved if the header files are included normally
+// https://github.com/OSGeo/PROJ/pull/2949
+#ifdef STRICT
+#undef STRICT
+#endif
 %}
 %init %{
 #if defined(_WIN32) || defined(__WIN32__)
