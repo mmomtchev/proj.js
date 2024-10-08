@@ -53,12 +53,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-    - name: Cache conan artifacts
-      id: conan-artifacts
-      uses: actions/cache@v4
-      with:
-        path: ~/.conan2
-        key: ${{ runner.os }}-conan
 
     - name: Setup Visual Studio (Windows)
       uses: ilammy/msvc-dev-cmd@v1
@@ -74,6 +68,22 @@ jobs:
       run: |
         npm install
         npx xpm install
+
+    - name: Install the xpacks
+      run: |
+        npm install xpm
+        npx xpm install
+    - name: Get conan home
+      shell: bash
+      id: conan_home
+      run: |
+        npx xpm run -q conan -- version
+        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
+    - name: Cache conan artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.conan_home.outputs.path }}
+        key: conan-native-${{ matrix.platform }}
 
     - name: Horrible kludge for https://github.com/xpack-dev-tools/cmake-xpack/issues/8
       run: del node_modules\.bin\rc
@@ -112,12 +122,6 @@ jobs:
       uses: mymindstorm/setup-emsdk@v14
       with:
         version: 3.1.53
-    - name: Cache conan artifacts
-      id: conan-artifacts
-      uses: actions/cache@v4
-      with:
-        path: ~/.conan2
-        key: wasm-conan-${{ matrix.inline_projdb }}
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
@@ -125,10 +129,21 @@ jobs:
         name: swig-generated
         path: swig
 
-    - name: Install dependencies
+    - name: Install the xpacks
       run: |
-        npm install
+        npm install xpm
         npx xpm install
+    - name: Get conan home
+      shell: bash
+      id: conan_home
+      run: |
+        npx xpm run -q conan -- version
+        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
+    - name: Cache conan artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.conan_home.outputs.path }}
+        key: conan-wasm-inline-proj-${{ matrix.inline_projdb }}
 
     - name: Build the WASM version
       run: npm run build:wasm
@@ -156,12 +171,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-    - name: Cache conan artifacts
-      id: conan-artifacts
-      uses: actions/cache@v4
-      with:
-        path: ~/.conan2
-        key: asan-conan
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
@@ -169,10 +178,21 @@ jobs:
         name: swig-generated
         path: swig
         
-    - name: Install dependencies
+    - name: Install the xpacks
       run: |
-        npm install
+        npm install xpm
         npx xpm install
+    - name: Get conan home
+      shell: bash
+      id: conan_home
+      run: |
+        npx xpm run -q conan -- version
+        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
+    - name: Cache conan artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.conan_home.outputs.path }}
+        key: conan-asan
 
     - name: Build the native version
       run: |
@@ -201,12 +221,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
-    - name: Cache conan artifacts
-      id: conan-artifacts
-      uses: actions/cache@v4
-      with:
-        path: ~/.conan2
-        key: codecov-conan
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
@@ -214,10 +228,21 @@ jobs:
         name: swig-generated
         path: swig
         
-    - name: Install dependencies
+    - name: Install the xpacks
       run: |
-        npm install
+        npm install xpm
         npx xpm install
+    - name: Get conan home
+      shell: bash
+      id: conan_home
+      run: |
+        npx xpm run -q conan -- version
+        echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
+    - name: Cache conan artifacts
+      uses: actions/cache@v4
+      with:
+        path: ${{ steps.conan_home.outputs.path }}
+        key: conan-codecov
 
     - name: Build the native version
       run: |

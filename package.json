@@ -151,7 +151,9 @@
       "generate": [
         "{{ properties.commandInit }}",
         "{{ properties.commandGenerate }}"
-      ]
+      ],
+      "conan": "conan",
+      "meson": "meson"
     },
     "buildConfigurations": {
       "native": {
