@@ -18,7 +18,6 @@ jobs:
       with:
         branch: jse
         version: v5.0.5
-        cache: false
         
     - name: Verify SWIG
       run: swig-jse -version
