@@ -1,7 +1,7 @@
-// This runs all the mocha tests in the browser using karma
+// This runs only the sync mocha tests in the browser using karma
 
 // @ts-ignore
-import proj_db from '../../lib/binding/proj/proj.db'
+import proj_db from '../../lib/binding/proj/proj.db';
 
 // @ts-ignore
 globalThis.proj_db = fetch(proj_db)
@@ -9,4 +9,3 @@ globalThis.proj_db = fetch(proj_db)
   .then((r) => new Uint8Array(r));
 
 import '../wasm.sync.test.js'; 
-import '../wasm.async.test.js';

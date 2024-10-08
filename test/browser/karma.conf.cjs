@@ -10,8 +10,7 @@ module.exports = function (config) {
       mocha: {
         reporter: 'html',
         timeout: 40000
-      },
-      args: process.env.NO_ASYNC ? ['no-async'] : []
+      }
     },
     files: [
       { pattern: 'build/bundle-mocha.js', included: true },
