@@ -23,6 +23,9 @@ inline_projdb = false
 
 data_dir = meson.project_source_root() / 'lib' / 'binding'
 
+# This is what parses the options
+napi = import('node-api')
+
 dependencies = [
   dependency('sqlite3', method : 'pkg-config')
 ]
@@ -82,7 +85,6 @@ dependencies += [ cmake_proj.dependency('proj') ]
 # --------------------
 # Build the module
 # --------------------
-napi = import('node-api')
 main_target = napi.extension_module(
   module_name,
   sources,
