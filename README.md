@@ -62,3 +62,20 @@ It should be noted that while using `-Os` in `emscripten` can lead to a two-fold
 `curl` support is enabled only in the native build - there is no simple solution to networking for the WASM build.
 
 Linking with my own `sqlite-wasm-http` project to access a remote `proj.db`, using SQL over HTTP, is a very significant project that will further increase the bundle size to the point nullifying the gains from `proj.db`. It does not seem to be a logical option at the moment.
+
+# Performance
+
+Initial crude benchmarks, tested on i7 9700K @ 3.6 GHz with the C++ [quickstart](https://proj.org/en/latest/development/quickstart_cpp.html):
+
+| Test | Native | WASM in V8 |
+| --- | --- | --- |
+| `DatabaseContext.create()` | 0.171ms | 16.316ms |
+| `AuthorityFactory.create('string')` | 0.071ms | 0.44ms |
+| `CoordinateOperationContext.create()` | 0.052ms | 0.397ms |
+| `AuthorityFactory.create('EPSG')` | 0.011ms | 0.274ms |
+| `createFromUserInput()`  | 0.283ms | 0.617ms |
+| `CoordinateOperationFactory.create().createOperations()` | 0.588ms | 1.885ms |
+| `coordinateTransformer()` | 0.29ms | 19.117ms |
+| `transform()` | 0.014ms | 0.234ms |
+
+Globally, the first impression is that the library is usable both on the backend and in the browser in fully synchronous mode. The only real hurdle at the moment remains the WASM bundle size.

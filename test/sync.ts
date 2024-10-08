@@ -61,10 +61,12 @@ export default function (dll: typeof Native | typeof WASM) {
 
       console.time('coordinateTransformer()');
       const transformer = list[0].coordinateTransformer();
+      console.timeEnd('coordinateTransformer()');
       const c0 = new bindings.PJ_COORD;
       c0.v = [49, 2, 0, 0];
+      console.time('transform()');
       const c1 = transformer.transform(c0);
-      console.timeEnd('coordinateTransformer()');
+      console.timeEnd('transform()');
       assert.closeTo(c1.v[0], 426857.988, 1e-3);
       assert.closeTo(c1.v[1], 5427937.523, 1e-3);
     });

@@ -110,18 +110,6 @@ using namespace NS_PROJ;
 
 
 // Because of a large number of improvements for proj.js
-#if SWIG_VERSION < 0x050003
-#error Generating this project requires SWIG JSE 5.0.4
+#if SWIG_VERSION < 0x050005
+#error Generating this project requires SWIG JSE 5.0.5
 #endif
-%{
-// Because of https://github.com/emscripten-core/emscripten/pull/21041
-#ifndef NO_ASYNC
-  #ifdef __EMSCRIPTEN__
-    #include <emscripten/version.h>
-    #if __EMSCRIPTEN_major__ < 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ < 1) || \
-        (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ < 52)
-      #error Building this project with async support requires emscripten 3.1.52
-    #endif
-  #endif
-#endif
-%}

@@ -20,7 +20,6 @@ sources = [
 enable_curl = false
 enable_tiff = false
 inline_projdb = false
-async = false
 
 data_dir = meson.project_source_root() / 'lib' / 'binding'
 
@@ -39,14 +38,10 @@ if get_option('inline_projdb') and meson.get_compiler('cpp').get_id() == 'emscri
   add_project_arguments([ '-DINLINE_PROJDB' ], language: 'cpp')
   inline_projdb = true
 endif
-if not get_option('no_async')
-  async = true
-endif
 
 # Build PROJ and its dependencies
 cmake = import('cmake')
 summary({
-  'async enabled'           : async,
   'libcurl enabled'         : enable_curl,
   'libtiff enabled'         : enable_tiff,
   'inline proj.db'          : inline_projdb
