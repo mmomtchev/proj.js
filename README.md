@@ -42,7 +42,7 @@ npm run build:native
 npm run build:wasm
 
 # Alternatively, get the compiled binaries from a recent GHA run
-mkdir -p lib/binding && cd lib/binding && unzip -x ~/Downloads/native-ubuntu-latest-tiff.zip
+mkdir -p lib/binding && cd lib/binding && unzip -x ~/Downloads/native-ubuntu-latest-tiff.zip && unzip -x ~/Downloads/wasm-external-no_tiff.zip
 
 # Run the tests (Node.js and browser)
 npm test
