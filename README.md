@@ -38,7 +38,7 @@ npm run swig
 # Build the native version (requires a working C++ compiler)
 npm run build:native
 
-# Built the WASM version (requires emscripten in path)
+# Built the WASM version (requires emsdk in path)
 npm run build:wasm
 
 # Alternatively, get the compiled binaries from a recent GHA run
