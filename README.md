@@ -32,7 +32,7 @@ npx xpm install
 # (download swig-generated and unzip it in proj.js/swig)
 mkdir -p swig && cd swig && unzip ~/Downloads/swig-generated.zip
 
-# If you have SWIG JSE installed, generated the wrappers yourself
+# If you have SWIG JSE installed, generate the wrappers yourself
 npm run swig
 
 # Build the native version (requires a working C++ compiler)
@@ -40,6 +40,9 @@ npm run build:native
 
 # Built the WASM version (requires emscripten in path)
 npm run build:wasm
+
+# Alternatively, get the compiled binaries from a recent GHA run
+mkdir -p lib/binding && cd lib/binding && unzip -x ~/Downloads/native-ubuntu-latest-tiff.zip
 
 # Run the tests (Node.js and browser)
 npm test
