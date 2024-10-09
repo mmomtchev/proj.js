@@ -60,7 +60,7 @@ jobs:
       uses: mymindstorm/setup-emsdk@v14
       if: inputs.wasm
       with:
-        version: 3.1.53
+        version: 3.1.68
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
