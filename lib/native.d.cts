@@ -1,1 +1,1 @@
-export * from './binding/proj';
+export * from './binding/proj.d.ts';

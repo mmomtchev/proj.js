@@ -1,11 +1,11 @@
-import * as proj from './binding/proj';
+import type * as proj from './binding/proj.d.ts';
 
 /*
  * Embedded file system access, available only in WASM
  */
 declare type FSMode = 'r' | 'r+' | 'w' | 'wx' | 'w+' | 'wx+' | 'a' | 'ax' | 'a+' | 'ax+';
 
-declare module './binding/proj' {
+declare module './binding/proj.d.ts' {
   namespace FS {
     function open(path: string, mode?: FSMode): unknown;
     function close(file: unknown): void;
