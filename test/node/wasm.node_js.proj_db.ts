@@ -8,7 +8,7 @@ const PROJ = await qPROJ;
 // when it hasn't been already inlined
 
 async function loadProjDb() {
-  const proj_db_path = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', 'lib', 'binding', 'proj', 'proj.db');
+  const proj_db_path = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'lib', 'binding', 'proj', 'proj.db');
   console.log(`Loading proj.db from ${proj_db_path}`);
   const proj_db_data = await fs.promises.readFile(proj_db_path);
   PROJ.loadDatabase(proj_db_data);
