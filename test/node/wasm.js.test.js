@@ -19,8 +19,12 @@ describe('WASM', () => {
   });
 
   it('disallows loading proj.db multiple times', () => {
-    assert.throws(() => {
-      PROJ.loadDatabase(new Uint8Array(4));
-    }, /once/);
+    if (!PROJ.proj_js_inline_projdb) {
+      assert.throws(() => {
+        PROJ.loadDatabase(new Uint8Array(4));
+      }, /once/);
+    } else {
+      assert.isUndefined(PROJ.loadDatabase);
+    }
   });
 });

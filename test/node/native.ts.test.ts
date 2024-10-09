@@ -7,5 +7,7 @@ describe('native', () => {
   it('can be imported from TS', () => {
     const db = native.DatabaseContext.create();
     assert.instanceOf(db, native.DatabaseContext);
+    assert.isFalse(native.proj_js_inline_projdb);
+    assert.isUndefined(native.loadDatabase);
   });
 });
