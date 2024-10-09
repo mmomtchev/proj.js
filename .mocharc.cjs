@@ -15,6 +15,6 @@ module.exports = {
   'require': [
     'ts-node/register',
     'tsconfig-paths/register.js',
-    'test/wasm.node_js.proj_db.ts'
+    'test/node/wasm.node_js.proj_db.ts'
   ]
 };
