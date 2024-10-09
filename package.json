@@ -6,12 +6,17 @@
   "main": "./lib/native.cjs",
   "exports": {
     ".": {
+      "types": "./lib/index.d.mts",
+      "browser": "./lib/wasm.mjs",
+      "default": "./lib/native.mjs"
+    },
+    "./native": {
       "types": "./lib/native.d.cts",
-      "require": "./lib/native.cjs"
+      "default": "./lib/native.cjs"
     },
     "./wasm": {
-      "types": "./wasm/index.d.mts",
-      "import": "./wasm/index.mjs"
+      "types": "./lib/index.d.mts",
+      "default": "./lib/wasm.mjs"
     }
   },
   "scripts": {
@@ -83,6 +88,7 @@
     "mocha": "^10.4.0",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.4.5",
     "webpack": "^5.91.0",
     "webpack-cli": "^5.1.4",

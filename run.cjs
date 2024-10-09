@@ -1,4 +1,4 @@
-const bindings = require('.');
+const bindings = require('./lib/native.cjs');
 
 const dbContext = bindings.DatabaseContext.create();
 const authFactory = bindings.AuthorityFactory.create(dbContext, 'string');

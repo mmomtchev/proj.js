@@ -45,6 +45,28 @@ npm run build:wasm
 npm test
 ```
 
+# Usage
+
+This package is a `magickwand.js`-style `npm` package with an automatic import that resolves to either the native module or the WASM module depending on the environment.
+
+The following code will import the module:
+
+```ts
+import qPROJ from 'proj.js';
+const PROJ = await qPROJ;
+console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+```
+
+Node.js will pick up the native binary, while a modern bundler such as `webpack` or `rollup` with support for Node.js 16 exports will pick up the WASM module.
+
+This requires ES6, Node.js 16 and a recent `webpack` or `rollup`. If using TypeScript, you will have to transpile to ES6. Most major web components were updated with those features in 2022.
+
+If importing in a legacy CJS environment, you will be limited to using the native module in Node.js only:
+```ts
+const PROJ = require('proj.js/native');
+console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+```
+
 # WASM size considerations
 
 When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be loaded from an `Uint8Array` before use.

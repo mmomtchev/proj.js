@@ -1,8 +1,7 @@
-import native from '../lib/native.cjs';
+import native from 'proj.js/native';
 import { assert } from 'chai';
 
-// This test is exclusive to Node.js
-// npx run test:nodejs
+// Test explicitly loading the native module from JS
 
 describe('native', () => {
   it('can be imported from JS', () => {
