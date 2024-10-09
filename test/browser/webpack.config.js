@@ -36,7 +36,7 @@ export default [
    * This is the configuration you need to create a webpage
    */
   {
-    entry: './index.js',
+    entry: './index.ts',
     output: {
       filename: 'bundle.js',
       path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'build')
@@ -75,6 +75,14 @@ export default [
     },
     module: {
       rules: [
+        {
+          test: /\.ts$/,
+          loader: 'ts-loader',
+          exclude: /node_modules/,
+          options: {
+            onlyCompileBundledFiles: true
+          }
+        },
         // This bundles proj.db if it is not inlined
         {
           test: /proj\.db/,
@@ -104,7 +112,7 @@ export default [
    * This is the configuration you need to create unit tests
    */
   {
-    entry: process.env.NO_ASYNC ? './run-mocha-sync.ts' : './run-mocha.ts',
+    entry: './run-mocha.ts',
     output: {
       filename: 'bundle-mocha.js',
       path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'build')

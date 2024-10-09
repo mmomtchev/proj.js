@@ -32,18 +32,49 @@ npx xpm install
 # (download swig-generated and unzip it in proj.js/swig)
 mkdir -p swig && cd swig && unzip ~/Downloads/swig-generated.zip
 
-# If you have SWIG JSE installed, generated the wrappers yourself
+# If you have SWIG JSE installed, generate the wrappers yourself
 npm run swig
 
 # Build the native version (requires a working C++ compiler)
 npm run build:native
 
-# Built the WASM version (requires emscripten in path)
+# Built the WASM version (requires emsdk in path)
 npm run build:wasm
+
+# Alternatively, get the compiled binaries from a recent GHA run
+mkdir -p lib/binding && cd lib/binding && unzip -x ~/Downloads/native-ubuntu-latest-tiff.zip && unzip -x ~/Downloads/wasm-external-no_tiff.zip
 
 # Run the tests (Node.js and browser)
 npm test
 ```
+
+# Usage
+
+This package is a `magickwand.js`-style `npm` package with an automatic import that resolves to either the native module or the WASM module depending on the environment.
+
+The following code will import the module:
+
+```ts
+import qPROJ from 'proj.js';
+const PROJ = await qPROJ;
+console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+if (!PROJ.proj_js_inline_projdb) {
+  const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
+  PROJ.loadDatabase(proj_db);
+}
+```
+
+Node.js will pick up the native binary, while a modern bundler such as `webpack` or `rollup` with support for Node.js 16 exports will pick up the WASM module.
+
+This requires ES6, Node.js 16 and a recent `webpack` or `rollup`. If using TypeScript, you will have to transpile to ES6. Most major web components were updated with those features in 2022.
+
+If importing in a legacy CJS environment, you will be limited to using the native module in Node.js only:
+```ts
+const PROJ = require('proj.js/native');
+console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+```
+
+When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/lib/binding/proj/proj.db')`.
 
 # WASM size considerations
 

@@ -1,11 +1,22 @@
 {
   "compilerOptions": {
-    "moduleResolution": "node",
+    "moduleResolution": "node16",
     "strict": true,
     "strictNullChecks": true,
     "target": "es2020",
-    "module": "esnext",
+    "module": "node16",
     "esModuleInterop": true,
+    "paths": {
+      "proj.js": [
+        "."
+      ],
+      "proj.js/native": [
+        "./native"
+      ],
+      "proj.js/wasm": [
+        "./wasm"
+      ]
+    }
   },
   "exclude": [
     "node_modules"

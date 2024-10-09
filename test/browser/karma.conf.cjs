@@ -9,16 +9,13 @@ module.exports = function (config) {
     client: {
       mocha: {
         reporter: 'html',
-        timeout: 40000
+        timeout: 40000,
+        require: 'hooks.js'
       }
     },
     files: [
       { pattern: 'build/bundle-mocha.js', included: true },
       { pattern: 'build/*', served: true, included: false }
-    ],
-    customHeaders: process.env.NO_ASYNC ? [] : [
-      { name: 'Cross-Origin-Opener-Policy', value: 'same-origin' },
-      { name: 'Cross-Origin-Embedder-Policy', value: 'require-corp' }
     ],
     exclude: [
     ],
@@ -31,6 +28,7 @@ module.exports = function (config) {
     autoWatch: false,
     browsers: ['Chrome'],
     singleRun: true,
-    concurrency: Infinity
+    concurrency: Infinity,
+    failOnEmptyTestSuite: true
   });
 };
