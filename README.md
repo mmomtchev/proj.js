@@ -55,6 +55,10 @@ The following code will import the module:
 import qPROJ from 'proj.js';
 const PROJ = await qPROJ;
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+if (!PROJ.proj_js_inline_projdb) {
+  const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
+  PROJ.loadDatabase(proj_db);
+}
 ```
 
 Node.js will pick up the native binary, while a modern bundler such as `webpack` or `rollup` with support for Node.js 16 exports will pick up the WASM module.
@@ -66,6 +70,8 @@ If importing in a legacy CJS environment, you will be limited to using the nativ
 const PROJ = require('proj.js/native');
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 ```
+
+When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/lib/binding/proj/proj.db')`.
 
 # WASM size considerations
 
