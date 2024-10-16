@@ -46,6 +46,7 @@ if get_option('debug')
 endif
 if meson.get_compiler('cpp').get_id() == 'emscripten'
   add_project_arguments([ '-Wno-documentation' ], language: [ 'cpp', 'c' ])
+  add_project_arguments([ '-Wno-potentially-evaluated-expression' ], language: [ 'cpp' ])
 endif
 
 # Build PROJ and its dependencies
