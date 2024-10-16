@@ -1,14 +1,14 @@
 import { assert } from 'chai';
 
 import qPROJ from 'proj.js';
-import type * as TPROJ from 'proj.js/native';
+import type { Proj } from 'proj.js';
 
 describe('CRS with automatic import', () => {
   let PROJ: Awaited<typeof qPROJ>;
 
-  let dbContext: TPROJ.DatabaseContext;
-  let authFactory: TPROJ.AuthorityFactory;
-  let authFactoryEPSG: TPROJ.AuthorityFactory;
+  let dbContext: Proj.DatabaseContext;
+  let authFactory: Proj.AuthorityFactory;
+  let authFactoryEPSG: Proj.AuthorityFactory;
 
   before('init', async () => {
     PROJ = await qPROJ;
@@ -47,8 +47,10 @@ describe('CRS with automatic import', () => {
     assert.isNull(bounds);
   });
 
-  it('createFromUserInput (automatic downcasting)', () => {
+  it('createFromUserInput (automatic downcasting / inheritance chain)', () => {
     const crs = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
+    assert.instanceOf(crs, PROJ.BaseObject);
+    assert.instanceOf(crs, PROJ.CRS);
     assert.instanceOf(crs, PROJ.ProjectedCRS);
   });
 });

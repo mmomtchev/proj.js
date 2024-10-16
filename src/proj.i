@@ -54,6 +54,9 @@ using namespace NS_PROJ;
 // Convert lists
 %include "std_list.i"
 
+// This can be considered a plain string
+%include "optional.i"
+
 %include "capi.i"
 %include "nn.i"
 %include "util.i"
