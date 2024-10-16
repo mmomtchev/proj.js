@@ -44,6 +44,9 @@ endif
 if get_option('debug')
   add_project_arguments([ '-DDEBUG' ], language: [ 'cpp', 'c' ])
 endif
+if meson.get_compiler('cpp').get_id() == 'emscripten'
+  add_project_arguments([ '-Wno-documentation' ], language: [ 'cpp', 'c' ])
+endif
 
 # Build PROJ and its dependencies
 cmake = import('cmake')
