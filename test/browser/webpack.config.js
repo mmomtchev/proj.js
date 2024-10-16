@@ -115,7 +115,6 @@ export default [
   {
     entry: [
       './wasm.browser.proj_db.ts',
-      ...glob.sync('./*.test.ts', { absolute: true }),
       ...glob.sync('../shared/*.test.ts')
     ],
     output: {
