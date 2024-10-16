@@ -15,3 +15,9 @@
 %nn_unique_ptr(osgeo::proj::operation::CoordinateOperationContext);
 %nn_unique_ptr(osgeo::proj::operation::CoordinateOperationFactory);
 %nn_unique_ptr(osgeo::proj::operation::CoordinateTransformer);
+
+// See util.i for the downcasting mechanics
+// This overwrites the typemap created by %nn_shared_ptr
+%typemap(out, fragment="downcast_tables") dropbox::oxygen::nn<std::shared_ptr<osgeo::proj::operation::CoordinateOperation>> {
+  TRY_DOWNCASTING($1, $result, osgeo::proj::operation::CoordinateOperation, coordinate_operation_downcast_table)
+}

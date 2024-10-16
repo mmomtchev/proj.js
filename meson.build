@@ -41,6 +41,13 @@ if get_option('inline_projdb') and meson.get_compiler('cpp').get_id() == 'emscri
   add_project_arguments([ '-DINLINE_PROJDB' ], language: 'cpp')
   inline_projdb = true
 endif
+if get_option('debug')
+  add_project_arguments([ '-DDEBUG' ], language: [ 'cpp', 'c' ])
+endif
+if meson.get_compiler('cpp').get_id() == 'emscripten'
+  add_project_arguments([ '-Wno-documentation' ], language: [ 'cpp', 'c' ])
+  add_project_arguments([ '-Wno-potentially-evaluated-expression' ], language: [ 'cpp' ])
+endif
 
 # Build PROJ and its dependencies
 cmake = import('cmake')
@@ -102,12 +109,6 @@ main_target = napi.extension_module(
     'exported_runtime_methods': ['emnapiInit', 'FS']
   }
 )
-
-# --------------------
-# SWIG generated JS/TS
-# --------------------
-install_data('swig' / 'proj.d.ts', install_dir: data_dir)
-install_data('swig' / 'proj_wrap.cjs', install_dir: '.')
 
 # --------------------
 # The special case of proj.db

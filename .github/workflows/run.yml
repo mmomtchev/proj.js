@@ -17,8 +17,9 @@ jobs:
     - uses: mmomtchev/setup-swig@main
       with:
         branch: jse
-        version: v5.0.5
-        
+        version: main
+        cache: false        
+
     - name: Verify SWIG
       run: swig-jse -version
 
@@ -121,6 +122,12 @@ jobs:
       with:
         node-version: 20
 
+    - name: Download the SWIG-generated wrappers
+      uses: actions/download-artifact@v4
+      with:
+        name: swig-generated
+        path: swig
+
     - name: Download the native artifact ${{ matrix.platform }}
       uses: actions/download-artifact@v4
       with:
@@ -163,6 +170,12 @@ jobs:
       with:
         node-version: 18
 
+    - name: Download the SWIG-generated wrappers
+      uses: actions/download-artifact@v4
+      with:
+        name: swig-generated
+        path: swig
+
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
@@ -199,6 +212,12 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: 20
+
+    - name: Download the SWIG-generated wrappers
+      uses: actions/download-artifact@v4
+      with:
+        name: swig-generated
+        path: swig
 
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4

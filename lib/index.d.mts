@@ -1,11 +1,12 @@
-import type * as proj from './binding/proj.d.ts';
+import type * as PROJ from '../swig/proj.d.ts';
+export type * as Proj from '../swig/proj.d.ts';
 
 /*
  * Embedded file system access, available only in WASM
  */
 declare type FSMode = 'r' | 'r+' | 'w' | 'wx' | 'w+' | 'wx+' | 'a' | 'ax' | 'a+' | 'ax+';
 
-declare module './binding/proj.d.ts' {
+declare module '../swig/proj.d.ts' {
   namespace FS {
     function open(path: string, mode?: FSMode): unknown;
     function close(file: unknown): void;
@@ -21,5 +22,5 @@ declare module './binding/proj.d.ts' {
   function loadDatabase(db: Uint8Array): void;
 }
 
-declare const bindings: Promise<typeof proj>;
+declare const bindings: Promise<typeof PROJ>;
 export default bindings;

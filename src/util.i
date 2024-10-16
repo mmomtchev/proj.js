@@ -17,6 +17,14 @@
 %nn_shared_ptr(osgeo::proj::util::GenericName);
 %nn_shared_ptr(osgeo::proj::util::IComparable);
 
+%header %{
+#ifdef DEBUG
+#define SWIG_VERBOSE(...) printf(__VA_ARGS__)
+#else
+#define SWIG_VERBOSE(...)
+#endif
+%}
+
 /*
  * Certain PROJ functions - mostly those parsing user strings - return a C++ pointer to a BaseObject that is
  * in fact one of the derived classes.
@@ -28,67 +36,87 @@
  * For this to work, the module has to be compiled with C++ RTTI enabled.
  */
 
-%define DOWNCAST_TABLE_ENTRY(TYPE)
-downcast_table.insert({typeid(TYPE).name(), $descriptor(TYPE *)})
+// %fragment supports $descriptor, while %init does not
+
+%define BASEOBJECT_DOWNCAST_TABLE_ENTRY(TYPE)
+baseobject_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)})
 %enddef
 
-// %fragment supports $descriptor, while %init does not
-%fragment("baseobject_downcast_table", "header") {
-  #include <map>
-  std::map<std::string, swig_type_info *> downcast_table;
-  #define BASEOBJECT_DOWNCAST_ENABLED
+%define COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(TYPE)
+coordinate_operation_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)})
+%enddef
 
-  void init_baseobject_downcast_table() {
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::GeographicCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::VerticalCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::BoundCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::CompoundCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::CRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::SingleCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::GeodeticCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::TemporalCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::EngineeringCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ParametricCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedGeodeticCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedGeographicCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedProjectedCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedVerticalCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedEngineeringCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedParametricCRS);
-    DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedTemporalCRS);
+%fragment("downcast_tables", "header") {
+  #include <map>
+  std::map<std::size_t, swig_type_info *> baseobject_downcast_table;
+  std::map<std::size_t, swig_type_info *> coordinate_operation_downcast_table;
+
+  void init_downcast_tables() {
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::GeographicCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::VerticalCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::BoundCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::CompoundCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::CRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::SingleCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::GeodeticCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::TemporalCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::EngineeringCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ParametricCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedGeodeticCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedGeographicCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedProjectedCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedVerticalCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedEngineeringCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedParametricCRS);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedTemporalCRS);
+
+    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::CoordinateOperation);
+    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::SingleOperation);
+    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::ConcatenatedOperation);
+    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::Conversion);
   }
 }
 
-%init %{
-  #ifdef BASEOBJECT_DOWNCAST_ENABLED
-  init_baseobject_downcast_table();
-  #endif
-%}
+%init {
+  init_downcast_tables();
+}
 
 /*
- * This typemap checks all returned objects of BaseObjectNNPtr and tries
- * to dynamically downcast them when the specific class is in the above table.
- * The shared_ptr remains as a pointer to a BaseObject - the virtual destructor
+ * These typemaps check all returned shared pointers to a base type and
+ * try to dynamically downcast them when the specific class is in the above table.
+ * The shared_ptr remains as a pointer to the base object - the virtual destructor
  * will take care of proper deallocation.
  * Unrecognized objects remain as BaseObjectNNPtr objects.
  */
-%typemap(out, fragment="baseobject_downcast_table") osgeo::proj::util::BaseObjectNNPtr {
-  std::string rtti_name = typeid(*$1.get()).name();
-  if (downcast_table.count(rtti_name) > 0) {
-    swig_type_info *info = downcast_table.at(rtti_name);
-    %set_output(SWIG_NewPointerObj($1.get(), info, SWIG_POINTER_OWN | %newpointer_flags));
-    auto *owner = new std::shared_ptr<osgeo::proj::util::BaseObject>(*&$1);
+%define TRY_DOWNCASTING(INPUT, OUTPUT, BASE_TYPE, TABLE)
+  std::size_t rtti_code = typeid(*INPUT.get()).hash_code();
+  SWIG_VERBOSE("downcasting for type %s: ", typeid(*INPUT.get()).name());
+  if (TABLE.count(rtti_code) > 0) {
+    SWIG_VERBOSE("found\n");
+    swig_type_info *info = TABLE.at(rtti_code);
+    OUTPUT = SWIG_NewPointerObj(INPUT.get(), info, SWIG_POINTER_OWN | %newpointer_flags);
+    auto *owner = new std::shared_ptr<BASE_TYPE>(*&INPUT);
     auto finalizer = new SWIG_NAPI_Finalizer([owner](){
       delete owner;
     });
     SWIG_NAPI_SetFinalizer(env, $result, finalizer);
   } else {
-    $typemap(out, std::shared_ptr<osgeo::proj::util::BaseObject>);
+    SWIG_VERBOSE("not found\n");
+    $typemap(out, std::shared_ptr<BASE_TYPE>, 1=INPUT, result=OUTPUT);
   }
+%enddef
+
+%typemap(out, fragment="downcast_tables") osgeo::proj::util::BaseObjectNNPtr {
+  TRY_DOWNCASTING($1, $result, osgeo::proj::util::BaseObject, baseobject_downcast_table)
 }
+
+/*
+ * CoordinateOperation downcasting is in operation.i, it must come
+ * after the %nn_shared_ptr definition for CoordinateOperation
+ */
 
 /*
  * TypeScript has static compile-time checking just like C++, which means that

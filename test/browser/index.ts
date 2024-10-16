@@ -2,6 +2,10 @@
 
 import qPROJ from 'proj.js';
 
+// This allows for easier access to the TypeScript types
+// which are hidden behind a Promise
+import type { Proj } from 'proj.js';
+
 // refer to the webpack configuration to ses how this works
 // @ts-ignore
 import proj_db_url from '../../lib/binding/proj/proj.db';
@@ -35,7 +39,7 @@ print('Loading WASM');
   const coord_op_ctxt = PROJ.CoordinateOperationContext.create(authFactory, null, 0);
   const authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
   const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-  const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
+  const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as Proj.CRS;
   const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
 
   const transformer = list[0].coordinateTransformer();
