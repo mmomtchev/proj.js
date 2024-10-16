@@ -32,11 +32,15 @@
 downcast_table.insert({typeid(TYPE).name(), $descriptor(TYPE *)})
 %enddef
 
+%header %{
+#define BASEOBJECT_DOWNCAST_ENABLED
+%}
+
 // %fragment supports $descriptor, while %init does not
-%fragment("baseobject_downcast_table", "header") {
+%fragment("baseobject_downcast_table", "header") %{
+#ifdef BASEOBJECT_DOWNCAST_ENABLED
   #include <map>
   std::map<std::string, swig_type_info *> downcast_table;
-  #define BASEOBJECT_DOWNCAST_ENABLED
 
   void init_baseobject_downcast_table() {
     DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
@@ -60,7 +64,8 @@ downcast_table.insert({typeid(TYPE).name(), $descriptor(TYPE *)})
     DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedParametricCRS);
     DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedTemporalCRS);
   }
-}
+#endif
+%}
 
 %init %{
   #ifdef BASEOBJECT_DOWNCAST_ENABLED

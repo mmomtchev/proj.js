@@ -51,6 +51,9 @@ using namespace NS_PROJ;
 %apply(std::vector RETURN)            { std::vector };
 %apply(std::vector *RETURN)           { std::vector *, std::vector & };
 
+// Convert lists
+%include "std_list.i"
+
 %include "capi.i"
 %include "nn.i"
 %include "util.i"
