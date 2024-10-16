@@ -115,7 +115,7 @@ export default [
   {
     entry: [
       './wasm.browser.proj_db.ts',
-      ...glob.sync('../shared/*.test.ts')
+      ...glob.sync('../shared/*.test.ts', { posix: true })
     ],
     output: {
       filename: 'bundle-mocha.js',
