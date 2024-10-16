@@ -95,7 +95,8 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYP
   std::string rtti_name = typeid(*INPUT.get()).name();
   SWIG_VERBOSE("downcasting for type %s: ", rtti_name.c_str());
   if (TABLE.count(rtti_name) > 0) {
-  SWIG_VERBOSE("found\n");
+    SWIG_VERBOSE("found\n");
+    swig_type_info *info = TABLE.at(rtti_name);
     OUTPUT = SWIG_NewPointerObj(INPUT.get(), info, SWIG_POINTER_OWN | %newpointer_flags);
     auto *owner = new std::shared_ptr<BASE_TYPE>(*&INPUT);
     auto finalizer = new SWIG_NAPI_Finalizer([owner](){
@@ -103,8 +104,7 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYP
     });
     SWIG_NAPI_SetFinalizer(env, $result, finalizer);
   } else {
-  SWIG_VERBOSE("not found\n");
-  swig_type_info *info = TABLE.at(rtti_name);
+    SWIG_VERBOSE("not found\n");
     $typemap(out, std::shared_ptr<BASE_TYPE>, 1=INPUT, result=OUTPUT);
   }
 %enddef
