@@ -1,6 +1,7 @@
 import * as path from 'node:path';
 import * as process from 'node:process';
 import { fileURLToPath } from 'node:url';
+import * as glob from 'glob';
 
 // This contains two different builds: the standalone webpage and the mocha bundle
 
@@ -112,7 +113,11 @@ export default [
    * This is the configuration you need to create unit tests
    */
   {
-    entry: './run-mocha.ts',
+    entry: [
+      './wasm.browser.proj_db.ts',
+      ...glob.sync('./*.test.ts', { absolute: true }),
+      ...glob.sync('../shared/*.test.ts')
+    ],
     output: {
       filename: 'bundle-mocha.js',
       path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'build')

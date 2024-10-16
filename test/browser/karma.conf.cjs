@@ -9,8 +9,7 @@ module.exports = function (config) {
     client: {
       mocha: {
         reporter: 'html',
-        timeout: 40000,
-        require: 'hooks.js'
+        timeout: 40000
       }
     },
     files: [
