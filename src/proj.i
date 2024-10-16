@@ -62,6 +62,9 @@ using namespace NS_PROJ;
 %include "crs.i"
 %include "factory.i"
 
+// SWIG can't deduce the type of PROJ_VERSION_NUMBER
+#pragma SWIG nowarn=304
+
 // This is because "const char*" is not really "const"
 %immutable id;
 %immutable descr;
@@ -99,6 +102,8 @@ using namespace NS_PROJ;
 %mutable code;
 %mutable unit_name;
 
+%constant proj_version = int PROJ_VERSION_NUMBER;
+
 %include <proj/util.hpp>
 %include <proj/io.hpp>
 %include <proj/common.hpp>
@@ -107,7 +112,6 @@ using namespace NS_PROJ;
 %include <proj/coordinateoperation.hpp>
 %include <proj/coordinatesystem.hpp>
 %include <proj/crs.hpp>
-
 
 // Because of a large number of improvements for proj.js
 #if SWIG_VERSION < 0x050005

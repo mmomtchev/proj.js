@@ -7,16 +7,16 @@
   "exports": {
     ".": {
       "types": "./lib/index.d.mts",
-      "browser": "./lib/wasm.mjs",
-      "default": "./lib/native.mjs"
+      "browser": "./wasm/index.mjs",
+      "default": "./native/index.mjs"
     },
     "./native": {
-      "types": "./lib/native.d.cts",
-      "default": "./lib/native.cjs"
+      "types": "./native/index.d.cts",
+      "default": "./native/index.cjs"
     },
     "./wasm": {
       "types": "./lib/index.d.mts",
-      "default": "./lib/wasm.mjs"
+      "default": "./wasm/index.mjs"
     }
   },
   "scripts": {
@@ -33,8 +33,6 @@
     "build:webpack": "cd test/browser && npx webpack --mode=production",
     "build": "npm run build:native && npm run build:wasm",
     "lint": "clang-format -i src/*.cc src/*.h && eslint test",
-    "prepare": "node -e \"console.log('\\x1b[32m', 'Run \\\"npx xpm install\\\" to install the xpm toolchains and \\\"npm run swig\\\" to generate the wrappers\\x1b[0m');\"",
-    "install": "node -e \"console.log('\\x1b[32m', 'Run \\\"npm run build\\\", \\\"npm run build:native\\\" or \\\"npm run build:wasm\\\" to build', '\\x1b[0m');\"",
     "dev": "cd test/browser && npx webpack serve --mode=production",
     "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj_js/build -o ../build/Debug/obj.target/proj_js/src ../src/* ../build/*",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
@@ -130,7 +128,7 @@
       "buildFolderRelativePath": "{{ 'build' | path_join: configuration.name | to_filename | downcase }}",
       "installFolderPath": "{{ '/' | path_join: properties.cwd | path_join: 'lib' | path_join: 'binding' | path_join: properties.platformId }}",
       "commandInit": "mkdir -p swig",
-      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports './{{ properties.module_name }}.node' -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
+      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports '../native/index.cjs' -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
       "argsConanShared": "--build=missing --settings=build_type={{ properties.buildType | capitalize }}",
       "argsConanNative": "-pr:h=.{{ path.sep }}hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.profile -pr:b=.{{ path.sep }}hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.profile",
       "argsConanWASM": "-pr:b=default -pr:h=.{{ path.sep }}hadron{{ path.sep }}{{ properties.toolchain }}.profile",

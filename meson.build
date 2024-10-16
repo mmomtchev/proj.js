@@ -104,12 +104,6 @@ main_target = napi.extension_module(
 )
 
 # --------------------
-# SWIG generated JS/TS
-# --------------------
-install_data('swig' / 'proj.d.ts', install_dir: data_dir)
-install_data('swig' / 'proj_wrap.cjs', install_dir: '.')
-
-# --------------------
 # The special case of proj.db
 # --------------------
 custom_target(

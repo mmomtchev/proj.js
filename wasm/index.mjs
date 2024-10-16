@@ -4,7 +4,7 @@
  * const PROJ = await qPROJ;
  */
 import * as emnapi from '@emnapi/runtime';
-import bindings from './binding/emscripten-wasm32/proj.mjs';
+import bindings from '../lib/binding/emscripten-wasm32/proj.mjs';
 
 const result = bindings()
     .then((m) => {
