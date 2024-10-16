@@ -41,6 +41,9 @@ if get_option('inline_projdb') and meson.get_compiler('cpp').get_id() == 'emscri
   add_project_arguments([ '-DINLINE_PROJDB' ], language: 'cpp')
   inline_projdb = true
 endif
+if get_option('debug')
+  add_project_arguments([ '-DDEBUG' ], language: [ 'cpp', 'c' ])
+endif
 
 # Build PROJ and its dependencies
 cmake = import('cmake')

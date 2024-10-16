@@ -17,6 +17,14 @@
 %nn_shared_ptr(osgeo::proj::util::GenericName);
 %nn_shared_ptr(osgeo::proj::util::IComparable);
 
+%header %{
+#ifdef DEBUG
+#define SWIG_VERBOSE(...) printf(__VA_ARGS__)
+#else
+#define SWIG_VERBOSE(...)
+#endif
+%}
+
 /*
  * Certain PROJ functions - mostly those parsing user strings - return a C++ pointer to a BaseObject that is
  * in fact one of the derived classes.
@@ -77,17 +85,17 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYP
 }
 
 /*
- * These typemaps check all returned objects of a base type and tries
- * to dynamically downcast them when the specific class is in the above table.
+ * These typemaps check all returned shared pointers to a base type and
+ * try to dynamically downcast them when the specific class is in the above table.
  * The shared_ptr remains as a pointer to the base object - the virtual destructor
  * will take care of proper deallocation.
  * Unrecognized objects remain as BaseObjectNNPtr objects.
  */
 %define TRY_DOWNCASTING(INPUT, OUTPUT, BASE_TYPE, TABLE)
   std::string rtti_name = typeid(*INPUT.get()).name();
-  printf("resolving downcast type %s\n", rtti_name.c_str());
+  SWIG_VERBOSE("downcasting for type %s: ", rtti_name.c_str());
   if (TABLE.count(rtti_name) > 0) {
-    swig_type_info *info = TABLE.at(rtti_name);
+  SWIG_VERBOSE("found\n");
     OUTPUT = SWIG_NewPointerObj(INPUT.get(), info, SWIG_POINTER_OWN | %newpointer_flags);
     auto *owner = new std::shared_ptr<BASE_TYPE>(*&INPUT);
     auto finalizer = new SWIG_NAPI_Finalizer([owner](){
@@ -95,6 +103,8 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYP
     });
     SWIG_NAPI_SetFinalizer(env, $result, finalizer);
   } else {
+  SWIG_VERBOSE("not found\n");
+  swig_type_info *info = TABLE.at(rtti_name);
     $typemap(out, std::shared_ptr<BASE_TYPE>, 1=INPUT, result=OUTPUT);
   }
 %enddef
