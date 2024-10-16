@@ -39,17 +39,17 @@
 // %fragment supports $descriptor, while %init does not
 
 %define BASEOBJECT_DOWNCAST_TABLE_ENTRY(TYPE)
-baseobject_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYPE *)})
+baseobject_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)})
 %enddef
 
 %define COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(TYPE)
-coordinate_operation_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYPE *)})
+coordinate_operation_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)})
 %enddef
 
 %fragment("downcast_tables", "header") {
   #include <map>
-  std::map<std::string, swig_type_info *> baseobject_downcast_table;
-  std::map<std::string, swig_type_info *> coordinate_operation_downcast_table;
+  std::map<std::size_t, swig_type_info *> baseobject_downcast_table;
+  std::map<std::size_t, swig_type_info *> coordinate_operation_downcast_table;
 
   void init_downcast_tables() {
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
@@ -92,11 +92,11 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).name(), $descriptor(TYP
  * Unrecognized objects remain as BaseObjectNNPtr objects.
  */
 %define TRY_DOWNCASTING(INPUT, OUTPUT, BASE_TYPE, TABLE)
-  std::string rtti_name = typeid(*INPUT.get()).name();
-  SWIG_VERBOSE("downcasting for type %s: ", rtti_name.c_str());
-  if (TABLE.count(rtti_name) > 0) {
+  std::size_t rtti_code = typeid(*INPUT.get()).hash_code();
+  SWIG_VERBOSE("downcasting for type %s: ", typeid(*INPUT.get()).name());
+  if (TABLE.count(rtti_code) > 0) {
     SWIG_VERBOSE("found\n");
-    swig_type_info *info = TABLE.at(rtti_name);
+    swig_type_info *info = TABLE.at(rtti_code);
     OUTPUT = SWIG_NewPointerObj(INPUT.get(), info, SWIG_POINTER_OWN | %newpointer_flags);
     auto *owner = new std::shared_ptr<BASE_TYPE>(*&INPUT);
     auto finalizer = new SWIG_NAPI_Finalizer([owner](){
