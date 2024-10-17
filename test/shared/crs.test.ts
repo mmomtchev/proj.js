@@ -1,14 +1,14 @@
 import { assert } from 'chai';
 
 import qPROJ from 'proj.js';
-import type * as Proj from 'proj.js';
+import type * as PROJ from 'proj.js';
 
 describe('CRS with automatic import', () => {
   let PROJ: Awaited<typeof qPROJ>;
 
-  let dbContext: Proj.DatabaseContext;
-  let authFactory: Proj.AuthorityFactory;
-  let authFactoryEPSG: Proj.AuthorityFactory;
+  let dbContext: PROJ.DatabaseContext;
+  let authFactory: PROJ.AuthorityFactory;
+  let authFactoryEPSG: PROJ.AuthorityFactory;
 
   before('init', async () => {
     PROJ = await qPROJ;
