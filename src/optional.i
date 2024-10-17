@@ -15,21 +15,16 @@
 // Input argument, const reference, conversion by constructing an 'optional'
 // around the object held by JS, the extra step is needed because local
 // variables do not support $T0type expansion
-// (some PROJ objects do not support operator=)
-%typemap(in)        const osgeo::proj::util::optional & (void *to_delete) {
-  osgeo::proj::util::optional<$T0type> *typed_ptr;
+// (some PROJ objects do not support operator=, thus the unique_ptr gymnastics)
+%typemap(in)        const osgeo::proj::util::optional & (std::unique_ptr<$*1_ltype> opt_object) {
   if (!$input.IsNull()) {
     $T0type *obj;
     $typemap(in, const $T0type &, input=$input, 1=obj, argnum=$argnum);
-    typed_ptr = new osgeo::proj::util::optional<$T0type>{*obj};
+    opt_object = std::make_unique<$*1_ltype>(*obj);
   } else {
-    typed_ptr = new osgeo::proj::util::optional<$T0type>{};
+    opt_object = std::make_unique<$*1_ltype>();
   }
-  to_delete = static_cast<void *>(typed_ptr);
-  $1 = typed_ptr;
-}
-%typemap(freearg)      const osgeo::proj::util::optional & {
-  delete static_cast<osgeo::proj::util::optional<$T0type> *>(to_delete$argnum);
+  $1 = opt_object.get();
 }
 
 // string and double are special cases, these are copied
@@ -45,7 +40,6 @@
   }
   $1 = &opt_double;
 }
-%typemap(freearg)   const osgeo::proj::util::optional<std::string> &, const osgeo::proj::util::optional<double> & ""
 
 %typemap(ts)        osgeo::proj::util::optional, const osgeo::proj::util::optional & "$typemap(ts, $T0type)[]";
 
