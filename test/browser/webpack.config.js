@@ -99,10 +99,6 @@ export default [
       },
       devMiddleware: {
         'publicPath': '/build'
-      },
-      headers: process.env.NO_ASYNC ? {} : {
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp'
       }
     }
   },
