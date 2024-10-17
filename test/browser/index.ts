@@ -4,7 +4,7 @@ import qPROJ from 'proj.js';
 
 // This allows for easier access to the TypeScript types
 // which are hidden behind a Promise
-import type { Proj } from 'proj.js';
+import type * as Proj from 'proj.js';
 
 // refer to the webpack configuration to ses how this works
 // @ts-ignore

@@ -2,8 +2,8 @@ import { assert } from 'chai';
 import qPROJ from 'proj.js';
 
 // This allows for easier access to the TypeScript types
-// which are hidden behind a Promise
-import type { Proj } from 'proj.js';
+// which are hidden behind a Promise and PROJ is actually a variable
+import type * as Proj from 'proj.js';
 
 // These tests are shared between Node.js and the browser
 export default function (_PROJ: typeof qPROJ) {

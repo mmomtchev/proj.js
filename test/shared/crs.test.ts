@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 
 import qPROJ from 'proj.js';
-import type { Proj } from 'proj.js';
+import type * as Proj from 'proj.js';
 
 describe('CRS with automatic import', () => {
   let PROJ: Awaited<typeof qPROJ>;

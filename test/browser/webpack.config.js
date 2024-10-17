@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import * as process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import * as glob from 'glob';
 
