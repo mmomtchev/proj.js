@@ -178,7 +178,8 @@
             "{{ properties.commandBuild }}",
             "{{ properties.commandInstall }}"
           ],
-          "clean": "{{ properties.commandClean }}"
+          "clean": "{{ properties.commandClean }}",
+          "lock": "{{ properties.commandConanLockNative }}"
         }
       },
       "native-xpack": {
@@ -206,7 +207,8 @@
           "prepare": [
             "{{ properties.commandDependenciesWASM }}",
             "{{ properties.commandPrepareWASM }}"
-          ]
+          ],
+          "lock": "{{ properties.commandConanLockWASM }}"
         }
       },
       "native-debug": {
