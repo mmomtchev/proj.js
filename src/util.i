@@ -99,10 +99,10 @@ baseobject_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
  */
 %define TRY_DOWNCASTING(INPUT, OUTPUT, BASE_TYPE, TABLE)
   std::size_t rtti_code = typeid(*INPUT.get()).hash_code();
-  SWIG_VERBOSE("downcasting for type %s: ", typeid(*INPUT.get()).name());
+  SWIG_VERBOSE(#TABLE ": downcasting for type %s: ", typeid(*INPUT.get()).name());
   if (TABLE.count(rtti_code) > 0) {
-    SWIG_VERBOSE("found\n");
     swig_type_info *info = TABLE.at(rtti_code);
+    SWIG_VERBOSE("found %s (%s)\n", info->str, info->name);
     OUTPUT = SWIG_NewPointerObj(INPUT.get(), info, SWIG_POINTER_OWN | %newpointer_flags);
     auto *owner = new std::shared_ptr<BASE_TYPE>(*&INPUT);
     auto finalizer = new SWIG_NAPI_Finalizer([owner](){
@@ -118,11 +118,6 @@ baseobject_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
 %typemap(out, fragment="baseobject_downcast_table") osgeo::proj::util::BaseObjectNNPtr {
   TRY_DOWNCASTING($1, $result, osgeo::proj::util::BaseObject, baseobject_downcast_table)
 }
-
-/*
- * CoordinateOperation downcasting is in operation.i, it must come
- * after the %nn_shared_ptr definition for CoordinateOperation
- */
 
 /*
  * TypeScript has static compile-time checking just like C++, which means that
