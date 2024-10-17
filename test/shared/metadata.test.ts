@@ -25,7 +25,7 @@ describe('metadata with automatic import', () => {
       assert.instanceOf(m, PROJ.Identifier);
       assert.instanceOf(m, PROJ.BaseObject);
       assert.isString(m.code());
-      assert.isNotNull(m.authority());
+      assert.isNull(m.authority());
     }
   });
 
