@@ -15,7 +15,7 @@
 // Input argument, const reference, conversion by constructing an 'optional'
 // around the object held by JS, the extra step is needed because local
 // variables do not support $T0type expansion
-// (some PROJ objects do not support operator=, thus the unique_ptr gymnastics)
+// (DataEpoch & Measure do not support operator=, thus the unique_ptr gymnastics)
 %typemap(in)        const osgeo::proj::util::optional & (std::unique_ptr<$*1_ltype> opt_object) {
   if (!$input.IsNull()) {
     $T0type *obj;
