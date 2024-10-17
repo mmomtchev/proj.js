@@ -52,10 +52,10 @@ endif
 # Build PROJ and its dependencies
 cmake = import('cmake')
 summary({
-  'libcurl enabled'         : enable_curl,
-  'libtiff enabled'         : enable_tiff,
-  'inline proj.db'          : inline_projdb
-})
+  'libcurl'         : enable_curl,
+  'libtiff'         : enable_tiff,
+  'inline proj.db'  : inline_projdb
+}, bool_yn: true)
 
 if inline_projdb
   add_global_link_arguments([

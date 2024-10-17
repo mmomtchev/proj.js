@@ -53,4 +53,18 @@ describe('CRS with automatic import', () => {
     assert.instanceOf(crs, PROJ.CRS);
     assert.instanceOf(crs, PROJ.ProjectedCRS);
   });
+
+  it('isDynamic (return bool)', () => {
+    const crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
+    assert.isBoolean(crs.isDynamic());
+  });
+
+  it('extract GeographicCRS (return CRS)', () => {
+    const crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
+    const geographic = crs.extractGeographicCRS();
+    assert.instanceOf(geographic, PROJ.CRS);
+    assert.instanceOf(geographic, PROJ.SingleCRS);
+    assert.instanceOf(geographic, PROJ.GeographicCRS);
+  });
+
 });
