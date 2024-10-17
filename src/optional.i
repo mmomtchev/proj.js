@@ -40,7 +40,7 @@
   $1 = &opt_double;
 }
 
-%typemap(ts)        osgeo::proj::util::optional, const osgeo::proj::util::optional & "$typemap(ts, $T0type)[]";
+%typemap(ts)        osgeo::proj::util::optional, const osgeo::proj::util::optional & "$typemap(ts, $T0type)";
 
 /*
  * Return values
