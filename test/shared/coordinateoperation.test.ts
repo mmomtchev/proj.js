@@ -3,7 +3,7 @@ import { assert } from 'chai';
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
 
-describe.only('CoordinateOperation with automatic import', () => {
+describe('CoordinateOperation with automatic import', () => {
   let PROJ: Awaited<typeof qPROJ>;
 
   let dbContext: PROJ.DatabaseContext;

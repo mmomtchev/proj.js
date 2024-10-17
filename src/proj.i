@@ -62,6 +62,7 @@ using namespace NS_PROJ;
 %include "util.i"
 %include "common.i"
 %include "io.i"
+%include "metadata.i"
 %include "operation.i"
 %include "datum.i"
 %include "coordinatesystem.i"
@@ -112,6 +113,7 @@ using namespace NS_PROJ;
 
 %include <proj/util.hpp>
 %include <proj/io.hpp>
+%include <proj/metadata.hpp>
 %include <proj/common.hpp>
 %include <proj/datum.hpp>
 %include <proj/coordinatesystem.hpp>

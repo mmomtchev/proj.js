@@ -42,16 +42,14 @@
 baseobject_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)})
 %enddef
 
-%define COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(TYPE)
-coordinate_operation_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)})
-%enddef
-
-%fragment("downcast_tables", "header") {
+%fragment("include_map", "header") {
   #include <map>
-  std::map<std::size_t, swig_type_info *> baseobject_downcast_table;
-  std::map<std::size_t, swig_type_info *> coordinate_operation_downcast_table;
+}
 
-  void init_downcast_tables() {
+%fragment("baseobject_downcast_table", "header", fragment="include_map") {
+  std::map<std::size_t, swig_type_info *> baseobject_downcast_table;
+
+  void init_baseobject_downcast_table() {
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::ProjectedCRS);
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::GeographicCRS);
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::VerticalCRS);
@@ -72,16 +70,24 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).hash_code(), $descripto
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedEngineeringCRS);
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedParametricCRS);
     BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::crs::DerivedTemporalCRS);
-
-    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::CoordinateOperation);
-    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::SingleOperation);
-    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::ConcatenatedOperation);
-    COORDINATE_OPERATION_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::Conversion);
+    // These can be downcasted both from BaseObject and from CoordinateOperation (in operation.i)
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::CoordinateOperation);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::SingleOperation);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::ConcatenatedOperation);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::operation::Conversion);
+    // These can be downcasted both from BaseObject and from Identifier (in metadata.i)
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::Identifier);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::Citation);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::Extent);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::GeographicBoundingBox);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::TemporalExtent);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::VerticalExtent);
+    BASEOBJECT_DOWNCAST_TABLE_ENTRY(osgeo::proj::metadata::PositionalAccuracy);
   }
 }
 
 %init {
-  init_downcast_tables();
+  init_baseobject_downcast_table();
 }
 
 /*
@@ -109,7 +115,7 @@ coordinate_operation_downcast_table.insert({typeid(TYPE).hash_code(), $descripto
   }
 %enddef
 
-%typemap(out, fragment="downcast_tables") osgeo::proj::util::BaseObjectNNPtr {
+%typemap(out, fragment="baseobject_downcast_table") osgeo::proj::util::BaseObjectNNPtr {
   TRY_DOWNCASTING($1, $result, osgeo::proj::util::BaseObject, baseobject_downcast_table)
 }
 
