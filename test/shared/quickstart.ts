@@ -2,8 +2,8 @@ import { assert } from 'chai';
 import qPROJ from 'proj.js';
 
 // This allows for easier access to the TypeScript types
-// which are hidden behind a Promise
-import type { Proj } from 'proj.js';
+// which are hidden behind a Promise and PROJ is actually a variable
+import type * as PROJ from 'proj.js';
 
 // These tests are shared between Node.js and the browser
 export default function (_PROJ: typeof qPROJ) {
@@ -28,7 +28,7 @@ export default function (_PROJ: typeof qPROJ) {
     const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
     console.timeEnd('AuthorityFactory.create()');
     console.time('createFromUserInput()');
-    const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as Proj.CRS;
+    const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
     console.timeEnd('createFromUserInput()');
     console.time('CoordinateOperationFactory.create().createOperations()');
     const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);

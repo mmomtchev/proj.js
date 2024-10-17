@@ -1,5 +1,5 @@
 import type * as PROJ from '../swig/proj.d.ts';
-export type * as Proj from '../swig/proj.d.ts';
+export type * from '../swig/proj.d.ts';
 
 /*
  * Embedded file system access, available only in WASM

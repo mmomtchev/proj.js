@@ -1,5 +1,4 @@
 import * as path from 'node:path';
-import * as process from 'node:process';
 import { fileURLToPath } from 'node:url';
 import * as glob from 'glob';
 
@@ -99,10 +98,6 @@ export default [
       },
       devMiddleware: {
         'publicPath': '/build'
-      },
-      headers: process.env.NO_ASYNC ? {} : {
-        'Cross-Origin-Opener-Policy': 'same-origin',
-        'Cross-Origin-Embedder-Policy': 'require-corp'
       }
     }
   },

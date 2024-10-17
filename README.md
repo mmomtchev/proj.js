@@ -54,7 +54,7 @@ This package is a `magickwand.js`-style `npm` package with an automatic import t
 
 The following code will import the module:
 
-```ts
+```js
 import qPROJ from 'proj.js';
 const PROJ = await qPROJ;
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
@@ -75,6 +75,19 @@ console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 ```
 
 When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/lib/binding/proj/proj.db')`.
+
+If using TypeScript, you will need to explicitly import the types in the `PROJ` namespace because `PROJ` is a variable:
+
+```ts
+import qPROJ from 'proj.js';
+import type * as PROJ from 'proj.js';
+const PROJ = await qPROJ;
+console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+if (!PROJ.proj_js_inline_projdb) {
+  const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
+  PROJ.loadDatabase(proj_db);
+}
+```
 
 # WASM size considerations
 
