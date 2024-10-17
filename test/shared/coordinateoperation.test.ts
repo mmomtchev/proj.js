@@ -3,7 +3,7 @@ import { assert } from 'chai';
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
 
-describe('CoordinateOperation with automatic import', () => {
+describe.only('CoordinateOperation with automatic import', () => {
   let PROJ: Awaited<typeof qPROJ>;
 
   let dbContext: PROJ.DatabaseContext;
@@ -19,7 +19,7 @@ describe('CoordinateOperation with automatic import', () => {
     authFactory = PROJ.AuthorityFactory.create(dbContext, 'string');
     authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
     sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-    targetCRS = PROJ.createFromUserInput('+PROJ=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
+    targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
     coord_op_ctxt = PROJ.CoordinateOperationContext.create(authFactory, null, 0);
     const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
     operation = list[0];
