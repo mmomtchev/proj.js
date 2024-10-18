@@ -38,7 +38,7 @@ npm run swig
 # Build the native version (requires a working C++ compiler)
 npm run build:native
 
-# Built the WASM version (requires emsdk in path)
+# Build the WASM version (requires emsdk in path)
 npm run build:wasm
 
 # Alternatively, get the compiled binaries from a recent GHA run
@@ -46,6 +46,10 @@ mkdir -p lib/binding && cd lib/binding && unzip -x ~/Downloads/native-ubuntu-lat
 
 # Run the tests (Node.js and browser)
 npm test
+
+# Run the web demo (should work on all OS if you have the WASM version)
+cd test/browser && npx webpack serve --mode=production
+# then open http://localhost:8030/
 ```
 
 # Usage
