@@ -4,17 +4,11 @@ This is `proj.js` - `PROJ` bindings for JavaScript with a native port for Node.j
 
 This project is completely separate from `proj4js` which is a separate (and partial) ***reimplementation*** in JavaScript.
 
-# Overview
-
-This SWIG JSE project has several interesting elements:
- * it uses many C++11 advanced features that test the limits of SWIG
- * most of the calculations performed by `PROJ` are very complex but are performed on very small datasets, making it a perfect candidate for a fully synchronous WASM implementation that does not require COOP/COEP and can be easily used in web projects - and a very good optimization target
-
 # Current status
 
-Early prototype.
+Alpha quality. Most basic functions work as intended. Mostly tested for leaks on the nominal code paths.
 
-Both the browser WASM and the Node.js native version compile, there are no prebuilt binaries, no `npm` package, the quickstart example works both in Node.js and in the browser, library may be usable in some cases, there is still no documentation whatsoever.
+Keep in mind that I am only a very occasional user of a very small fraction of `PROJ` and my main interest is JavaScript bindings - Node.js and browser - for C/C++ projects. If you find methods that are not usable in the current version and submit unit tests for it, I will make them work.
 
 # Try it yourself
 
