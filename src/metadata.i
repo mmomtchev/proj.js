@@ -63,9 +63,9 @@ identifier_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
         $typemap(in, bool, input=js_val, 1=b, argnum=object field);
         pmap.set(*c_key, b);
       } else if (js_val.IsNumber()) {
-        double d;
-        $typemap(in, double, input=js_val, 1=d, argnum=object field);
-        pmap.set(*c_key, static_cast<int>(d));
+        int d;
+        $typemap(in, int, input=js_val, 1=d, argnum=object field);
+        pmap.set(*c_key, d);
       } else {
         // try a generic object, the typemap will do the checking, this can throw
         osgeo::proj::util::BaseObject *o;
