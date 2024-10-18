@@ -1,4 +1,5 @@
-name: 'SWIG JSE'
+name: Generate the SWIG wrappers
+
 on:
   workflow_call:
 
