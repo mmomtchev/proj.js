@@ -31,6 +31,7 @@
     "build:native-xpack": "npm run configure:native-xpack && npx xpm run build --config native-xpack",
     "build:wasm": "npm run configure:wasm && npx xpm run build --config wasm",
     "build:webpack": "cd test/browser && npx webpack --mode=production",
+    "start": "cd test/browser && npx webpack serve --mode=production",
     "build": "npm run build:native && npm run build:wasm",
     "lint": "npx eslint",
     "dev": "cd test/browser && npx webpack serve --mode=production",
