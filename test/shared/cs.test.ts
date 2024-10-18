@@ -61,15 +61,16 @@ describe('CoordinateSystem with automatic import', () => {
     });
   });
 
-  it('create w/ PropertyMap', () => {
-    // TODO: PropertyMap can be an automatic JS object
-    const pmap = new PROJ.PropertyMap();
-    pmap.set(PROJ.Identifier.CODE_KEY, '1337');
-    pmap.set(PROJ.Identifier.AUTHORITY_KEY, 'DeadCow');
-    pmap.set(PROJ.Identifier.EPSG, false);
-    const axis = PROJ.CoordinateSystemAxis.create(pmap, 'axis', PROJ.AxisDirection.NORTH_EAST, PROJ.UnitOfMeasure.METRE, null);
+  it.only('create w/ PropertyMap', () => {
+    const axis = PROJ.CoordinateSystemAxis.create({
+      'name': 'Garga',
+      [`${PROJ.Identifier.CODE_KEY}`]: '1337',
+      [`${PROJ.Identifier.AUTHORITY_KEY}`]: 'DeadCow',
+      [`${PROJ.Identifier.EPSG}`]: false
+    }, 'axis', PROJ.AxisDirection.NORTH_EAST, PROJ.UnitOfMeasure.METRE, null);
     assert.instanceOf(axis, PROJ.CoordinateSystemAxis);
     assert.isNull(axis.meridian());
     assert.isTrue(axis.unit().equal(PROJ.UnitOfMeasure.METRE));
+    assert.isFalse(axis.unit().equal(PROJ.UnitOfMeasure.DEGREE));
   });
 });
