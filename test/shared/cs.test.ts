@@ -64,9 +64,9 @@ describe('CoordinateSystem with automatic import', () => {
   it('create w/ PropertyMap', () => {
     const axis = PROJ.CoordinateSystemAxis.create({
       'name': 'Garga',
-      [`${PROJ.Identifier.CODE_KEY}`]: '1337',
-      [`${PROJ.Identifier.AUTHORITY_KEY}`]: 'DeadCow',
-      [`${PROJ.Identifier.EPSG}`]: false
+      [PROJ.Identifier.CODE_KEY]: '1337',
+      [PROJ.Identifier.AUTHORITY_KEY]: 'DeadCow',
+      [PROJ.Identifier.EPSG]: false
     }, 'axis', PROJ.AxisDirection.NORTH_EAST, PROJ.UnitOfMeasure.METRE, null);
     assert.instanceOf(axis, PROJ.CoordinateSystemAxis);
     assert.isNull(axis.meridian());
