@@ -1,0 +1,35 @@
+name: 'SWIG JSE'
+on:
+  workflow_call:
+
+jobs:
+  swig:
+    runs-on: ubuntu-latest
+    name: Generate the SWIG wrappers
+
+    strategy:
+      fail-fast: false
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+    - uses: mmomtchev/setup-swig@main
+      with:
+        branch: jse
+        version: main
+        cache: false        
+
+    - name: Verify SWIG
+      run: swig-jse -version
+
+    - name: Run SWIG to generate the wrappers
+      run: npm run swig
+
+    - name: Upload SWIG-generated wrappers
+      uses: actions/upload-artifact@v4
+      with:
+        name: swig-generated
+        path: |
+          swig/*
