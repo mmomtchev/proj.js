@@ -12,3 +12,7 @@
 %nn_shared_ptr(osgeo::proj::cs::DateTimeTemporalCS)
 %nn_shared_ptr(osgeo::proj::cs::TemporalCountCS)
 %nn_shared_ptr(osgeo::proj::cs::TemporalMeasureCS)
+
+// Meridian is nullable when not an nn pointer
+%typemap(ts) osgeo::proj::cs::MeridianPtr           "Meridian | null";
+%typemap(ts) const osgeo::proj::cs::MeridianPtr &   "Meridian | null";

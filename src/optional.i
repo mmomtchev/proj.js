@@ -55,6 +55,11 @@
   }
 }
 // Return value, const reference, conversion by wrapping a constant object
+// This typemap is not entirely safe because we wrap an existing object
+// Normally, this object would be part of its parent object, but this
+// object can be garbage-collected and if the user decides to keep its
+// copy, this will be a dangling pointer
+// The only safe way to do it is to always copy each object
 %typemap(out)       const osgeo::proj::util::optional & {
   if ($1->has_value()) {
     $typemap(out, const $T0type &, 1=&(*$1), result=$result, argnum=$argnum);
