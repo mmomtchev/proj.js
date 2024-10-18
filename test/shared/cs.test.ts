@@ -61,7 +61,7 @@ describe('CoordinateSystem with automatic import', () => {
     });
   });
 
-  it.only('create w/ PropertyMap', () => {
+  it('create w/ PropertyMap', () => {
     const axis = PROJ.CoordinateSystemAxis.create({
       'name': 'Garga',
       [`${PROJ.Identifier.CODE_KEY}`]: '1337',

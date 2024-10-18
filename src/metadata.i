@@ -52,10 +52,12 @@ identifier_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
       }
       std::string *c_key;
       $typemap(in, const std::string &, input=js_key, 1=c_key, argnum=object field);
+      std::unique_ptr<std::string> c_key_holder(c_key);
       if (js_val.IsString()) {
         std::string *s;
         $typemap(in, const std::string &, input=js_val, 1=s, argnum=object field);
         pmap.set(*c_key, *s);
+        delete s;
       } else if (js_val.IsBoolean()) {
         bool b;
         $typemap(in, bool, input=js_val, 1=b, argnum=object field);
