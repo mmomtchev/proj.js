@@ -44,7 +44,8 @@ endif
 if get_option('debug')
   add_project_arguments([ '-DDEBUG' ], language: [ 'cpp', 'c' ])
 endif
-if meson.get_compiler('cpp').get_id() == 'emscripten'
+wasm = meson.get_compiler('cpp').get_id() == 'emscripten'
+if wasm
   add_project_arguments([ '-Wno-documentation' ], language: [ 'cpp', 'c' ])
   add_project_arguments([ '-Wno-potentially-evaluated-expression' ], language: [ 'cpp' ])
 endif
@@ -54,7 +55,7 @@ cmake = import('cmake')
 summary({
   'libcurl'         : enable_curl,
   'libtiff'         : enable_tiff,
-  'inline proj.db'  : inline_projdb
+  'inline proj.db'  : wasm ? inline_projdb : 'Not WASM'
 }, bool_yn: true)
 
 if inline_projdb

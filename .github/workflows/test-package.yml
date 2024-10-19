@@ -63,7 +63,7 @@ jobs:
       - name: Set up the unit tests
         shell: bash
         run: mv node_modules/proj.js/test .
-      - name: Run the unit tests headless
+      - name: Run the Node.js unit tests
         run: npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm \
           --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha      \
           --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
@@ -121,7 +121,7 @@ jobs:
       - name: Set up the unit tests
         shell: bash
         run: mv node_modules/proj.js/test .
-      - name: Run the unit tests headless
+      - name: Run the Node.js unit tests
         run: npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm \
           --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha      \
           --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts

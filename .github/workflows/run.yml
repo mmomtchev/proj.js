@@ -129,7 +129,7 @@ jobs:
         path: lib/binding
 
     - name: Install dependencies
-      run: npm install
+      run: npm install --skip-proj-wasm --skip-proj-native
     
     - name: Run the Node.js tests
       run: npm run test:nodejs
@@ -178,7 +178,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install
+        npm install --skip-proj-wasm --skip-proj-native
         npx xpm install
     
     - name: Run the Node.js tests
@@ -221,7 +221,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install
+        npm install --skip-proj-wasm --skip-proj-native
         npx xpm install
     
     - name: Run the Node.js tests

@@ -71,13 +71,9 @@ jobs:
         
     - name: Install dependencies
       run: |
-        npm install
+        npm install --skip-proj-wasm --skip-proj-native
         npx xpm install
 
-    - name: Install the xpacks
-      run: |
-        npm install xpm
-        npx xpm install
     - name: Get conan home
       shell: bash
       id: conan_home
@@ -98,14 +94,16 @@ jobs:
 
     - name: Build the native version
       run: |
-        npx xpm run prepare --config native
-        npx xpm run build --config native
+        npm install --skip-proj-wasm --build-from-source --verbose --foreground-scripts         \
+          ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
+          ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
       if: inputs.native
 
     - name: Build the WASM version
       run: |
-        npx xpm run prepare --config wasm
-        npx xpm run build --config wasm
+        npm install --skip-proj-native --build-wasm-from-source --verbose --foreground-scripts  \
+          ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
+          ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
         ${EMSDK}/upstream/bin/wasm-opt --enable-bulk-memory --enable-threads --converge -Oz lib/binding/emscripten-wasm32/proj.wasm -o proj.opt.wasm
         mv proj.opt.wasm lib/binding/emscripten-wasm32/proj.wasm
       if: inputs.wasm
