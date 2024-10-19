@@ -1,4 +1,4 @@
-name: 'CI'
+name: CI
 on: [pull_request, push]
 
 jobs:
@@ -12,41 +12,14 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
     - name: Install dependencies
-      run: npm ci
+      run: npm ci --skip-proj-wasm --skip-proj-native
     - name: Lint
       run: npm run lint
 
 
   swig:
-    runs-on: ubuntu-latest
     name: Generate the SWIG wrappers
-
-    strategy:
-      fail-fast: false
-
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v4
-      with:
-        submodules: true
-    - uses: mmomtchev/setup-swig@main
-      with:
-        branch: jse
-        version: main
-        cache: false        
-
-    - name: Verify SWIG
-      run: swig-jse -version
-
-    - name: Run SWIG to generate the wrappers
-      run: npm run swig
-
-    - name: Upload SWIG-generated wrappers
-      uses: actions/upload-artifact@v4
-      with:
-        name: swig-generated
-        path: |
-          swig/*
+    uses: ./.github/workflows/swig.yml
 
   
   build-native:
@@ -156,7 +129,7 @@ jobs:
         path: lib/binding
 
     - name: Install dependencies
-      run: npm install
+      run: npm install --skip-proj-wasm --skip-proj-native
     
     - name: Run the Node.js tests
       run: npm run test:nodejs
@@ -205,7 +178,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install
+        npm install --skip-proj-wasm --skip-proj-native
         npx xpm install
     
     - name: Run the Node.js tests
@@ -248,7 +221,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install
+        npm install --skip-proj-wasm --skip-proj-native
         npx xpm install
     
     - name: Run the Node.js tests

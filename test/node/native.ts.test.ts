@@ -7,6 +7,7 @@ describe('native', () => {
     const db = native.DatabaseContext.create();
     assert.instanceOf(db, native.DatabaseContext);
     assert.isFalse(native.proj_js_inline_projdb);
+    // @ts-ignore
     assert.isUndefined(native.loadDatabase);
   });
 });

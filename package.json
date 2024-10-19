@@ -20,6 +20,7 @@
     }
   },
   "scripts": {
+    "install": "xpm install && xpm run npm-install",
     "test": "npm run test:nodejs && npm run test:browser",
     "test:nodejs": "npx mocha",
     "test:browser": "cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs",
@@ -151,7 +152,7 @@
       "commandInstall": "meson install -C {{ properties.buildFolderRelativePath }}",
       "commandClean": "meson compile -C {{ properties.buildFolderRelativePath }} --clean",
       "verbose": "{% if env.npm_config_loglevel %}--verbose{% endif %}",
-      "scriptInstallNative": "npx prebuild-install -d {{ properties.verbose }} || ( npx xpm install && npx xpm install --config {{ properties.configNative }} && xpm run prepare --config {{ properties.configNative }} && xpm run build --config {{ properties.configNative }} )",
+      "scriptInstallNative": "npx prebuild-install -d {{ properties.verbose }} || ( npx xpm install && npx xpm install --config native && xpm run prepare --config native && xpm run build --config native )",
       "scriptInstallWASM": "npx prebuild-install --platform emscripten --arch wasm32 -d {{ properties.verbose }} || ( npx xpm install && xpm run prepare --config wasm && xpm run build --config wasm )"
     },
     "actions": {
@@ -160,7 +161,13 @@
         "{{ properties.commandGenerate }}"
       ],
       "conan": "conan",
-      "meson": "meson"
+      "meson": "meson",
+      "env": "{{ properties.commandShowEnv[os.platform] }}",
+      "npm-install": [
+        "{% if env.npm_config_loglevel %}{{ properties.commandShowEnv[os.platform] }}{% endif %}",
+        "{% unless env.npm_config_skip_proj_native %}{{ properties.scriptInstallNative }}{% endunless %}",
+        "{% unless env.npm_config_skip_proj_wasm %}{{ properties.scriptInstallWASM }}{% endunless %}"
+      ]
     },
     "buildConfigurations": {
       "native": {
