@@ -1,0 +1,130 @@
+name: Test npm package
+
+on:
+  workflow_call:
+    inputs:
+      package:
+        type: string
+        default: proj.js@latest
+        description: package tarball or npm name to install
+      download:
+        type: boolean
+        default: false
+        description: whether the package artifact needs to be downloaded
+  workflow_dispatch:
+    inputs:
+      package:
+        type: string
+        default: proj.js@latest
+        description: package tarball or npm name to install
+
+
+jobs:
+  test_npm_binaries:
+    runs-on: ${{ matrix.platform }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - windows-2019
+          - windows-2022
+          - macos-12
+          - macos-latest
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Create package.json
+        shell: bash
+        run: |
+          echo '{ "type": "module" }' > package.json
+      - name: Install dependencies
+        run: |
+          npm i chai@4.3.7 mocha typescript ts-node tsconfig-paths  \
+            @types/chai@4.3.14 @types/mocha @types/node             \
+            karma karma-chrome-launcher karma-mocha webpack webpack-cli ts-loader
+        shell: bash
+      - name: Download the package
+        uses: robinraju/release-downloader@v1.11
+        with:
+          tag: ${{ github.ref_name }}
+          fileName: ${{ inputs.package }}
+        if: inputs.download
+      - name: Install proj.js from ${{ inputs.package }}
+        run: npm install ${{ inputs.package }}
+        shell: bash
+      - name: Set up the unit tests
+        shell: bash
+        run: mv node_modules/proj.js/test .
+      - name: Run the unit tests headless
+        run: npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm \
+          --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha      \
+          --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
+        env:
+          TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
+          PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
+
+
+  test_npm_rebuild:
+    runs-on: ${{ matrix.platform }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform:
+          - ubuntu-20.04
+          - ubuntu-22.04
+          - ubuntu-24.04
+          - windows-2019
+          - windows-2022
+          - macos-12
+          - macos-latest
+        node-version: [18.x, 20.x, 22.x]
+
+    steps:
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Setup emscripten (WASM)
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 3.1.68
+      - name: Create package.json
+        shell: bash
+        run: |
+          echo '{ "type": "module" }' > package.json
+      - name: Install dependencies
+        run: |
+          npm i chai@4.3.7 mocha typescript ts-node tsconfig-paths  \
+            @types/chai@4.3.14 @types/mocha @types/node             \
+            karma karma-chrome-launcher karma-mocha webpack webpack-cli ts-loader
+        shell: bash
+      - name: Download the package
+        uses: robinraju/release-downloader@v1.11
+        with:
+          tag: ${{ github.ref_name }}
+          fileName: ${{ inputs.package }}
+        if: inputs.download
+      - name: Install proj.js from ${{ inputs.package }}
+        run: npm install ${{ inputs.package }}          \
+          --foreground-scripts --verbose                \
+          --build-from-source --build-wasm-from-source
+        shell: bash
+      - name: Set up the unit tests
+        shell: bash
+        run: mv node_modules/proj.js/test .
+      - name: Run the unit tests headless
+        run: npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm \
+          --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha      \
+          --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
+        env:
+          TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
+          PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db

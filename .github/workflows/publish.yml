@@ -1,5 +1,11 @@
 name: Publish
-on: [pull_request, push]
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        type: boolean
+        default: false
+        description: whether the release should be marked as a prerelease
 
 jobs:
   swig:
@@ -15,8 +21,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platform: [ubuntu-latest, macos-latest, windows-latest]
-        enable_tiff: [true, false]
+        include:
+          - platform: ubuntu-20.04
+            id: linux-x64
+          - platform: macos-latest
+            id: darwin-arm64
+          - platform: macos-12
+            id: darwin-x64
+          - platform: windows-2019
+            id: windows-x64
 
     uses:
       ./.github/workflows/build.yml
@@ -24,19 +37,13 @@ jobs:
       platform: ${{ matrix.platform }}
       native: true
       wasm: false
-      id: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
-      enable_tiff: ${{ matrix.enable_tiff }}
+      id: ${{ matrix.id }}
+      enable_tiff: true
 
 
   build-wasm:
-    name: Build WASM ${{ matrix.enable_tiff && '' || '' }}
+    name: Build WASM
     needs: swig
-
-    strategy:
-      fail-fast: false
-      matrix:
-        inline_projdb: [true, false]
-        enable_tiff: [true, false]
 
     uses:
       ./.github/workflows/build.yml
@@ -44,7 +51,118 @@ jobs:
       platform: ubuntu-latest
       native: false
       wasm: true
-      enable_tiff: ${{ matrix.enable_tiff }}
-      inline_projdb: ${{ matrix.inline_projdb }}
-      id: wasm-${{ matrix.inline_projdb && 'inlined' || 'external' }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
+      enable_tiff: true
+      inline_projdb: false
+      id: emscripten-wasm32
 
+
+  create-release:
+    name: Create the Github release
+    runs-on: ubuntu-latest
+    needs: [ build-native, build-wasm ]
+    permissions:
+      contents: write
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        draft: true
+        prerelease: ${{ inputs.prerelease }}
+
+
+  pack-prebuilt-binaries:
+    name: Pack the prebuilt binaries
+    runs-on: ubuntu-latest
+    needs: [ create-release ]
+    permissions:
+      contents: write
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [linux-x64, win32-x64, darwin-x64, darwin-arm64, emscripten-wasm32]
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Node.js 20
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Download the artifact for ${{ matrix.platform }}
+      uses: actions/download-artifact@v4
+      with:
+        name: ${{ matrix.platform }}
+        path: lib/binding
+
+    - name: Pack
+      run:
+        tar -zcvf ${{ matrix.platform }}.tar.gz lib/binding
+
+    - name: Publish
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        artifacts: ${{ matrix.platform }}.tar.gz
+        updateOnlyUnreleased: true
+        omitDraftDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+
+
+  create-npm-package:
+    name: Create the npm package
+    runs-on: ubuntu-latest
+    needs: [ build-native, build-wasm ]
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        submodules: true
+    - name: Download the SWIG-generated wrappers
+      uses: actions/download-artifact@v4
+      with:
+        name: swig
+        path: swig
+    - run: npm pack
+    - name: Get version
+      id: version
+      run: node -p '"version=" + require("./package.json").version' >> "$GITHUB_OUTPUT"
+    - name: Upload the npm package
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        artifacts: proj.js-${{ steps.version.outputs.version }}.tgz
+        updateOnlyUnreleased: true
+        omitDraftDuringUpdate: true
+        omitPrereleaseDuringUpdate: true
+
+
+  publish-release:
+    name: Publish the Github release
+    runs-on: ubuntu-latest
+    needs: [ create-npm-package, pack-prebuilt-binaries ]
+    steps:
+    - name: Publish the draft release
+      uses: ncipollo/release-action@v1
+      with:
+        allowUpdates: true
+        omitDraftDuringUpdate: false
+        draft: false
+        omitPrereleaseDuringUpdate: true
+
+
+  test_package:
+    name: Test the npm package
+    uses: ./.github/workflows/test-package.yml
+    needs: [ publish-release, create-npm-package ]
+    with:
+      package: proj.js-${{ needs.create-npm-package.outputs.version }}.tgz
+      download: true
