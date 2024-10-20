@@ -77,4 +77,11 @@ export default [{
             ...globals.browser,
         },
     },
+},
+{
+    files: ['scripts/*.mjs'],
+
+    languageOptions: {
+        ecmaVersion: 2022
+    },
 }];
