@@ -4,3 +4,6 @@
 /lib/binding
 /xpacks 
 /__pycache__
+.git
+.vscode
+.github
