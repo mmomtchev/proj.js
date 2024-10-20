@@ -53,9 +53,9 @@ endif
 # Build PROJ and its dependencies
 cmake = import('cmake')
 summary({
-  'libcurl'         : enable_curl,
-  'libtiff'         : enable_tiff,
-  'inline proj.db'  : wasm ? inline_projdb : 'Not WASM'
+  'libcurl (not available in WASM)'         : enable_curl,
+  'libtiff'                                 : enable_tiff,
+  'inline proj.db (available only in WASM)' : inline_projdb
 }, bool_yn: true)
 
 if inline_projdb
