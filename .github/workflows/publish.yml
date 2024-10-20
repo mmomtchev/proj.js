@@ -5,7 +5,7 @@ on:
       prerelease:
         type: boolean
         default: false
-        description: whether the release should be marked as a prerelease
+        description: mark as a prerelease
 
 jobs:
   swig:
