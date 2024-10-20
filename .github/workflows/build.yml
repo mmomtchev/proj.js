@@ -111,8 +111,6 @@ jobs:
         npm install --skip-proj-native --build-wasm-from-source --verbose --foreground-scripts  \
           ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
           ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
-        ${EMSDK}/upstream/bin/wasm-opt --enable-bulk-memory --enable-threads --converge -Oz lib/binding/emscripten-wasm32/proj.wasm -o proj.opt.wasm
-        mv proj.opt.wasm lib/binding/emscripten-wasm32/proj.wasm
       if: inputs.wasm
 
     - name: Build the native ASAN version
