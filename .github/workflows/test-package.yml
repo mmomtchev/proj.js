@@ -118,12 +118,13 @@ jobs:
         run: |
           npm install ${{ inputs.package }}               \
             --foreground-scripts --verbose                \
-            --build-from-source --build-wasm-from-source
+            --build-from-source
         shell: bash
       - name: Set up the unit tests
         shell: bash
         run: mv node_modules/proj.js/test .
       - name: Run the Node.js unit tests
+        shell: bash
         run: |
           npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
             --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
