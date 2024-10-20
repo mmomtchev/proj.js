@@ -129,7 +129,7 @@ jobs:
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v4
       with:
-        name: swig
+        name: swig-generated
         path: swig
     - run: npm pack
     - name: Get version
