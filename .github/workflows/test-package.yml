@@ -58,15 +58,16 @@ jobs:
           fileName: ${{ inputs.package }}
         if: inputs.download
       - name: Install proj.js from ${{ inputs.package }}
-        run: npm install ${{ inputs.package }}
+        run: npm install ${{ inputs.package }} --foreground-scripts --verbose
         shell: bash
       - name: Set up the unit tests
         shell: bash
         run: mv node_modules/proj.js/test .
       - name: Run the Node.js unit tests
-        run: npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm \
-          --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha      \
-          --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
+        run: |
+          npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
+            --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
+            --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
         env:
           TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
@@ -114,17 +115,19 @@ jobs:
           fileName: ${{ inputs.package }}
         if: inputs.download
       - name: Install proj.js from ${{ inputs.package }}
-        run: npm install ${{ inputs.package }}          \
-          --foreground-scripts --verbose                \
-          --build-from-source --build-wasm-from-source
+        run: |
+          npm install ${{ inputs.package }}               \
+            --foreground-scripts --verbose                \
+            --build-from-source --build-wasm-from-source
         shell: bash
       - name: Set up the unit tests
         shell: bash
         run: mv node_modules/proj.js/test .
       - name: Run the Node.js unit tests
-        run: npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm \
-          --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha      \
-          --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
+        run: |
+          npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
+            --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
+            --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
         env:
           TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
