@@ -149,6 +149,8 @@ jobs:
     name: Publish the Github release
     runs-on: ubuntu-latest
     needs: [ create-npm-package, pack-prebuilt-binaries ]
+    permissions:
+      contents: write
     steps:
     - name: Publish the draft release
       uses: ncipollo/release-action@v1
