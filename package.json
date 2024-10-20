@@ -35,6 +35,9 @@
     "start": "cd test/browser && npx webpack serve --mode=production",
     "build": "npm run build:native && npm run build:wasm",
     "lint": "npx eslint",
+    "preversion": "npm run lint && npm run test",
+    "postversion": "git push && git push --tags && node ./scripts/publish-packages.mjs",
+    "postpublish": "gh workflow run test-package.yml -F version=$npm_package_version",
     "dev": "cd test/browser && npx webpack serve --mode=production",
     "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj_js/build -o ../build/Debug/obj.target/proj_js/src ../src/* ../build/*",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
@@ -99,6 +102,15 @@
     "webpack-dev-server": "^5.0.4"
   },
   "binary": {
+    "module_name": "proj",
+    "module_path": "./lib/binding/{platform}-{arch}",
+    "remote_path": "v{version}",
+    "host": "https://github.com/mmomtchev/proj.js/releases/download/",
+    "package_name": "{platform}-{arch}.tar.gz",
+    "hosting": {
+      "provider": "github",
+      "repo": "mmomtchev/proj.js"
+    },
     "napi_versions": [
       6
     ]
