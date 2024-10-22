@@ -5,3 +5,5 @@
 /lib/binding
 /xpacks 
 /__pycache__
+/profile.data
+/.vscode/settings.json

@@ -106,7 +106,7 @@ Currently the biggest contributor to raw code size is SWIG JSE which produces la
 
 ## WASM Splitting
 
-Starting from version 0.9.1, `proj.js` supports WASM code splitting. This allows to split the module in two parts, a main part that is loaded when the module is initially imported and a secondary part that is lazy-loaded when any function not present in the main part is called. The splitting is performed along the lines of a JavaScript program - any function called by that program will be part of the main part, everything else will remain the secondary module. A sample JavaScript program that performs only the quickstart is included, using this program results a very decent 40%:60% split:
+Starting from version 0.9.1, `proj.js` supports WASM code splitting. This allows to split the module in two parts, a main part that is loaded when the module is initially imported and a secondary part that is lazy-loaded when any function not present in the main part is called. The splitting is performed along the lines of a JavaScript program - any function called by that program will be part of the main part, everything else will remain in the secondary module. A sample JavaScript program that performs only the quickstart is included, using this program results a very decent 40%:60% split:
 
 | Component | raw | brotli |
 | --- | --- | --- |
@@ -115,6 +115,18 @@ Starting from version 0.9.1, `proj.js` supports WASM code splitting. This allows
 | `proj.wasm` w/o TIFF w/o `proj.db` | 3859K | 716K |
 | `proj.deferred.wasm` w/o TIFF w/o `proj.db` | 4278K | 829K |
 | `proj.db` | 9240K | 1320K |
+
+To split using the default quickstart, run:
+
+```shell
+node src/proj-wasm-split.js
+```
+
+To split using any other user program, run:
+
+```shell
+node src/proj-wasm-split.js <program>
+```
 
 # Performance
 

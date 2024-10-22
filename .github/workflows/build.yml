@@ -38,7 +38,10 @@ on:
         type: boolean
         default: true
         description: cache conan artifacts
-
+      wasm-split:
+        type: boolean
+        default: false
+        description: perform WASM code splitting
 
 jobs:    
   build:
@@ -112,6 +115,10 @@ jobs:
           ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
           ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
       if: inputs.wasm
+
+    - name: Perform WASM code splitting
+      run: node src/proj-wasm-spit.js
+      if: inputs.wasm && inputs.wasm-split
 
     - name: Build the native ASAN version
       if: inputs.asan
