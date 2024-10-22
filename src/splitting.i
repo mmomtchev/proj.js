@@ -23,8 +23,9 @@ void swig_em_write_profile();
     _free(ptr);
   });
 #else
+  #include <stdexcept>
   void swig_em_write_profile() {
-    SWIG_fail("Not a WASM build");
+    throw std::runtime_error{"Not a WASM build"};
   }
 #endif
 %}
