@@ -117,7 +117,7 @@ jobs:
       if: inputs.wasm
 
     - name: Perform WASM code splitting
-      run: node src/proj-wasm-spit.js
+      run: node scripts/proj-wasm-split.js
       if: inputs.wasm && inputs.wasm_split
 
     - name: Build the native ASAN version

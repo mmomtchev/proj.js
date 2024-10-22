@@ -4,11 +4,29 @@ import * as path from 'node:path';
 import * as fs from 'node:fs';
 import * as zlib from 'node:zlib';
 import { fileURLToPath } from 'node:url';
+
+const dirname = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+const orig = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.wasm.orig');
+const main = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.wasm');
+const secondary = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.deferred.wasm');
+const backup = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.wasm.backup');
+
+if (!fs.existsSync(orig)) {
+  console.log(`orig file ${orig} not found`);
+  process.exit(1);
+}
+if (!fs.existsSync(backup)) {
+  fs.copyFileSync(main, backup);
+  console.log(`creating a backup copy ${backup} from ${main}`);
+} else {
+  fs.copyFileSync(backup, main);
+  console.log(`restoring backup copy ${main} from ${backup}`);
+}
+
 import qPROJ from '../wasm/index.mjs';
 
 const PROJ = await qPROJ;
 
-const dirname = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const proj_db_path = path.resolve(dirname, 'lib', 'binding', 'proj', 'proj.db');
 const proj_db = fs.readFileSync(proj_db_path);
 if (!PROJ.proj_js_inline_projdb)
@@ -21,15 +39,6 @@ await import(program);
 PROJ.swig_em_write_profile();
 
 const split = process.env['EMSDK'] ? path.resolve(process.env['EMSDK'], 'upstream', 'bin', 'wasm-split') : 'wasm-split';
-const orig = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.wasm.orig');
-const main = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.wasm');
-const secondary = path.resolve(dirname, 'lib', 'binding', 'emscripten-wasm32', 'proj.deferred.wasm');
-if (!fs.existsSync(orig)) {
-  console.log(`creating backup copy ${orig} from ${main}`);
-  fs.copyFileSync(main, orig);
-} else {
-  console.log(`backup copy ${orig} already existing`);
-}
 const splitCommand = `${split} --enable-threads --enable-bulk-memory --enable-mutable-globals --export-prefix=% ${orig} -o1 ${main} -o2 ${secondary} --profile=profile.data`;
 console.log('running', splitCommand);
 try {

@@ -130,3 +130,24 @@ custom_target(
   install             : true,
   install_dir         : data_dir / 'proj'
 )
+
+# --------------------
+# Include the wasm.orig file in the bundle for users
+# who wish to use code splitting on the published package
+# --------------------
+if wasm
+  custom_target(
+    'proj.wasm.orig',
+    command             : [
+      'node',
+      '-e',
+      'fs.copyFileSync("' + meson.current_build_dir() / 'proj.wasm.orig' + '", "' + meson.current_build_dir() / 'proj.wasm.orig' + '");'
+    ],
+    depends             : main_target,
+    input               : [],
+    output              : 'proj.wasm.orig',
+    build_by_default    : true,
+    install             : true,
+    install_dir         : '.'
+  )
+endif
