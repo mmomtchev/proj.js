@@ -68,6 +68,7 @@ using namespace NS_PROJ;
 %include "coordinatesystem.i"
 %include "crs.i"
 %include "factory.i"
+%include "splitting.i"
 
 // SWIG can't deduce the type of PROJ_VERSION_NUMBER
 #pragma SWIG nowarn=304
