@@ -38,7 +38,7 @@ on:
         type: boolean
         default: true
         description: cache conan artifacts
-      wasm-split:
+      wasm_split:
         type: boolean
         default: false
         description: perform WASM code splitting

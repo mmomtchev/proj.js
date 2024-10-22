@@ -119,13 +119,13 @@ Starting from version 0.9.1, `proj.js` supports WASM code splitting. This allows
 To split using the default quickstart, run:
 
 ```shell
-node src/proj-wasm-split.js
+node scripts/proj-wasm-split.js
 ```
 
 To split using any other user program, run:
 
 ```shell
-node src/proj-wasm-split.js <program>
+node scripts/proj-wasm-split.js <program>
 ```
 
 # Performance

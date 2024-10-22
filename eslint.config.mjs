@@ -79,7 +79,7 @@ export default [{
     },
 },
 {
-    files: ['scripts/*.mjs'],
+    files: ['scripts/*.?(m)js'],
 
     languageOptions: {
         ecmaVersion: 2022

@@ -34,7 +34,7 @@ const splitCommand = `${split} --enable-threads --enable-bulk-memory --enable-mu
 console.log('running', splitCommand);
 try {
   cp.execSync(splitCommand);
-} catch (e) {
+} catch {
   process.exit(1);
 }
 

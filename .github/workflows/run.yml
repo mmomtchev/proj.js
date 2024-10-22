@@ -60,7 +60,7 @@ jobs:
       enable_tiff: ${{ matrix.enable_tiff }}
       inline_projdb: ${{ matrix.inline_projdb }}
       id: wasm-${{ matrix.inline_projdb && 'inlined' || 'external' }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
-      split: true
+      wasm_split: true
 
 
   build-asan:
