@@ -26,7 +26,7 @@ jobs:
             id: linux-x64
           - platform: macos-latest
             id: darwin-arm64
-          - platform: macos-12
+          - platform: macos-13
             id: darwin-x64
           - platform: windows-2019
             id: win32-x64
