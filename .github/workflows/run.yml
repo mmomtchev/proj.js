@@ -237,7 +237,6 @@ jobs:
 
     - name: Collect code coverage
       run: |
-        ls -alR build
         npm run gcov
         npm run lcov
 
