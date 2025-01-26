@@ -221,6 +221,12 @@ jobs:
         name: native-codecov
         path: lib/binding
 
+    - name: Download the build directory
+      uses: actions/download-artifact@v4
+      with:
+        name: build-native-codecov
+        path: build/native
+
     - name: Install dependencies
       run: |
         npm install --skip-proj-wasm --skip-proj-native
