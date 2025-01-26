@@ -39,7 +39,7 @@
     "postversion": "git push && git push --tags && node ./scripts/publish-packages.mjs",
     "postpublish": "gh workflow run test-package.yml -F version=$npm_package_version",
     "dev": "cd test/browser && npx webpack serve --mode=production",
-    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj_js/build -o ../build/Debug/obj.target/proj_js/src ../src/* ../build/*",
+    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/Debug/obj.target/proj_js/build ../build/*.c* && gcov -o ../build/Debug/obj.target/proj_js/src ../src/*.c*",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
   },
   "repository": {
