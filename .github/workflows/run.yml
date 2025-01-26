@@ -231,8 +231,8 @@ jobs:
 
     - name: Collect code coverage
       run: |
-        npm run gcov
         ls -alR build
+        npm run gcov
         npm run lcov
 
     - name: Upload coverage reports to Codecov
