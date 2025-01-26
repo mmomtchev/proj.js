@@ -40,7 +40,7 @@ class PROJDependencies(ConanFile):
     self.requires('sqlite3/[>=3.45.0 <3.46.0]')
 
     self.tool_requires('pkgconf/2.1.0')
-    self.tool_requires('sqlite3/[>=3.45.0]')
+    self.tool_requires('sqlite3/[>=3.45.0 <3.46.0]')
 
   def configure(self):
     if self.settings.arch == 'wasm':
