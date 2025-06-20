@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import { assertInstanceOf } from './chai-workaround.js';
 
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
@@ -26,7 +27,7 @@ describe('CoordinateOperation with automatic import', () => {
   });
 
   it('automatic downcasting / inheritance chain', () => {
-    assert.instanceOf(operation, PROJ.CoordinateOperation);
+    assertInstanceOf(operation, PROJ.CoordinateOperation);
     assert.instanceOf(operation, PROJ.ConcatenatedOperation);
 
     const ops = (operation as PROJ.ConcatenatedOperation).operations();
@@ -35,8 +36,8 @@ describe('CoordinateOperation with automatic import', () => {
   
     const single = ops[0];
     assert.instanceOf(single, PROJ.Conversion);
-    assert.instanceOf(single, PROJ.SingleOperation);
-    assert.instanceOf(single, PROJ.CoordinateOperation);
+    assertInstanceOf(single, PROJ.SingleOperation);
+    assertInstanceOf(single, PROJ.CoordinateOperation);
   });
 
   it('operationVersion (optional string that is empty)', () => {
