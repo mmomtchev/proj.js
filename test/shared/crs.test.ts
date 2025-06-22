@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import { assertInstanceOf } from './chai-workaround.js';
 
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
@@ -19,29 +20,29 @@ describe('CRS with automatic import', () => {
 
   it('identify', () => {
     const crs = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-    assert.instanceOf(crs, PROJ.CRS);
+    assertInstanceOf(crs, PROJ.CRS);
 
     assert.lengthOf(crs.identify(authFactory), 0);
     const id = crs.identify(authFactoryEPSG);
     assert.lengthOf(id, 1);
-    assert.instanceOf(id[0][0], PROJ.CRS);
+    assertInstanceOf(id[0][0], PROJ.CRS);
     assert.strictEqual(id[0][1], 100);
   });
 
   it('identify (return std::list of std::pair)', () => {
     const crs = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-    assert.instanceOf(crs, PROJ.CRS);
+    assertInstanceOf(crs, PROJ.CRS);
 
     assert.lengthOf(crs.identify(authFactory), 0);
     const id = crs.identify(authFactoryEPSG);
     assert.lengthOf(id, 1);
-    assert.instanceOf(id[0][0], PROJ.CRS);
+    assertInstanceOf(id[0][0], PROJ.CRS);
     assert.strictEqual(id[0][1], 100);
   });
 
   it('canonicalBounds (return NULL CRS reference)', () => {
     const crs = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-    assert.instanceOf(crs, PROJ.CRS);
+    assertInstanceOf(crs, PROJ.CRS);
 
     const bounds = crs.canonicalBoundCRS();
     assert.isNull(bounds);
@@ -50,7 +51,7 @@ describe('CRS with automatic import', () => {
   it('createFromUserInput (automatic downcasting / inheritance chain)', () => {
     const crs = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
     assert.instanceOf(crs, PROJ.BaseObject);
-    assert.instanceOf(crs, PROJ.CRS);
+    assertInstanceOf(crs, PROJ.CRS);
     assert.instanceOf(crs, PROJ.ProjectedCRS);
   });
 
@@ -62,8 +63,8 @@ describe('CRS with automatic import', () => {
   it('extract GeographicCRS (return CRS)', () => {
     const crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
     const geographic = crs.extractGeographicCRS();
-    assert.instanceOf(geographic, PROJ.CRS);
-    assert.instanceOf(geographic, PROJ.SingleCRS);
+    assertInstanceOf(geographic, PROJ.CRS);
+    assertInstanceOf(geographic, PROJ.SingleCRS);
     assert.instanceOf(geographic, PROJ.GeographicCRS);
   });
 

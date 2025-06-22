@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import { assertInstanceOf } from './chai-workaround.js';
 
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
@@ -22,17 +23,17 @@ describe('CoordinateSystem with automatic import', () => {
   });
 
   it('class constructor inheritance', () => {
-    assert.instanceOf(PROJ.EllipsoidalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.SphericalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.CartesianCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.VerticalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.AffineCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.OrdinalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.ParametricCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.TemporalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.DateTimeTemporalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.TemporalCS, PROJ.CoordinateSystem.constructor);
-    assert.instanceOf(PROJ.TemporalMeasureCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.EllipsoidalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.SphericalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.CartesianCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.VerticalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.AffineCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.OrdinalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.ParametricCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.TemporalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.DateTimeTemporalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.TemporalCS, PROJ.CoordinateSystem.constructor);
+    assertInstanceOf(PROJ.TemporalMeasureCS, PROJ.CoordinateSystem.constructor);
   });
 
   it('static properties', () => {
@@ -43,7 +44,7 @@ describe('CoordinateSystem with automatic import', () => {
   it('extract CoordinateSystem', () => {
     const cs = geoCRS.coordinateSystem();
     assert.instanceOf(cs, PROJ.BaseObject);
-    assert.instanceOf(cs, PROJ.CoordinateSystem);
+    assertInstanceOf(cs, PROJ.CoordinateSystem);
     assert.instanceOf(cs, PROJ.EllipsoidalCS);
   });
 

@@ -1,4 +1,5 @@
 import { assert } from 'chai';
+import { assertInstanceOf } from './chai-workaround.js';
 
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
@@ -24,7 +25,7 @@ describe('Datum with automatic import', () => {
   });
 
   it('Datum', () => {
-    assert.instanceOf(datum, PROJ.Datum);
+    assertInstanceOf(datum, PROJ.Datum);
   });
 
   it('Ellipsoid', () => {
