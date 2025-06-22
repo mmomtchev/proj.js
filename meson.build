@@ -46,7 +46,6 @@ if get_option('debug')
 endif
 wasm = meson.get_compiler('cpp').get_id() == 'emscripten'
 if wasm
-  add_project_arguments([ '-Wno-documentation' ], language: [ 'cpp', 'c' ])
   add_project_arguments([ '-Wno-potentially-evaluated-expression' ], language: [ 'cpp' ])
   add_project_link_arguments([ '-sBINARYEN_EXTRA_PASSES="--enable-bulk-memory,--enable-threads,--converge,-Oz"' ], language: [ 'cpp', 'c' ])
 endif
