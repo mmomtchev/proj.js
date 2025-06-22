@@ -40,7 +40,7 @@ identifier_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
 
 // PropertyMap is a very special class that is used only as an input
 // argument, in JavaScript the usual convention is to pass an object
-%typemap(in) const osgeo::proj::util::PropertyMap &properties (osgeo::proj::util::PropertyMap pmap) {
+%typemap(in, fragment="SWIG_null_deleter") const osgeo::proj::util::PropertyMap &properties (osgeo::proj::util::PropertyMap pmap) {
   if ($input.IsObject()) {
     Napi::Object obj = $input.ToObject();
     Napi::Array keys = obj.GetPropertyNames();
