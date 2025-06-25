@@ -47,6 +47,8 @@ endif
 wasm = meson.get_compiler('cpp').get_id() == 'emscripten'
 if wasm
   add_project_arguments([ '-Wno-potentially-evaluated-expression' ], language: [ 'cpp' ])
+  # Recent emnapi versions require POSIX_C_SOURCE
+  add_project_arguments([ '-D_POSIX_C_SOURCE=200112L' ], language: [ 'c' ])
   add_project_link_arguments([ '-sBINARYEN_EXTRA_PASSES="--enable-bulk-memory,--enable-threads,--converge,-Oz"' ], language: [ 'cpp', 'c' ])
 endif
 
