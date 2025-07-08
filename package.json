@@ -68,9 +68,9 @@
   },
   "homepage": "https://github.com/mmomtchev/proj.js#readme",
   "dependencies": {
-    "@emnapi/runtime": "1.4.3",
+    "@emnapi/runtime": "1.4.4",
     "@mmomtchev/prebuild-install": "^1.0.2",
-    "emnapi": "1.4.3",
+    "emnapi": "1.4.4",
     "node-addon-api": "^8.1.0",
     "xpm": "^0.20.5"
   },
