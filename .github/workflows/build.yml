@@ -73,9 +73,9 @@ jobs:
         name: swig-generated
         path: swig
         
-    - name: Install dependencies
+    - name: Install xpm
       run: |
-        npm install --skip-proj-wasm --skip-proj-native
+        npm install xpm
         npx xpm install
 
     - name: Get conan home
@@ -91,16 +91,11 @@ jobs:
         path: ${{ steps.conan_home.outputs.path }}
         key: conan-${{ inputs.id }}
 
-    - name: Set the npm build options
-      shell: bash
-      run: |
-        echo "${{ inputs.inline_projdb && 'npm_config_enable_inline_projdb' || 'npm_config_disable_inline_projdb' }}=true" >> $GITHUB_ENV
-        echo "${{ inputs.enable_tiff && 'npm_config_enable_tiff' || 'npm_config_disable_tiff' }}=true" >> $GITHUB_ENV
-
     - name: Build the native version
       shell: bash
       run: |
-        npm install --skip-proj-wasm --build-from-source --verbose --foreground-scripts         \
+        npm install --proj_js_skip_wasm --proj_js_build-from-source                             \
+          --verbose --foreground-scripts                                                        \
           ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
           ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
       if: inputs.native
@@ -108,10 +103,18 @@ jobs:
     - name: Build the WASM version
       shell: bash
       run: |
-        npm install --skip-proj-native --build-wasm-from-source --verbose --foreground-scripts  \
+        npm install --proj_js_skip_native --proj_js_build-wasm-from-source                      \
+          --verbose --foreground-scripts                                                        \
           ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
           ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
       if: inputs.wasm
+
+    - name: Set the npm build options for a custom build
+      shell: bash
+      if: inputs.asan || inputs.codecov
+      run: |
+        echo "${{ inputs.inline_projdb && 'npm_config_enable_inline_projdb' || 'npm_config_disable_inline_projdb' }}=true" >> $GITHUB_ENV
+        echo "${{ inputs.enable_tiff && 'npm_config_enable_tiff' || 'npm_config_disable_tiff' }}=true" >> $GITHUB_ENV
 
     - name: Build the native ASAN version
       if: inputs.asan
@@ -125,7 +128,7 @@ jobs:
       run: |
         npm run configure:native
         npx xpm run configure --config native -- -Db_coverage=true
-        npm run build:native
+        npx xpm run build --config native
 
     - name: Check WASM module size
       run: |
