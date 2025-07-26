@@ -58,9 +58,6 @@ jobs:
       with:
         node-version: 20
 
-    - name: Setup Visual Studio (Windows)
-      uses: ilammy/msvc-dev-cmd@v1
-      if: runner.os == 'Windows'
     - name: Setup emscripten (WASM)
       uses: mymindstorm/setup-emsdk@v14
       if: inputs.wasm
