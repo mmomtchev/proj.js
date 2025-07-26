@@ -46,6 +46,26 @@ jobs:
       id: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
       enable_tiff: ${{ matrix.enable_tiff }}
 
+  build-standalone:
+    name: Standalone build native ${{ matrix.platform && '' || '' }}
+    needs: swig
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+
+    uses:
+      ./.github/workflows/build.yml
+    with:
+      platform: ${{ matrix.platform }}
+      native: true
+      wasm: false
+      standalone: true
+      id: native-${{ matrix.platform }}-standalone
+      enable_tiff: true
+
+
   build-wasm:
     name: Build WASM ${{ matrix.enable_tiff && '' || '' }}
     needs: swig

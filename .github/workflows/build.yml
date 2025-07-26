@@ -10,6 +10,10 @@ on:
         type: boolean
         required: true
         description: build the native module
+      standalone:
+        type: boolean
+        required: true
+        description: standalone native build
       wasm:
         type: boolean
         required: true
@@ -93,6 +97,7 @@ jobs:
       run: |
         npm install --proj_js_skip_wasm --proj_js_build-from-source                             \
           --verbose --foreground-scripts                                                        \
+          ${{ inputs.standalone && '--enable-standalone-build' }}                               \
           ${{ inputs.enable_tiff && '--enable-tiff' || '--disable-tiff' }}                      \
           ${{ inputs.inline_projdb && '--enable-inline-projdb' || '--disable-inline-projdb' }}
       if: inputs.native
