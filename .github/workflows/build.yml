@@ -12,7 +12,7 @@ on:
         description: build the native module
       standalone:
         type: boolean
-        required: true
+        default: false
         description: standalone native build
       wasm:
         type: boolean
