@@ -130,7 +130,7 @@
       "module_name": "proj",
       "native": true,
       "wasm": true,
-      "async": true,
+      "async": false,
       "conan": true,
       "commandInit": "mkdir -p swig",
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports '../native/index.cjs' -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i"
