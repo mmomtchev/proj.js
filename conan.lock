@@ -26,7 +26,8 @@
         "gnu-config/cci.20210814#dc430d754f465e8c74463019672fb97b%1701248168.479",
         "cmake/3.29.2#2b84343440461e8c5952c034d896fb67%1713311246.014",
         "automake/1.16.5#058bda3e21c36c9aa8425daf3c1faf50%1688481772.751",
-        "autoconf/2.71#f9307992909d7fb3df459340f1932809%1711983104.648"
+        "autoconf/2.71#f9307992909d7fb3df459340f1932809%1711983104.648",
+        "msys2/cci.latest#d81a9835cf3b4b60a2ed5360e7e2630d%1747656341.049"
     ],
     "python_requires": [],
     "config_requires": []
