@@ -17,7 +17,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
     - name: Install dependencies
-      run: npm ci --skip-proj-wasm --skip-proj-native
+      run: npm ci --proj_js_skip_native --proj_js_skip_wasm
     - name: Lint
       run: npm run lint
 
@@ -134,7 +134,7 @@ jobs:
         path: lib/binding
 
     - name: Install dependencies
-      run: npm install --skip-proj-wasm --skip-proj-native
+      run: npm install --proj_js_skip_native --proj_js_skip_wasm
     
     - name: Run the Node.js tests
       run: npm run test:nodejs
@@ -183,7 +183,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install --skip-proj-wasm --skip-proj-native
+        npm install --proj_js_skip_native --proj_js_skip_wasm
         npx xpm install
 
     - name: Get ASAN libname
@@ -234,7 +234,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install --skip-proj-wasm --skip-proj-native
+        npm install --proj_js_skip_native --proj_js_skip_wasm
         npx xpm install
     
     - name: Run the Node.js tests
