@@ -46,6 +46,11 @@ class PROJDependencies(ConanFile):
     if self.settings.arch == 'wasm':
       self.options['libwebp/*'].with_simd = False
 
+    if self.settings.os == 'Windows':
+      self.options['libcurl/*'].with_ssl = 'schannel'
+    elif self.settings.os == 'Macos':
+      self.options['libcurl/*'].with_ssl = 'darwinssl'
+
   # We don't want the conan build system - conan works best with the platforms' defaults
   # We always use ninja on all platforms (this is the meson approach)
   #
