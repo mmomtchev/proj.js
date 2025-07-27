@@ -1,5 +1,2 @@
-[platform_tool_requires]
-libtool/2.4.7
-
-[tool_requires]
-autoconf/2.72
+[replace_tool_requires]
+libtool/*: autoconf/2.72
