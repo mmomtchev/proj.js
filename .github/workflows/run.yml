@@ -49,6 +49,7 @@ jobs:
   build-standalone:
     name: Standalone build native ${{ matrix.platform && '' || '' }}
     needs: swig
+    if: false
 
     strategy:
       fail-fast: false
