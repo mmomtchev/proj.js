@@ -18,6 +18,7 @@ jobs:
         submodules: true
     - uses: mmomtchev/setup-swig@main
       with:
+        token: ${{ secrets.GITHUB_TOKEN }}
         branch: jse
         version: v5.0.6
 

@@ -17,7 +17,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
     - name: Install dependencies
-      run: npm ci --skip-proj-wasm --skip-proj-native
+      run: npm ci --proj_js_skip_native --proj_js_skip_wasm
     - name: Lint
       run: npm run lint
 
@@ -45,6 +45,27 @@ jobs:
       wasm: false
       id: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
       enable_tiff: ${{ matrix.enable_tiff }}
+
+  build-standalone:
+    name: Standalone build native ${{ matrix.platform && '' || '' }}
+    needs: swig
+    if: false
+
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [ubuntu-latest, macos-latest, windows-latest]
+
+    uses:
+      ./.github/workflows/build.yml
+    with:
+      platform: ${{ matrix.platform }}
+      native: true
+      wasm: false
+      standalone: true
+      id: native-${{ matrix.platform }}-standalone
+      enable_tiff: true
+
 
   build-wasm:
     name: Build WASM ${{ matrix.enable_tiff && '' || '' }}
@@ -134,7 +155,7 @@ jobs:
         path: lib/binding
 
     - name: Install dependencies
-      run: npm install --skip-proj-wasm --skip-proj-native
+      run: npm install --proj_js_skip_native --proj_js_skip_wasm
     
     - name: Run the Node.js tests
       run: npm run test:nodejs
@@ -183,7 +204,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install --skip-proj-wasm --skip-proj-native
+        npm install --proj_js_skip_native --proj_js_skip_wasm
         npx xpm install
 
     - name: Get ASAN libname
@@ -234,7 +255,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        npm install --skip-proj-wasm --skip-proj-native
+        npm install --proj_js_skip_native --proj_js_skip_wasm
         npx xpm install
     
     - name: Run the Node.js tests

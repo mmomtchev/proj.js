@@ -32,19 +32,24 @@ class PROJDependencies(ConanFile):
 
   def requirements(self):
     if self.options.curl and self.settings.arch != 'wasm':
-      self.requires('libcurl/[>=8.6.0 <8.7.0]')
+      self.requires('libcurl/[>=8.6.0 <9]')
 
     if self.options.tiff:
-      self.requires('libtiff/[>=4.6.0 <4.7.0]')
+      self.requires('libtiff/[>=4.6.0 <5]')
 
-    self.requires('sqlite3/[>=3.45.0 <3.46.0]')
+    self.requires('sqlite3/[>=3.45.0 <4]')
 
     self.tool_requires('pkgconf/2.1.0')
-    self.tool_requires('sqlite3/[>=3.45.0 <3.46.0]')
+    self.tool_requires('sqlite3/<host_version>')
 
   def configure(self):
     if self.settings.arch == 'wasm':
       self.options['libwebp/*'].with_simd = False
+
+    if self.settings.os == 'Windows':
+      self.options['libcurl/*'].with_ssl = 'schannel'
+    elif self.settings.os == 'Macos':
+      self.options['libcurl/*'].with_ssl = 'darwinssl'
 
   # We don't want the conan build system - conan works best with the platforms' defaults
   # We always use ninja on all platforms (this is the meson approach)
