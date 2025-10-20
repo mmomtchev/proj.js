@@ -70,7 +70,7 @@ identifier_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
         // try a generic object, the typemap will do the checking, this can throw
         osgeo::proj::util::BaseObject *o;
         $typemap(in, osgeo::proj::util::BaseObject *, input=js_val, 1=o, argnum=object field);
-        if (o == SWIG_NULLPTR) {
+        if (o == nullptr) {
           %argument_fail(SWIG_TypeError, "object value is null", $symname, $argnum);
         }
         auto nn_ptr = osgeo::proj::util::BaseObjectNNPtr{
