@@ -11,10 +11,10 @@
         "."
       ],
       "proj.js/native": [
-        "./native"
+        "./native/index.cjs"
       ],
       "proj.js/wasm": [
-        "./wasm"
+        "./wasm/index.mjs"
       ]
     }
   },
