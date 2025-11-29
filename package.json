@@ -116,7 +116,7 @@
       "repo": "mmomtchev/proj.js"
     },
     "napi_versions": [
-      6
+      8
     ]
   },
   "xpack": {
