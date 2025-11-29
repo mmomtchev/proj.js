@@ -1,4 +1,4 @@
-import native from 'proj.js/native';
+import * as native from 'proj.js/native';
 import { assert } from 'chai';
 
 // Test explicitly loading the native module from TS
