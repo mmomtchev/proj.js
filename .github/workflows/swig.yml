@@ -16,17 +16,14 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: true
-    - uses: mmomtchev/setup-swig@main
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        branch: jse
-        version: v5.0.9
 
-    - name: Verify SWIG
-      run: swig-jse -version
+    - name: Install xpm
+      run: |
+        npm install @mmomtchev xpm
+        npx xpm install
 
     - name: Run SWIG to generate the wrappers
-      run: npm run swig
+      run: npx xpm run generate
 
     - name: Upload SWIG-generated wrappers
       uses: actions/upload-artifact@v4
