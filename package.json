@@ -4,6 +4,7 @@
   "description": "PROJ bindings for JavaScript - with a native port for Node.js and a WASM port for the browser",
   "type": "module",
   "main": "./native/index.cjs",
+  "types": "./lib/index.d.mts",
   "exports": {
     ".": {
       "types": "./lib/index.d.mts",
