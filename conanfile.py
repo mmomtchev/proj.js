@@ -32,7 +32,7 @@ class PROJDependencies(ConanFile):
 
   def requirements(self):
     if self.options.curl and self.settings.arch != 'wasm':
-      self.requires('libcurl/[>=8.6.0 <9]')
+      self.requires('libcurl/[>=8.6.0 <8.15.0]')
 
     if self.options.tiff:
       self.requires('libtiff/[>=4.6.0 <5]')

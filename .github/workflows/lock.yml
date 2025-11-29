@@ -4,6 +4,8 @@ on:
 
 jobs:
   native:
+    permissions:
+      contents: write
     strategy:
       max-parallel: 1
       matrix:
@@ -12,17 +14,18 @@ jobs:
 
     steps:
     - name: Setup Node.js 22
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: 22
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
       with:
         ref: ${{ github.ref }}
     - name: Install xPacks
       run: |
         npm install
         npx xpm install
+        npx xpm run conan -- version
     - name: Create conan lock (native)
       run: npx xpm run lock --config native
       env:
