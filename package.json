@@ -115,7 +115,7 @@
       "provider": "github",
       "repo": "mmomtchev/proj.js"
     },
-    "napi_versions": [
+    "napi_version": [
       8
     ]
   },
