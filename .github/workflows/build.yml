@@ -42,6 +42,10 @@ on:
         type: boolean
         default: true
         description: cache conan artifacts
+      regen_swig:
+        type: boolean
+        default: false
+        description: Regenerate the SWIG wrappers on the current platform
 
 
 jobs:    
@@ -68,16 +72,20 @@ jobs:
       with:
         version: 3.1.68
 
+    - name: Install xpm
+      run: |
+        npm install @mmomtchev/xpm
+        npx xpm install
+
     - name: Download the SWIG-generated wrappers
+      if: ${{ !inputs.regen_swig }}
       uses: actions/download-artifact@v4
       with:
         name: swig-generated
         path: swig
-        
-    - name: Install xpm
-      run: |
-        npm install xpm
-        npx xpm install
+    - name: Regenerate the SWIG wrappers on the current platform
+      if: inputs.regen_swig
+      run: npx xpm run generate
 
     - name: Get conan home
       shell: bash

@@ -20,7 +20,8 @@
     }
   },
   "scripts": {
-    "install": "xpm install && xpm run npm-install",
+    "preinstall": "npx xpm run npm-preinstall",
+    "install": "npx xpm run npm-install",
     "test": "npm run test:nodejs && npm run test:browser",
     "test:nodejs": "npx mocha",
     "test:browser": "cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs",
@@ -115,7 +116,7 @@
       "repo": "mmomtchev/proj.js"
     },
     "napi_versions": [
-      6
+      8
     ]
   },
   "xpack": {
@@ -124,7 +125,7 @@
       "@mmomtchev/hadron/hadron.json"
     ],
     "devDependencies": {
-      "@xpack-dev-tools/cmake": "3.27.9-1.2"
+      "@xpack-dev-tools/cmake": "3.31.9-1.1"
     },
     "properties": {
       "module_name": "proj",
@@ -132,16 +133,30 @@
       "wasm": true,
       "flavor": "sync",
       "conan": true,
-      "commandInit": "mkdir -p swig",
-      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports '../native/index.cjs' -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i"
+      "commandInit": "node -e \"fs.mkdirSync('swig', { recursive: true });\"",
+      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/index.cjs -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i"
     },
     "actions": {
+      "npm-preinstall": [
+        "{% ifNpmOption regenerate %}npx xpm run generate{% endifNpmOption %}"
+      ],
       "generate": [
-        "{{ properties.commandInit }}",
-        "{{ properties.commandGenerate }}"
+        "npx xpm install --config generate",
+        "npx xpm run generate --config generate"
       ]
     },
     "buildConfigurations": {
+      "generate": {
+        "devDependencies": {
+          "@mmomtchev/swig-xpack": "5.0.11-1"
+        },
+        "actions": {
+          "generate": [
+            "{{ properties.commandInit }}",
+            "{{ properties.commandGenerate }}"
+          ]
+        }
+      },
       "native": {
         "properties": {
           "profileConanStandaloneBuild": "hadron{{ path.sep }}{{ properties.toolchain }}-{{ os.platform }}.profile",
