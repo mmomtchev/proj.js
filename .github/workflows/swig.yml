@@ -19,7 +19,7 @@ jobs:
 
     - name: Install xpm
       run: |
-        npm install @mmomtchev xpm
+        npm install @mmomtchev/xpm
         npx xpm install
 
     - name: Run SWIG to generate the wrappers
