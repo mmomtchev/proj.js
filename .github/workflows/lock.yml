@@ -23,6 +23,7 @@ jobs:
       run: |
         npm install
         npx xpm install
+        npx xpm run conan -- version
     - name: Create conan lock (native)
       run: npx xpm run lock --config native
       env:
