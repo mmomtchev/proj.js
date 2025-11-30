@@ -5,7 +5,6 @@
     "strictNullChecks": true,
     "target": "es2020",
     "module": "node16",
-    "esModuleInterop": true,
     "paths": {
       "proj.js": [
         "."
