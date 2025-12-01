@@ -17,7 +17,8 @@
     },
     "./wasm": {
       "types": "./lib/index.d.mts",
-      "default": "./wasm/index.mjs"
+      "browser": "./wasm/index.mjs",
+      "default": "./wasm/index-node.mjs"
     }
   },
   "scripts": {

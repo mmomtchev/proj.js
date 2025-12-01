@@ -107,11 +107,28 @@ main_target = napi.extension_module(
     # Node.js is excluded from the WASM loader on purpose:
     # * it has its own native build that is much better than WASM
     # * and including it produces a loader that confuses web bundlers such as Webpack
-    # 'environments': ['web','webview','worker'],
+    'environments': ['web','webview','worker'],
     # Export the FS subsystem
     'exported_runtime_methods': ['emnapiInit', 'FS']
   }
 )
+
+# When compiling to WASM, build a second bundle specifically for Node.js
+if meson.get_compiler('cpp').get_id() == 'emscripten'
+  node_target = napi.extension_module(
+    module_name + '_node',
+    sources,
+    include_directories : [ 'src' ],
+    install             : true,
+    dependencies        : dependencies,
+    node_api_options: {
+      'swig': true,
+      'environments': ['node'],
+      # Export the FS subsystem
+      'exported_runtime_methods': ['emnapiInit', 'FS']
+    }
+  )
+endif
 
 # --------------------
 # The special case of proj.db

@@ -103,19 +103,6 @@ if (!PROJ.proj_js_inline_projdb) {
 }
 ```
 
-Alternatively, you can do this:
-
-```ts
-import qPROJ from 'proj.js';
-type PROJ = Awaited<typeof qPROJ>;
-const PROJ: PROJ = await qPROJ;
-console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
-if (!PROJ.proj_js_inline_projdb) {
-  const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
-  PROJ.loadDatabase(proj_db);
-}
-```
-
 # WASM size considerations
 
 When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be loaded from an `Uint8Array` before use.
