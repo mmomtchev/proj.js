@@ -173,7 +173,7 @@ jobs:
 
     - name: The the integration of the npm package
       run: |
-        sudo npm link --ignore-scripts
+        npm link --ignore-scripts
         npm run test:integration
 
 
