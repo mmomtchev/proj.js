@@ -2,17 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import * as chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 
 import qPROJ from 'proj.js';
 
-chai.use(chaiAsPromised);
 const assert: Chai.AssertStatic = chai.assert;
 
 const root = ReactDOM.createRoot(document.createElement('div'));
 
 function Mocha() {
-  it('PROJ quickstart', () =>
+  it('PROJ quickstart', (done) => {
     qPROJ.then((PROJ: Awaited<typeof qPROJ>) => {
       console.time('DatabaseContext.create()');
       const dbContext = PROJ.DatabaseContext.create();
@@ -45,8 +43,9 @@ function Mocha() {
       console.timeEnd('transform()');
       assert.closeTo(c1.v[0], 426857.988, 1e-3);
       assert.closeTo(c1.v[1], 5427937.523, 1e-3);
-    })
-  );
+      done();
+    }).catch(done);
+  });
   return <></>;
 }
 

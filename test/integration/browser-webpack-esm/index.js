@@ -1,13 +1,11 @@
 import * as chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 
-chai.use(chaiAsPromised);
 const assert = chai.assert;
 
 import qPROJ from 'proj.js';
 
 describe('PROJ', () => {
-  it('PROJ quickstart', () =>
+  it('PROJ quickstart', (done) => {
     qPROJ.then((PROJ) => {
       console.time('DatabaseContext.create()');
       const dbContext = PROJ.DatabaseContext.create();
@@ -40,6 +38,7 @@ describe('PROJ', () => {
       console.timeEnd('transform()');
       assert.closeTo(c1.v[0], 426857.988, 1e-3);
       assert.closeTo(c1.v[1], 5427937.523, 1e-3);
-    })
-  );
+      done();
+    }).catch(done);
+  });
 });

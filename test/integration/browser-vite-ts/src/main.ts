@@ -1,15 +1,13 @@
 import * as chai from 'chai';
-import chaiAsPromised from 'chai-as-promised';
 
-chai.use(chaiAsPromised);
 const assert: Chai.AssertStatic = chai.assert;
 
 import qPROJ from 'proj.js';
-import type PROJ from 'proj.js';
+import type * as PROJ from 'proj.js';
 
 describe('PROJ', () => {
   it('PROJ quickstart', () =>
-    qPROJ.then((PROJ: PROJ) => {
+    qPROJ.then((PROJ) => {
       console.time('DatabaseContext.create()');
       const dbContext = PROJ.DatabaseContext.create();
       console.timeEnd('DatabaseContext.create()');
