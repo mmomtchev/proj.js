@@ -1,10 +1,15 @@
+// Please note that create-react-app is not supported anymore
+// Raw React is stuck at TypeScript 4 which makes using
+// proj.js somewhat unpractical
+
+// Modern React using Vite is far better
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 
 import * as chai from 'chai';
 
 import qPROJ from 'proj.js';
-import type * as PROJ from 'proj.js';
 
 const assert: Chai.AssertStatic = chai.assert;
 
@@ -13,6 +18,11 @@ const root = ReactDOM.createRoot(document.createElement('div'));
 function Mocha() {
   it('PROJ quickstart', (done) => {
     qPROJ.then((PROJ) => {
+      if (!PROJ.proj_js_inline_projdb) {
+        console.log('If you want to inline assets, consider using a modern bundler');
+        done();
+        return;
+      }
       console.time('DatabaseContext.create()');
       const dbContext = PROJ.DatabaseContext.create();
       console.timeEnd('DatabaseContext.create()');
@@ -28,7 +38,7 @@ function Mocha() {
       const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
       console.timeEnd('AuthorityFactory.create()');
       console.time('createFromUserInput()');
-      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
+      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as typeof PROJ['CRS'];
       console.timeEnd('createFromUserInput()');
       console.time('CoordinateOperationFactory.create().createOperations()');
       const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
