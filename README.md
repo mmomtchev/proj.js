@@ -103,6 +103,8 @@ if (!PROJ.proj_js_inline_projdb) {
 }
 ```
 
+You can check `test/browser/index.ts` for an example that uses `webpack` inline asset modules to bundle and load a `proj.db` that has not been inlined. Or you can download your own custom `proj.db` from your own custom URL.
+
 # WASM size considerations
 
 When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be loaded from an `Uint8Array` before use.
