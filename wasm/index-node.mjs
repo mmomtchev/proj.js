@@ -6,7 +6,7 @@
  * This is the Node.js-specific WASM bundle
  */
 import * as emnapi from '@emnapi/runtime';
-import bindings from '../lib/binding/emscripten-wasm32/proj-node.mjs';
+import bindings from '../lib/binding/emscripten-wasm32/proj_node.mjs';
 
 const result = bindings()
   .then((m) => {
