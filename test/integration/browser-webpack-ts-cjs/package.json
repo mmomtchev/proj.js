@@ -1,0 +1,13 @@
+{
+  "name": "browser-webpack-ts-cjs",
+  "version": "1.0.0",
+  "description": "browser/webpack/ts-cjs integration test",
+  "scripts": {
+    "build": "webpack --mode=production"
+  },
+  "devDependencies": {
+    "ts-loader": "^9.5.2",
+    "webpack": "^5.99.9",
+    "webpack-cli": "^6.0.1"
+  }
+}
