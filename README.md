@@ -95,7 +95,20 @@ If using TypeScript, you will need to explicitly import the types in the `PROJ` 
 ```ts
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
-const PROJ = await qPROJ;
+const PROJ: PROJ = await qPROJ;
+console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
+if (!PROJ.proj_js_inline_projdb) {
+  const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
+  PROJ.loadDatabase(proj_db);
+}
+```
+
+Alternatively, you can do this:
+
+```ts
+import qPROJ from 'proj.js';
+type PROJ = Awaited<typeof qPROJ>;
+const PROJ: PROJ = await qPROJ;
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 if (!PROJ.proj_js_inline_projdb) {
   const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
