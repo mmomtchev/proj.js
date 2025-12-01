@@ -115,7 +115,10 @@
     "hosting": {
       "provider": "github",
       "repo": "mmomtchev/proj.js"
-    }
+    },
+    "napi_versions": [
+      8
+    ]
   },
   "xpack": {
     "minimumXpmRequired": "0.20.0",
