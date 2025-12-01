@@ -34,5 +34,6 @@ it('ES6 import test', (done) => {
     console.timeEnd('transform()');
     assert.closeTo(c1.v[0], 426857.988, 1e-3);
     assert.closeTo(c1.v[1], 5427937.523, 1e-3);
+    done();
   }).catch(done);
 });
