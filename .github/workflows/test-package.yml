@@ -132,3 +132,10 @@ jobs:
         env:
           TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
+      - name: Run the npm package integration tests
+        run:
+          npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
+            --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
+            --reporter=tap --v8-expose-gc --timeout 5000 test/integration.test.ts
+        env:
+          MOCHA_NPM_INSTALL: npm install npm install ${{ inputs.download && format('{0}/{1}', github.workspace, inputs.package) || inputs.package }}
