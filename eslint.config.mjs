@@ -16,7 +16,12 @@ const compat = new FlatCompat({
 });
 
 export default [{
-    ignores: ['test/browser/build/*', 'build/*', 'lib/binding/*'],
+    ignores: [
+        'test/browser/build/*',
+        'test/integration/*',
+        'build/*',
+        'lib/binding/*'
+    ],
 }, ...compat.extends('eslint:recommended'), {
     plugins: {
         mocha,
