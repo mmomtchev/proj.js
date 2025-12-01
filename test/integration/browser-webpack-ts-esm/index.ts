@@ -3,6 +3,7 @@ import * as chai from 'chai';
 const assert: Chai.AssertStatic = chai.assert;
 
 import qPROJ from 'proj.js';
+import type * as PROJ from 'proj.js';
 
 describe('PROJ', () => {
   it('PROJ quickstart', (done) => {
@@ -22,7 +23,7 @@ describe('PROJ', () => {
       const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
       console.timeEnd('AuthorityFactory.create()');
       console.time('createFromUserInput()');
-      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
+      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
       console.timeEnd('createFromUserInput()');
       console.time('CoordinateOperationFactory.create().createOperations()');
       const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
