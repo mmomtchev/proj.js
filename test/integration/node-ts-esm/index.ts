@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import qPROJ from 'proj.js';
+import type * as PROJ from 'proj.js';
 
 it('TS (transpiled to ES6) import test', (done) => {
   qPROJ.then((PROJ) => {
