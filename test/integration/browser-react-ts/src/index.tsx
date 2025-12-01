@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import * as chai from 'chai';
 
 import qPROJ from 'proj.js';
+import type * as PROJ from 'proj.js';
 
 const assert: Chai.AssertStatic = chai.assert;
 
@@ -11,7 +12,7 @@ const root = ReactDOM.createRoot(document.createElement('div'));
 
 function Mocha() {
   it('PROJ quickstart', (done) => {
-    qPROJ.then((PROJ: Awaited<typeof qPROJ>) => {
+    qPROJ.then((PROJ) => {
       console.time('DatabaseContext.create()');
       const dbContext = PROJ.DatabaseContext.create();
       console.timeEnd('DatabaseContext.create()');
