@@ -169,10 +169,12 @@ jobs:
       run: xvfb-run npm run test:browser
 
     - name: Test building the webpack project
-      run: npm run build:webpack
+      run: npm run build:
 
     - name: The the integration of the npm package
-      run: npm run test:integration
+      run: |
+        sudo npm link
+        npm run test:integration
 
 
   asan:
