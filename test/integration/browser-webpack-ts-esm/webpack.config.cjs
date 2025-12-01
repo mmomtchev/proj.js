@@ -8,6 +8,11 @@ module.exports = {
         test: /\.tsx?$/,
         use: 'ts-loader',
         exclude: /node_modules/,
+      },
+      // This bundles proj.db if it is not inlined
+      {
+        test: /proj\.db/,
+        type: 'asset/resource'
       }
     ],
   },
