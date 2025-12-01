@@ -2,10 +2,12 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as process from 'process';
 import { execSync } from 'child_process';
+import { fileURLToPath } from 'url';
 
 describe('integration tests', function() {
   this.timeout(600000);
-  const testDir = path.resolve(__dirname, 'integration');
+  const myDirname = path.dirname(fileURLToPath(import.meta.url));
+  const testDir = path.resolve(myDirname, 'integration');
   const list = fs.readdirSync(testDir);
 
   const install = process.env.MOCHA_NPM_INSTALL ?? 'npm link proj.js --ignore-scripts';
