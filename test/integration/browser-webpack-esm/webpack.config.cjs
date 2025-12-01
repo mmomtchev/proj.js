@@ -6,6 +6,15 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'build')
   },
+  module: {
+    rules: [
+      // This bundles proj.db if it is not inlined
+      {
+        test: /proj\.db/,
+        type: 'asset/resource'
+      }
+    ],
+  },
   devServer: {
     port: 8030,
     static: {

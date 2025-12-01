@@ -4,7 +4,37 @@ const assert = chai.assert;
 
 import qPROJ from 'proj.js';
 
+// This together with the related item in the webpack.config.cjs
+// allows to bundle proj.db and returns its URL
+// Maybe you won't be doing this in real life and maybe you will
+// be loading your own proj.db from your own URL
+// Or you may be using the WASM bundle with the proj.db inlined
+import proj_db_url from 'proj.js/proj.db';
+
+// This loads proj.db into the environment
+// when it hasn't been already inlined
+async function loadProjDb(PROJ) {
+  console.log(`Loading proj.db from ${proj_db_url}`);
+  const proj_db_data = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
+  console.log(`Downloaded ${proj_db_data.length} bytes`);
+  assert.throws(() => {
+    PROJ.loadDatabase('text');
+  }, /Uint8Array/);
+  PROJ.loadDatabase(proj_db_data);
+}
+
 describe('PROJ', () => {
+    before('load proj.db', (done) => {
+      qPROJ.then((PROJ) => {
+        if (!PROJ.proj_js_inline_projdb) {
+          loadProjDb(PROJ).then(() => done()).catch(done);
+        } else {
+          console.log('proj.db is inlined in the WASM bundle');
+          done();
+        }
+      }).catch(done);
+    });
+
   it('PROJ quickstart', (done) => {
     qPROJ.then((PROJ) => {
       console.time('DatabaseContext.create()');

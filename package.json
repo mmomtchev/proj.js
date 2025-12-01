@@ -19,7 +19,8 @@
       "types": "./lib/index.d.mts",
       "browser": "./wasm/index.mjs",
       "default": "./wasm/index-node.mjs"
-    }
+    },
+    "./proj.db": "./lib/binding/proj/proj.db"
   },
   "scripts": {
     "preinstall": "npx xpm run npm-preinstall",
