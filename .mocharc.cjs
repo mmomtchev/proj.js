@@ -1,7 +1,8 @@
 module.exports = {
   'spec': [
     'test/node/*.test.[tj]s',
-    'test/shared/*.test.[tj]s'
+    'test/shared/*.test.[tj]s',
+    'test/integration.test.ts'
   ],
   'node-option': [
     'no-warnings',
