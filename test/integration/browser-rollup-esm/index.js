@@ -2,7 +2,28 @@ import { assert } from 'chai';
 
 import qPROJ from 'proj.js';
 
-qPROJ.then((PROJ) => {
+// TODO: Check if there is a more elegant solution with rollup
+const proj_db_url = new URL('./node_modules/proj.js/lib/binding/proj/proj.db', import.meta.url);
+
+// This loads proj.db into the environment
+// when it hasn't been already inlined
+async function loadProjDb(PROJ) {
+  console.log(`Loading proj.db from ${proj_db_url}`);
+  const proj_db_data = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
+  console.log(`Downloaded ${proj_db_data.length} bytes`);
+  assert.throws(() => {
+    PROJ.loadDatabase('text');
+  }, /Uint8Array/);
+  PROJ.loadDatabase(proj_db_data);
+}
+
+qPROJ.then(async (PROJ) => {
+  if (!PROJ.proj_js_inline_projdb) {
+    await loadProjDb(PROJ);
+  } else {
+    console.log('proj.db is inlined in the WASM bundle');
+  }
+
   console.time('DatabaseContext.create()');
   const dbContext = PROJ.DatabaseContext.create();
   console.timeEnd('DatabaseContext.create()');
