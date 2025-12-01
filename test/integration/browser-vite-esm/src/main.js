@@ -22,7 +22,7 @@ describe('PROJ', () => {
       const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
       console.timeEnd('AuthorityFactory.create()');
       console.time('createFromUserInput()');
-      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
+      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
       console.timeEnd('createFromUserInput()');
       console.time('CoordinateOperationFactory.create().createOperations()');
       const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
