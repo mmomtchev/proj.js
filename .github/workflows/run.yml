@@ -171,6 +171,9 @@ jobs:
     - name: Test building the webpack project
       run: npm run build:webpack
 
+    - name: The the integration of the npm package
+      run: npm run test:integration
+
 
   asan:
     runs-on: ubuntu-latest
