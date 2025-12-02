@@ -22,6 +22,7 @@
 %apply unsigned long long { size_t };
 
 // TODO: Should be added to SWIG
+%typemap(ts) SWIGTYPE *, SWIGTYPE & "$typemap(ts, $*1_ltype)";
 %typemap(ts) char [ANY] { "number" };
 
 // TODO: This is a huge amount of work but it will be useful
