@@ -100,6 +100,7 @@ jobs:
       native: false
       wasm: false
       asan: true
+      inline_projdb: false
       id: native-asan
 
 
@@ -114,6 +115,7 @@ jobs:
       native: false
       wasm: false
       codecov: true
+      inline_projdb: false
       id: native-codecov
 
 
