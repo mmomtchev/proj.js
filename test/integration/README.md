@@ -30,5 +30,6 @@ npm test
 
 * `node-esm` Node.js, ES6 modules, `"type": "module"`
 * `node-ts-esm` Node.js, TypeScript transpiled to ES6, `"type": "module"`
+* `node-native-sync` Node.js, ES6 modules, direct synchronous import of the native module, `"type": "module"`
 
 Also, if using Node.js 20 + TypeScript + ES6 modules, you should be aware of https://github.com/TypeStrong/ts-node/issues/1997. Personally, I recommend switching to `tsx` and using `eslint` or `tsc` to type-check.

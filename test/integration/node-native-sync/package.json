@@ -1,0 +1,11 @@
+{
+  "name": "node-native-sync",
+  "version": "1.0.0",
+  "description": "node-cjs integration test",
+  "scripts": {
+    "test": "npx mocha index.mjs"
+  },
+  "dependencies": {
+    "chai": "^4.3.10"
+  }
+}
