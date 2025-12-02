@@ -88,14 +88,14 @@ const PROJ = require('proj.js/native');
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 ```
 
-When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/lib/binding/proj/proj.db')`.
+When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/proj.db')`.
 
 If using TypeScript, you will need to explicitly import the types in the `PROJ` namespace because `PROJ` is a variable:
 
 ```ts
 import qPROJ from 'proj.js';
 import type * as PROJ from 'proj.js';
-const PROJ = await qPROJ;
+const PROJ: PROJ = await qPROJ;
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 if (!PROJ.proj_js_inline_projdb) {
   const proj_db = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
@@ -103,13 +103,19 @@ if (!PROJ.proj_js_inline_projdb) {
 }
 ```
 
+When using the WASM module in a browser, `proj.db` can be either inlined in the WASM bundle - which considerably increases its size - or downloaded separately by the user code and loaded into the module.
+
+You can check `test/browser/index.ts` for an example that uses `webpack` inline asset modules to bundle and load a `proj.db` that has not been inlined. Or you can download your own custom `proj.db` from your own custom URL.
+
+*At the moment the default prebuilt WASM binaries do not have `proj.db` inlined as this is considered the more versatile solution at the cost of a few extra lines of code when loading the module.*
+
 # WASM size considerations
 
 When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be loaded from an `Uint8Array` before use.
 
 Currently, the bundle size remains an issue.
 
-| Component | raw | brotli | brotli
+| Component | raw | brotli |
 | --- | --- | --- |
 | `proj.wasm` w/  TIFF w/o `proj.db` | 8593K | 1735K |
 | `proj.wasm` w/o TIFF w/o `proj.db` | 7082K | 1302K |

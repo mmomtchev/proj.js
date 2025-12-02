@@ -3,8 +3,12 @@ name: CI
 on:
   push:
     branches: main
+    paths-ignore:
+      - '**/*.md'
   pull_request:
     branches: main
+    paths-ignore:
+      - '**/*.md'
 
 jobs:
   lint:
@@ -100,6 +104,7 @@ jobs:
       native: false
       wasm: false
       asan: true
+      inline_projdb: false
       id: native-asan
 
 
@@ -114,6 +119,7 @@ jobs:
       native: false
       wasm: false
       codecov: true
+      inline_projdb: false
       id: native-codecov
 
 
@@ -171,6 +177,11 @@ jobs:
     - name: Test building the webpack project
       run: npm run build:webpack
 
+    - name: Test the integration of the npm package
+      run: |
+        npm link --ignore-scripts
+        npm run test:integration
+
 
   asan:
     runs-on: ubuntu-latest
@@ -221,6 +232,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Run code coverage
     needs: [ build-codecov, build-wasm ]
+    strategy:
+      fail-fast: false
+      matrix:
+        inline_projdb: ['external', 'inlined']
 
     steps:
     - name: Checkout
@@ -239,7 +254,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm-inlined-tiff
+        name: wasm-${{ matrix.inline_projdb }}-tiff
         path: lib/binding
 
     - name: Download the code coverage artifact

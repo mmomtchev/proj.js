@@ -6,9 +6,13 @@ import qPROJ from 'proj.js';
 // which are hidden behind a Promise
 import type * as PROJ from 'proj.js';
 
-// refer to the webpack configuration to ses how this works
+// This together with the related item in the webpack.config.cjs
+// allows to bundle proj.db and returns its URL
+// Maybe you won't be doing this in real life and maybe you will
+// be loading your own proj.db from your own URL
+// Or you may be using the WASM bundle with the proj.db inlined
 // @ts-ignore
-import proj_db_url from '../../lib/binding/proj/proj.db';
+import proj_db_url from 'proj.js/proj.db';
 
 console.log('Hello from WASM');
 
