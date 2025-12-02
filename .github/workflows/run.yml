@@ -173,7 +173,7 @@ jobs:
     - name: Test building the webpack project
       run: npm run build:webpack
 
-    - name: The the integration of the npm package
+    - name: Test the integration of the npm package
       run: |
         npm link --ignore-scripts
         npm run test:integration
