@@ -79,13 +79,27 @@ Node.js will pick up the native binary, while a modern bundler such as `webpack`
 
 This requires ES6, Node.js 16 and a recent `webpack` or `rollup`. If using TypeScript, you will have to transpile to ES6. Most major web components were updated with those features in 2022.
 
-If importing in a legacy CJS environment, you will be limited to using the native module in Node.js only:
+## Manually selecting the native or the WASM version
+
+If using only the Node.js native module, there is an alternative import that is fully synchronous:
+
 ```ts
-const PROJ = require('proj.js/native');
+import PROJ from 'proj.js/native';
 console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 ```
 
+As `proj.js` is an ES6-only project, using `require` from CJS works only with very recent Node.js versions (refer to [require(esm) in Node.js](https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/))
+
 When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/proj.db')`.
+
+It is also possible to always load the WASM module even if running in Node.js:
+
+```ts
+import qPROJ from 'proj.js/wasm';
+const PROJ: PROJ = await qPROJ;
+```
+
+## TypeScript
 
 If using TypeScript, you will need to explicitly import the types in the `PROJ` namespace because `PROJ` is a variable:
 
