@@ -19,7 +19,14 @@
   }
 }
 
-//%nspace;
+%apply unsigned long long { size_t };
+
+// TODO: Should be added to SWIG
+%typemap(ts) char [ANY] { "number" };
+
+// TODO: This is a huge amount of work but it will be useful
+%ignore PROJ_FILE_API;
+
 #define PROJ_MSVC_DLL
 #define PROJ_INTERNAL [[gnu::visibility("hidden")]]
 #define PROJ_DLL
