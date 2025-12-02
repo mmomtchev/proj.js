@@ -228,6 +228,10 @@ jobs:
     runs-on: ubuntu-latest
     name: Run code coverage
     needs: [ build-codecov, build-wasm ]
+    strategy:
+      fail-fast: false
+      matrix:
+        inline_projdb: ['external', 'inlined']
 
     steps:
     - name: Checkout
@@ -246,7 +250,7 @@ jobs:
     - name: Download the WASM artifact
       uses: actions/download-artifact@v4
       with:
-        name: wasm-inlined-tiff
+        name: wasm-${{ matrix.inline_projdb }}-tiff
         path: lib/binding
 
     - name: Download the code coverage artifact
