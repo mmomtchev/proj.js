@@ -28,6 +28,13 @@
 // TODO: This is a huge amount of work but it will be useful
 %ignore PROJ_FILE_API;
 
+// No need for the C API
+%rename("$ignore", regextarget=1, %$isfunction) "^proj_";
+
+// These types are opaque types in the C++ API
+%typemap(ts) PJ_OBJ_LIST "unknown"
+%typemap(ts) PJ_INSERT_SESSION "unknown"
+
 #define PROJ_MSVC_DLL
 #define PROJ_INTERNAL [[gnu::visibility("hidden")]]
 #define PROJ_DLL
