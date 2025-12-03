@@ -66,8 +66,11 @@ using namespace NS_PROJ;
 %apply(std::vector RETURN)            { std::vector };
 %apply(std::vector *RETURN)           { std::vector *, std::vector & };
 
-// Convert lists
+// Convert std::list
 %include "std_list.i"
+
+// Convert std::set
+%include "std_set.i"
 
 // This can be considered a plain string
 %include "optional.i"
