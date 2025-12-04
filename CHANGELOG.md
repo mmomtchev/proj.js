@@ -1,3 +1,7 @@
+## 0.9.2
+
+* Update `PROJ` to 9.7.1
+
 # 0.9.1
 
 * Include a second entry point, `proj.js/capi` with the old C API - this module is smaller and the setup is slightly faster
