@@ -19,7 +19,22 @@
   }
 }
 
-//%nspace;
+%apply unsigned long long { size_t };
+
+// TODO: Should be added to SWIG
+%typemap(ts) SWIGTYPE *, SWIGTYPE & "$typemap(ts, $*1_ltype)";
+%typemap(ts) char [ANY] { "string" };
+
+// TODO: This is a huge amount of work but it will be useful
+%ignore PROJ_FILE_API;
+
+// No need for the C API
+%rename("$ignore", regextarget=1, %$isfunction) "^proj_";
+
+// These types are opaque types in the C++ API
+%typemap(ts) PJ_OBJ_LIST "unknown"
+%typemap(ts) PJ_INSERT_SESSION "unknown"
+
 #define PROJ_MSVC_DLL
 #define PROJ_INTERNAL [[gnu::visibility("hidden")]]
 #define PROJ_DLL
@@ -51,8 +66,11 @@ using namespace NS_PROJ;
 %apply(std::vector RETURN)            { std::vector };
 %apply(std::vector *RETURN)           { std::vector *, std::vector & };
 
-// Convert lists
+// Convert std::list
 %include "std_list.i"
+
+// Convert std::set
+%include "std_set.i"
 
 // This can be considered a plain string
 %include "optional.i"

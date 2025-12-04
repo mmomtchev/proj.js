@@ -13,6 +13,9 @@
 %nn_shared_ptr(osgeo::proj::io::IWKTExportable);
 %nn_shared_ptr(osgeo::proj::io::IPROJStringExportable);
 
+%nn_unique_ptr(osgeo::proj::io::WKTFormatter);
+%nn_unique_ptr(osgeo::proj::io::PROJStringFormatter);
+%nn_unique_ptr(osgeo::proj::io::JSONFormatter);
 %nn_unique_ptr(osgeo::proj::io::WKTNode);
 
 // FIXME: this seems to trigger a bug in SWIG
