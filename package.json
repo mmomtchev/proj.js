@@ -20,10 +20,10 @@
       "browser": "./wasm/index.mjs",
       "default": "./wasm/index-node.mjs"
     },
-    "./light": {
-      "types": "./lib/light.d.mts",
-      "browser": "./wasm/light.mjs",
-      "default": "./native/light.mjs"
+    "./capi": {
+      "types": "./lib/capi.d.mts",
+      "browser": "./wasm/capi.mjs",
+      "default": "./native/capi.mjs"
     },
     "./proj.db": "./lib/binding/proj/proj.db",
     "./quickstart": {
@@ -148,7 +148,7 @@
       "conan": true,
       "commandInit": "node -e \"fs.mkdirSync('swig', { recursive: true });\"",
       "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/index.cjs -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
-      "commandGenerateLight": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/light.cjs -o swig{{ path.sep }}light_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}proj_light.i"
+      "commandGenerateCAPI": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/capi.cjs -o swig{{ path.sep }}capi_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}proj_capi.i"
     },
     "actions": {
       "npm-preinstall": [
@@ -168,7 +168,7 @@
           "generate": [
             "{{ properties.commandInit }}",
             "{{ properties.commandGenerate }}",
-            "{{ properties.commandGenerateLight }}"
+            "{{ properties.commandGenerateCAPI }}"
           ]
         }
       },

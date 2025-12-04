@@ -5,7 +5,7 @@
  * 
  * This is the browser specific WASM bundle
  */
-import bindings from '../lib/binding/emscripten-wasm32/proj_light.mjs';
+import bindings from '../lib/binding/emscripten-wasm32/proj_capi.mjs';
 import emnapi from './emnapi.mjs';
 
 const result = emnapi(bindings);

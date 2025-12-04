@@ -130,10 +130,10 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
   )
 endif
 
-# The light bundle
-light_target = napi.extension_module(
-  'proj_light',
-  'swig/light_wrap.cc',
+# The C API bundle
+capi_target = napi.extension_module(
+  'proj_capi',
+  'swig/capi_wrap.cc',
   include_directories : [ 'src' ],
   install             : true,
   dependencies        : dependencies,

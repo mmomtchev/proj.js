@@ -3,7 +3,7 @@
  * import qPROJ from 'proj.js';
  * const PROJ = await qPROJ;
  */
-import _PROJ from '../swig/light_wrap.cjs';
+import _PROJ from '../swig/capi_wrap.cjs';
 
 const PROJ = Promise.resolve(_PROJ);
 

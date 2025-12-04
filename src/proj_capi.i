@@ -1,4 +1,4 @@
-%module "proj-light.js";
+%module "proj-capi.js";
 
 #ifndef SWIG_JAVASCRIPT_EVOLUTION
 #error This project requires SWIG JavaScript Evolution

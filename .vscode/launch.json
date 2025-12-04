@@ -96,6 +96,20 @@
       "environment": [],
       "externalConsole": false,
       "MIMode": "lldb",
+    },
+    {
+      "name": "(macOS) quickstart_light.mjs",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/local/bin/node",
+      "args": [
+        "${workspaceRoot}/test/shared/quickstart_light.mjs"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
     }
   ]
 }
