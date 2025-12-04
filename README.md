@@ -140,6 +140,10 @@ Linking with my own `sqlite-wasm-http` project to access a remote `proj.db`, usi
 
 Currently the biggest contributor to raw code size is SWIG JSE which produces large amounts of identical code for each function. This may me improved in a future version, but bear in mind that SWIG-generated code has the best compression ratio. It is also worth investigating what can be gained from modularization of the SWIG wrappers and if it is really necessary to wrap separately all derived classes.
 
+The ratio of SWIG wrappers to PROJ code is 4:1 in the uncompressed bundle and 2:1 in the compressed bundle. Here is a quick rundown of the cost of each wrapper:
+
+![SWIG-generated wrapper sizes](https://raw.githubusercontent.com/mmomtchev/proj.js/refs/heads/main/swig-wrappers-size-breakdown.png)
+
 # Performance
 
 Initial crude benchmarks, tested on i7 9700K @ 3.6 GHz with the C++ [quickstart](https://proj.org/en/latest/development/quickstart_cpp.html):
