@@ -1,7 +1,9 @@
-import PROJ from 'proj.js/native';
+// This is the JS implementation of the PROJ quickstart
+// All the tests use it.
+
 import { assert } from 'chai';
 
-it('ES6 import test', () => {
+export default function (PROJ) {
   console.time('DatabaseContext.create()');
   const dbContext = PROJ.DatabaseContext.create();
   console.timeEnd('DatabaseContext.create()');
@@ -34,4 +36,4 @@ it('ES6 import test', () => {
   console.timeEnd('transform()');
   assert.closeTo(c1.v[0], 426857.988, 1e-3);
   assert.closeTo(c1.v[1], 5427937.523, 1e-3);
-});
+}

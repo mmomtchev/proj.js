@@ -19,16 +19,16 @@ async function loadProjDb(PROJ) {
 }
 
 describe('PROJ', () => {
-    before('load proj.db', (done) => {
-      qPROJ.then((PROJ) => {
-        if (!PROJ.proj_js_inline_projdb) {
-          loadProjDb(PROJ).then(() => done()).catch(done);
-        } else {
-          console.log('proj.db is inlined in the WASM bundle');
-          done();
-        }
-      }).catch(done);
-    });
+  before('load proj.db', (done) => {
+    qPROJ.then((PROJ) => {
+      if (!PROJ.proj_js_inline_projdb) {
+        loadProjDb(PROJ).then(() => done()).catch(done);
+      } else {
+        console.log('proj.db is inlined in the WASM bundle');
+        done();
+      }
+    }).catch(done);
+  });
 
   it('PROJ quickstart', (done) => {
     qPROJ.then((PROJ) => {
@@ -44,8 +44,9 @@ describe('PROJ', () => {
       console.time('AuthorityFactory.create()');
       const authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
       console.timeEnd('AuthorityFactory.create()');
+      console.time('AuthorityFactory.createCoordinateReferenceSystem()');
       const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-      console.timeEnd('AuthorityFactory.create()');
+      console.timeEnd('AuthorityFactory.createCoordinateReferenceSystem()');
       console.time('createFromUserInput()');
       const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
       console.timeEnd('createFromUserInput()');

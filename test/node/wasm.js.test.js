@@ -1,7 +1,7 @@
 import WASM from 'proj.js/wasm';
 import { assert } from 'chai';
 
-// Test explicitly loading the WASM from JS
+// Test loading the WASM explicitly from Node.js
 
 describe('WASM', () => {
   let PROJ;

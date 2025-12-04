@@ -4,8 +4,9 @@
   // It works with the Node.js native version
   //
   // Rebuild the project with:
-  //   npm run swig:debug
-  //   node-gyp configure build --debug
+  //   xpm run generate
+  //   xpm run prepare --config native-debug|wasm-debug
+  //   xpm run build --config native-debug|wasm-debug
   "version": "0.2.0",
   "configurations": [
     {
@@ -17,33 +18,8 @@
         "--no-warnings",
         "--loader=ts-node/esm",
         "${workspaceRoot}/node_modules/mocha/lib/cli/cli.js",
-        "--timeout", "0"
-      ],
-      "stopAtEntry": false,
-      "cwd": "${workspaceRoot}",
-      "environment": [],
-      "externalConsole": false,
-      "MIMode": "gdb",
-      "setupCommands": [
-          {
-              "description": "Enable pretty-printing for gdb",
-              "text": "-enable-pretty-printing",
-              "ignoreFailures": true
-          },
-          {
-              "description": "Set Disassembly Flavor to Intel",
-              "text": "-gdb-set disassembly-flavor intel",
-              "ignoreFailures": true
-          }
-      ]
-    },
-    {
-      "name": "(Linux) run.cjs",
-      "type": "cppdbg",
-      "request": "launch",
-      "program": "/usr/bin/node",
-      "args": [
-        "${workspaceRoot}/run.cjs"
+        "--timeout",
+        "0"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
@@ -62,6 +38,64 @@
           "ignoreFailures": true
         }
       ]
+    },
+    {
+      "name": "(Linux) quickstart.ts",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/bin/node",
+      "args": [
+        "${workspaceRoot}/test/shared/quickstart.debug.js"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set Disassembly Flavor to Intel",
+          "text": "-gdb-set disassembly-flavor intel",
+          "ignoreFailures": true
+        }
+      ]
+    },
+    {
+      "name": "(macOS) Launch the Node.js unit-tests in lldb",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/local/bin/node",
+      "args": [
+        "--no-warnings",
+        "--loader=ts-node/esm",
+        "${workspaceRoot}/node_modules/mocha/lib/cli/cli.js",
+        "--timeout",
+        "0"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb"
+    },
+    {
+      "name": "(macOS) quickstart.ts",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "/usr/local/bin/node",
+      "args": [
+        "${workspaceRoot}/test/shared/quickstart.debug.js"
+      ],
+      "stopAtEntry": false,
+      "cwd": "${workspaceRoot}",
+      "environment": [],
+      "externalConsole": false,
+      "MIMode": "lldb",
     }
   ]
 }
