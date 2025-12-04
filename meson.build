@@ -92,6 +92,7 @@ cmake_opts.add_cmake_defines([
   { 'BUILD_TESTING'                     : false },
   { 'BUILD_EXAMPLES'                    : false },
   { 'BUILD_APPS'                        : false },
+  { 'EMBED_RESOURCE_FILES'              : false },
   { 'ENABLE_TIFF'                       : enable_tiff },
   { 'ENABLE_CURL'                       : enable_curl },
   { 'BUILD_SHARED_LIBS'                 : false },
