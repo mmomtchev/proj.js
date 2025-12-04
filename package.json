@@ -20,6 +20,11 @@
       "browser": "./wasm/index.mjs",
       "default": "./wasm/index-node.mjs"
     },
+    "./light": {
+      "types": "./lib/light.d.mts",
+      "browser": "./wasm/light.mjs",
+      "default": "./native/light.mjs"
+    },
     "./proj.db": "./lib/binding/proj/proj.db",
     "./quickstart": {
       "types": "./test/shared/quickstart.d.ts",
@@ -142,7 +147,8 @@
       "flavor": "sync",
       "conan": true,
       "commandInit": "node -e \"fs.mkdirSync('swig', { recursive: true });\"",
-      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/index.cjs -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i"
+      "commandGenerate": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/index.cjs -o swig{{ path.sep }}{{ properties.module_name }}_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}{{ properties.module_name }}.i",
+      "commandGenerateLight": "swig-jse -javascript -napi -typescript -c++ -std=c++17 -outdir swig -exports ../native/light.cjs -o swig{{ path.sep }}light_wrap.cc -Ideps{{ path.sep }}PROJ{{ path.sep }}include src{{ path.sep }}proj_light.i"
     },
     "actions": {
       "npm-preinstall": [
@@ -161,7 +167,8 @@
         "actions": {
           "generate": [
             "{{ properties.commandInit }}",
-            "{{ properties.commandGenerate }}"
+            "{{ properties.commandGenerate }}",
+            "{{ properties.commandGenerateLight }}"
           ]
         }
       },
