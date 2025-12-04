@@ -3,11 +3,26 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/subprojects/PROJ/include/"
+                "${workspaceFolder}/deps/PROJ/include/",
+                "${workspaceFolder}/deps/PROJ/src/",
+                "${workspaceFolder}/node_modules/node-addon-api",
+                "/usr/include/node"
+            ],
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c17",
+            "cppStandard": "c++17"
+        },
+        {
+            "name": "macOS",
+            "includePath": [
+                "${workspaceFolder}/deps/PROJ/include/",
+                "${workspaceFolder}/deps/PROJ/src/",
+                "${workspaceFolder}/node_modules/node-addon-api",
+                "/usr/local/include/node"
             ],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c17",
-            "cppStandard": "c++14"
+            "cppStandard": "c++17"
         }
     ],
     "version": 4

@@ -37,7 +37,7 @@ npx xpm install
 
 # Generate the wrappers
 npx xpm run generate
-# alias npm run 
+# alias npm run swig
 
 # Eventually, set build options
 export npm_config_disable_tiff=true
@@ -50,6 +50,9 @@ npx xpm run prepare --config native && npx xpm run build --config native
 # Build the WASM version (requires emsdk in path)
 npx xpm run prepare --config wasm && npx xpm run build --config wasm
 # alias npm run build:wasm
+
+# Run the quickstart
+node test/shared/quickstart.debug.js
 
 # Run the tests (Node.js and browser)
 npm test
@@ -90,7 +93,7 @@ console.log(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 
 As `proj.js` is an ES6-only project, using `require` from CJS works only with very recent Node.js versions (refer to [require(esm) in Node.js](https://joyeecheung.github.io/blog/2024/03/18/require-esm-in-node-js/))
 
-When using the native module, `proj.db` is always external and automatically loaded from `require.resolve('proj.js/proj.db')`.
+When using the native module, `proj.db` is always external and automatically loaded from `import.meta.resolve('proj.js/proj.db')`.
 
 It is also possible to always load the WASM module even if running in Node.js:
 

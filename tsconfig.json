@@ -14,6 +14,9 @@
       ],
       "proj.js/wasm": [
         "./wasm"
+      ],
+      "proj.js/quickstart": [
+        "./test/shared/quickstart"
       ]
     }
   },
