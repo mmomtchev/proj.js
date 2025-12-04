@@ -6,6 +6,10 @@
 
 %include <arrays_javascript.i>
 
+%{
+#include <proj.h>
+%}
+
 %apply unsigned long long { size_t };
 
 // TODO: Should be added to SWIG
@@ -20,6 +24,9 @@
 %rename("%s", regextarget=1, %$isfunction) "^proj_";
 %rename("PJ") PJconsts;
 %rename("%s", regextarget=1) "PJ_.*";
+
+// TODO
+%ignore proj_create_from_name;
 
 // These types are opaque types in the C++ API
 %typemap(ts) PJ_OBJ_LIST "unknown"
