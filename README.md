@@ -134,6 +134,9 @@ Currently, the bundle size remains an issue.
 | `proj.wasm` w/  TIFF w/o `proj.db` | 8593K | 1735K |
 | `proj.wasm` w/o TIFF w/o `proj.db` | 7082K | 1302K |
 | `proj.db` | 9240K | 1320K |
+| Only `proj.a` w/ TIFF without bindings | 1629K | 1092K |
+| Only the C++ API bindings | 6964K | 643K |  
+| Only the C API bindings | 2352K | 238K
 
 It should be noted that while using `-Os` in `emscripten` can lead to a two-fold reduction of the raw size, the size of the compressed build will always remain the same. Sames goes for optimizing with `binaryen` - despite the very significant raw size gain, the compressed size gain is relatively insignificant.
 
@@ -141,9 +144,11 @@ It should be noted that while using `-Os` in `emscripten` can lead to a two-fold
 
 Linking with my own `sqlite-wasm-http` project to access a remote `proj.db`, using SQL over HTTP, is a very significant project that will further increase the bundle size to the point nullifying the gains from `proj.db`. It does not seem to be a logical option at the moment.
 
-Currently the biggest contributor to raw code size is SWIG JSE which produces large amounts of identical code for each function. This may me improved in a future version, but bear in mind that SWIG-generated code has the best compression ratio. It is also worth investigating what can be gained from modularization of the SWIG wrappers and if it is really necessary to wrap separately all derived classes.
+Currently the biggest contributor to raw code size is SWIG JSE which produces large amounts of identical code for each function. This may me improved in a future version, but bear in mind that **SWIG-generated code has a very good compression ratio**. It is also worth investigating what can be gained from modularization of the SWIG wrappers and if it is really necessary to wrap separately all derived classes.
 
-The ratio of SWIG wrappers to PROJ code is 4:1 in the uncompressed bundle and 2:1 in the compressed bundle. Here is a quick rundown of the cost of each wrapper:
+In the compressed bundle, the main contributor is `libproj.a`.
+
+Here is a quick rundown of the cost of each wrapper in the C++ bindings:
 
 ![SWIG-generated wrapper sizes](https://raw.githubusercontent.com/mmomtchev/proj.js/refs/heads/main/swig-wrappers-size-breakdown.png)
 
