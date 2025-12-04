@@ -18,6 +18,12 @@
 %nn_shared_ptr(osgeo::proj::crs::DerivedParametricCRS)
 %nn_shared_ptr(osgeo::proj::crs::DerivedTemporalCRS)
 
+// These must be renamed to work in JavaScript and TypeScript
+// https://github.com/mmomtchev/swig/issues/145
+%rename("createDerivedVertical") osgeo::proj::crs::DerivedVerticalCRS::create;
+%rename("createDerivedGeographic") osgeo::proj::crs::DerivedGeographicCRS::create;
+%rename("createDerivedGeodetic") osgeo::proj::crs::DerivedGeodeticCRS::create;
+
 // These are declared inline in the header files, but their definitions
 // are in the source files. They happen to work when called from inside
 // the library, but cannot be used from the outside.
