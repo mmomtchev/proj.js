@@ -9,3 +9,8 @@
 %nn_shared_ptr(osgeo::proj::datum::ParametricDatum)
 %nn_shared_ptr(osgeo::proj::datum::DynamicGeodeticReferenceFrame)
 %nn_shared_ptr(osgeo::proj::datum::DynamicVerticalReferenceFrame)
+
+// These must be renamed to work in JavaScript and TypeScript
+// https://github.com/mmomtchev/swig/issues/145
+%rename("createDynamicGeodetic") osgeo::proj::datum::DynamicGeodeticReferenceFrame::create;
+%rename("createDynamicVertical") osgeo::proj::datum::DynamicVerticalReferenceFrame::create;
