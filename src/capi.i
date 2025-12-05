@@ -61,14 +61,13 @@ const bool proj_js_inline_projdb = false;
   $1 = static_cast<proj_instance_data *>(SWIG_NAPI_GetInstanceData(env))->context;
 }
 
-// This needs a better solution
-%rename("%s") PJ_COORD::enu;
-%rename("%s") PJ_COORD::lp;
-%rename("%s") PJ_COORD::v;
-%rename("%s") e;
-%rename("%s") n;
-%rename("%s") lam;
-%rename("%s") phi;
+// proj_create_from_name
+%typemap(in, numinputs=1) (const PJ_TYPE *types, size_t typesCount) (std::shared_ptr<PJ_TYPE []> pj_types) {
+  $typemap(in, size_t, 1=$2, input=info[$argnum + 1]);
+  pj_types = std::shared_ptr<PJ_TYPE []>($2);
+  $1 = pj_types.get();
+}
+%typemap(ts, numinputs=1) (const PJ_TYPE *types, size_t typesCount) "PJ_TYPE[]"
 
 // Only we can destroy
 %ignore proj_destroy;

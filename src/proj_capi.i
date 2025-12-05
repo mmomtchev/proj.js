@@ -19,13 +19,10 @@
 // TODO: This is a huge amount of work but it will be useful
 %ignore PROJ_FILE_API;
 
-// Get only the C API
-%rename("$ignore", regextarget=1) ".*";
-%rename("%s", regextarget=1, %$isfunction) "^proj_";
-%rename("PJ") PJconsts;
-%rename("%s", regextarget=1) "PJ_.*";
+// typedefed structs are known to SWIG with the name of the struct
+%rename(PJ) PJconsts;
 
-// TODO
+// https://github.com/swig/swig/issues/3120
 %ignore proj_create_from_name;
 
 // These types are opaque types in the C++ API
