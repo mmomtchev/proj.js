@@ -8,8 +8,8 @@ struct proj_instance_data {
 };
 #ifdef __EMSCRIPTEN__
 extern const char *rootPath;
-extern const bool proj_js_inline_projdb;
 #endif
+extern const bool proj_js_inline_projdb;
 extern const char *proj_js_build;
 %}
 
@@ -69,15 +69,6 @@ const bool proj_js_inline_projdb = false;
 }
 %typemap(ts, numinputs=1) (const PJ_TYPE *types, size_t typesCount) "PJ_TYPE[]"
 
-// Only we can destroy
-%ignore proj_destroy;
-// Make PJ_COORD into an object-like interface
-%extend PJ_COORD {
-  ~PJ_COORD() {
-    proj_destroy(reinterpret_cast<PJ *>($self));
-  }
-}
-
 // Using a typedef enum with the same name as the enum is an edge case
 // especially when supporting both C++ and C
 #pragma SWIG nowarn=302
@@ -105,3 +96,58 @@ const bool proj_js_inline_projdb = false;
   _putenv((std::string("PROJ_DATA=") + std::string(_win_proj_data)).c_str());
 #endif
 %}
+
+// TODO: This is a huge amount of work but it will be useful
+%ignore PROJ_FILE_API;
+
+// typedefed structs are known to SWIG with the name of the struct
+%rename(PJ) PJconsts;
+
+// https://github.com/swig/swig/issues/3120
+%ignore proj_create_from_name;
+
+// These types are opaque types in the C++ API
+%typemap(ts) PJ_OBJ_LIST "unknown"
+%typemap(ts) PJ_INSERT_SESSION "unknown"
+
+// SWIG can't deduce the type of PROJ_VERSION_NUMBER
+#pragma SWIG nowarn=304
+
+// This is because "const char*" is not really "const"
+%immutable id;
+%immutable descr;
+%immutable major;
+%immutable ell;
+%immutable name;
+%immutable to_meter;
+%immutable defn;
+%immutable release;
+%immutable version;
+%immutable searchpath;
+%immutable paths;
+%immutable description;
+%immutable definition;
+%immutable celestial_body_name;
+%immutable auth_name;
+%immutable code;
+%immutable unit_name;
+%include <../src/proj.h>
+%mutable id;
+%mutable descr;
+%mutable major;
+%mutable ell;
+%mutable name;
+%mutable to_meter;
+%mutable defn;
+%mutable release;
+%mutable version;
+%mutable searchpath;
+%mutable paths;
+%mutable description;
+%mutable definition;
+%mutable celestial_body_name;
+%mutable auth_name;
+%mutable code;
+%mutable unit_name;
+
+%constant proj_version = int PROJ_VERSION_NUMBER;

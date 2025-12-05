@@ -25,16 +25,6 @@
 %typemap(ts) SWIGTYPE *, SWIGTYPE & "$typemap(ts, $*1_ltype)";
 %typemap(ts) char [ANY] "string";
 
-// TODO: This is a huge amount of work but it will be useful
-%ignore PROJ_FILE_API;
-
-// No need for the C API
-%rename("$ignore", regextarget=1, %$isfunction) "^proj_";
-
-// These types are opaque types in the C++ API
-%typemap(ts) PJ_OBJ_LIST "unknown"
-%typemap(ts) PJ_INSERT_SESSION "unknown"
-
 #define PROJ_MSVC_DLL
 #define PROJ_INTERNAL [[gnu::visibility("hidden")]]
 #define PROJ_DLL
@@ -75,6 +65,11 @@ using namespace NS_PROJ;
 // This can be considered a plain string
 %include "optional.i"
 
+// Ignore the C API, it is in a separate module
+%rename("$ignore", regextarget=1) "proj_.*";
+%rename("%s") proj_js_inline_projdb;
+%rename("%s") proj_js_build;
+
 %include "capi.i"
 %include "nn.i"
 %include "util.i"
@@ -87,48 +82,6 @@ using namespace NS_PROJ;
 %include "crs.i"
 %include "factory.i"
 
-// SWIG can't deduce the type of PROJ_VERSION_NUMBER
-#pragma SWIG nowarn=304
-
-// This is because "const char*" is not really "const"
-%immutable id;
-%immutable descr;
-%immutable major;
-%immutable ell;
-%immutable name;
-%immutable to_meter;
-%immutable defn;
-%immutable release;
-%immutable version;
-%immutable searchpath;
-%immutable paths;
-%immutable description;
-%immutable definition;
-%immutable celestial_body_name;
-%immutable auth_name;
-%immutable code;
-%immutable unit_name;
-%include <../src/proj.h>
-%mutable id;
-%mutable descr;
-%mutable major;
-%mutable ell;
-%mutable name;
-%mutable to_meter;
-%mutable defn;
-%mutable release;
-%mutable version;
-%mutable searchpath;
-%mutable paths;
-%mutable description;
-%mutable definition;
-%mutable celestial_body_name;
-%mutable auth_name;
-%mutable code;
-%mutable unit_name;
-
-%constant proj_version = int PROJ_VERSION_NUMBER;
-
 %include <proj/util.hpp>
 %include <proj/io.hpp>
 %include <proj/metadata.hpp>
@@ -140,6 +93,6 @@ using namespace NS_PROJ;
 %include <proj/crs.hpp>
 
 // Because of a large number of improvements for proj.js
-#if SWIG_VERSION < 0x050005
-#error Generating this project requires SWIG JSE 5.0.5
+#if SWIG_VERSION < 0x050011
+#error Generating this project requires SWIG JSE 5.0.11
 #endif
