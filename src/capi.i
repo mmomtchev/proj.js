@@ -61,6 +61,24 @@ const bool proj_js_inline_projdb = false;
   $1 = static_cast<proj_instance_data *>(SWIG_NAPI_GetInstanceData(env))->context;
 }
 
+// This needs a better solution
+%rename("%s") PJ_COORD::enu;
+%rename("%s") PJ_COORD::lp;
+%rename("%s") PJ_COORD::v;
+%rename("%s") e;
+%rename("%s") n;
+%rename("%s") lam;
+%rename("%s") phi;
+
+// Only we can destroy
+%ignore proj_destroy;
+// Make PJ_COORD into an object-like interface
+%extend PJ_COORD {
+  ~PJ_COORD() {
+    proj_destroy(reinterpret_cast<PJ *>($self));
+  }
+}
+
 // Using a typedef enum with the same name as the enum is an edge case
 // especially when supporting both C++ and C
 #pragma SWIG nowarn=302
