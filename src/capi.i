@@ -100,9 +100,6 @@ const bool proj_js_inline_projdb = false;
 // TODO: This is a huge amount of work but it will be useful
 %ignore PROJ_FILE_API;
 
-// typedefed structs are known to SWIG with the name of the struct
-%rename(PJ) PJconsts;
-
 // https://github.com/swig/swig/issues/3120
 %ignore proj_create_from_name;
 
