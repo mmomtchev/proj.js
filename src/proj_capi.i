@@ -46,6 +46,9 @@ public:
     proj_destroy(self);
   }
   PJ *operator*() { return self; }
+  const char* toString() {
+    return proj_get_name(self);
+  }
 };
 %}
 

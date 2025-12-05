@@ -5,9 +5,10 @@ const PROJ = await qPROJ;
 const P = PROJ.proj_create_crs_to_crs(
   "EPSG:4326", "+proj=utm +zone=32 +datum=WGS84",
   null);
-console.log(P);
+console.log(P.toString());
 
 const norm = PROJ.proj_normalize_for_visualization(P);
+console.log(norm.toString());
 
 const a = PROJ.proj_coord(12, 55, 0, 0);
 const b = PROJ.proj_trans(P, PROJ.PJ_FWD, a);
