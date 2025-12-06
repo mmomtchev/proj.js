@@ -37,6 +37,7 @@
 // and destroys it on destruction.
 // It will replace PJ and take its name
 %rename(PJ) jsPJ;
+%ignore jsPJ::get;
 %inline %{
 class jsPJ {
   PJ *self;
@@ -45,7 +46,7 @@ public:
   ~jsPJ() {
     proj_destroy(self);
   }
-  PJ *operator*() { return self; }
+  PJ *get() { return self; }
   const char* toString() {
     return proj_get_name(self);
   }
@@ -56,7 +57,7 @@ public:
 %typemap(in) PJ * {
   jsPJ *wrap;
   $typemap(in, jsPJ *, 1=wrap);
-  $1 = **wrap;
+  $1 = wrap->get();
 }
 %typemap(out) PJ * {
   jsPJ *wrap = new jsPJ($1);
