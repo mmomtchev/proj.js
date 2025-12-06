@@ -4,21 +4,7 @@
     "strict": true,
     "strictNullChecks": true,
     "target": "es2020",
-    "module": "node16",
-    "paths": {
-      "proj.js": [
-        "."
-      ],
-      "proj.js/native": [
-        "./native"
-      ],
-      "proj.js/wasm": [
-        "./wasm"
-      ],
-      "proj.js/quickstart": [
-        "./test/shared/quickstart"
-      ]
-    }
+    "module": "node16"
   },
   "exclude": [
     "node_modules"
