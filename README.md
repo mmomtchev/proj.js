@@ -123,6 +123,14 @@ You can check `test/browser/index.ts` for an example that uses `webpack` inline 
 
 *At the moment the default prebuilt WASM binaries do not have `proj.db` inlined as this is considered the more versatile solution at the cost of a few extra lines of code when loading the module.*
 
+## C API
+
+The old `PROJ` C API is available as a separate module, `proj.js/capi`. This module is slightly smaller and the setup of the API is slightly faster.
+
+The C API has many caveats and it is more prone to errors when interfacing to JS.
+
+Using it for anything but basic coordinate transformation is not tested at the moment.
+
 # WASM size considerations
 
 When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be loaded from an `Uint8Array` before use.
