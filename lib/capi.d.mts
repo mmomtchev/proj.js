@@ -6,7 +6,7 @@ export type * from '../swig/proj_capi.d.ts';
  */
 declare type FSMode = 'r' | 'r+' | 'w' | 'wx' | 'w+' | 'wx+' | 'a' | 'ax' | 'a+' | 'ax+';
 
-declare module '../swig/proj.d.ts' {
+declare module '../swig/proj_capi.d.ts' {
   namespace FS {
     function open(path: string, mode?: FSMode): unknown;
     function close(file: unknown): void;
