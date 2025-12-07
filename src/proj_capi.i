@@ -24,6 +24,7 @@
 // Only we can destroy
 %ignore proj_destroy;
 
+/*
 // Opaque types cannot be extended
 // This hack allows to add a destructor to an opaque type
 // Maybe this could become a SWIG feature at some point
@@ -42,15 +43,22 @@
 class jsPJ {
   PJ *self;
 public:
-  jsPJ(PJ *v): self(v) {}
+  jsPJ(PJ *v): self(v) {
+    printf("create new %p <= %p\n", this, self);
+  }
   ~jsPJ() {
+    printf("destroy %p <= %p\n", this, self);
     proj_destroy(self);
   }
-  PJ *get() { return self; }
+  PJ *get() { 
+    printf("get %p <= %p\n", this, self);
+    return self;
+  }
   const char* toString() {
     return proj_get_name(self);
   }
 };
+
 %}
 
 // Convert all PJ to jsPJ
@@ -65,5 +73,6 @@ public:
 }
 
 %typemap(ts) PJ * "PJ";
+*/
 
 %include <capi.i>
