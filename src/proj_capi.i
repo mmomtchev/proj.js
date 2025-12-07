@@ -61,7 +61,7 @@ public:
 }
 %typemap(out) PJ * {
   jsPJ *wrap = new jsPJ($1);
-  $typemap(out, jsPJ *, 1=wrap, flags=SWIG_POINTER_OWN);
+  $typemap(out, jsPJ *, 1=wrap, owner=SWIG_POINTER_OWN);
 }
 
 %typemap(ts) PJ * "PJ";
