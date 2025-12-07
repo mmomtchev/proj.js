@@ -131,6 +131,8 @@ The C API has many caveats and it is more prone to errors when interfacing to JS
 
 Using it for anything but basic coordinate transformation is not tested at the moment.
 
+**Avoid loading both modules at the same time, because SWIG shares the code for the identical types between the two. This is SWIG multi-module support which has never been tested for JavaScript Node-API.**
+
 # WASM size considerations
 
 When using WASM, `proj.db` can either be inlined in the WASM bundle or it can be loaded from an `Uint8Array` before use.
