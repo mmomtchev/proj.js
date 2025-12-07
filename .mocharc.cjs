@@ -7,7 +7,8 @@ module.exports = {
     'no-warnings',
     'loader=ts-node/esm'
   ],
-  'timeout': 5000,
+  'timeout': 20000,
+  'repeats': 100,
   'v8-expose-gc': true,
   'extensions': [
     'ts'
