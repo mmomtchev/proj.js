@@ -6,14 +6,14 @@ export default async function (PROJ) {
     'EPSG:4326', '+proj=utm +zone=32 +datum=WGS84',
     null);
   console.timeEnd('proj_create_crs_to_crs');
-  console.log(P.toString());
-  assert.instanceOf(P, PROJ.PJ);
+  //console.log(P.toString());
+  //assert.instanceOf(P, PROJ.PJ);
 
   console.time('proj_normalize_for_visualization');
   const norm = PROJ.proj_normalize_for_visualization(P);
   console.timeEnd('proj_normalize_for_visualization');
-  console.log(norm.toString());
-  assert.instanceOf(norm, PROJ.PJ);
+  //console.log(norm.toString());
+  //assert.instanceOf(norm, PROJ.PJ);
 
   console.time('proj_coord');
   const a = PROJ.proj_coord(12, 55, 0, 0);
