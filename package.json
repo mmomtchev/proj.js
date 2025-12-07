@@ -113,7 +113,7 @@
     "karma-chrome-launcher": "^3.2.0",
     "karma-mocha": "^2.0.1",
     "karma-verbose-reporter": "^0.0.8",
-    "mocha": "github:mmomtchev/mocha#repeats",
+    "mocha": "^11.7.5",
     "ts-loader": "^9.5.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5",
