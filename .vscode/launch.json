@@ -103,7 +103,7 @@
       "request": "launch",
       "program": "/usr/local/bin/node",
       "args": [
-        "${workspaceRoot}/test/shared/test/shared/quickstart-capi.debug.js"
+        "${workspaceRoot}/test/shared/quickstart-capi.debug.js"
       ],
       "stopAtEntry": false,
       "cwd": "${workspaceRoot}",
