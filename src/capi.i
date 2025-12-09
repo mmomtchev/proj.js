@@ -110,6 +110,10 @@ const bool proj_js_inline_projdb = false;
 // SWIG can't deduce the type of PROJ_VERSION_NUMBER
 #pragma SWIG nowarn=304
 
+/**
+ * The PJ structure
+ */
+
 // Only we can destroy
 %ignore proj_destroy;
 
@@ -127,6 +131,7 @@ const bool proj_js_inline_projdb = false;
 // It will replace PJ and take its name
 %rename(PJ) jsPJ;
 %ignore jsPJ::get;
+%ignore jsPJ::jsPJ;
 %inline %{
 class jsPJ {
   PJ *self;
@@ -151,6 +156,53 @@ public:
 }
 
 %typemap(ts) PJ * "PJ";
+
+
+/**
+ * Lists
+ */
+// The descr field is simply a pointer to pointer
+// that must be copied to a string
+%typemap(out) const char *const *descr {
+  $typemap(out, const char *, 1=*$1);
+}
+%typemap(ts) const char *const *descr "string";
+
+// The name LIST is not very accurate in JavaScript
+%rename(PJ_LIST_ELEMENT) PJ_LIST;
+// Skip the function for now
+%ignore PJ_LIST::PJ;
+
+// TODO: SWIG JavaScript has a built-in arrays_javascript
+// but it works only for numbers
+%define PJ_LIST(TYPE, NAME)
+%typemap(out) TYPE *NAME {
+  // Create a new JS array
+  Napi::Array array = Napi::Array::New(env);
+  // We received a TYPE * from the underlying function
+  TYPE *list = $1;
+  for (size_t i = 0; list->id; list++, i++) {
+    // This is an array of pointers -> we create
+    // an array of JS objects that wrap each pointer
+    // Each wrapper does not own the underlying C object
+    // (these are the PROJ calling semantics, the returned
+    // values are static)
+    Napi::Value jsobj;
+    // Call the out typemap for each element with
+    // 1 = list (input)
+    // result = jsobj (result)
+    $typemap(out, TYPE *, 1=list, result=jsobj, owner=0);
+
+    array.Set(i, jsobj);
+  }
+  // Our own result is the array
+  $result = array;
+}
+%typemap(ts) TYPE *NAME "PJ_LIST_ELEMENT[]";
+%enddef
+
+PJ_LIST(PJ_OPERATIONS, proj_list_operations);
+
 
 // This is because "const char*" is not really "const"
 %immutable id;
