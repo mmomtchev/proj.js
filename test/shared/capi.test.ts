@@ -4,7 +4,7 @@ import qPROJ from 'proj.js/capi';
 
 import { assert } from 'chai';
 
-describe.only('C-API special typemaps', () => {
+describe('C-API special typemaps', () => {
   let PROJ: Awaited<typeof qPROJ>;
   before('ensure module has finished loading', (done) => {
     qPROJ.then((m) => {
