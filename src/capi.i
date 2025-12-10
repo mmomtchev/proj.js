@@ -19,6 +19,9 @@ const char *proj_js_build;
 const bool proj_js_inline_projdb;
 %mutable;
 
+// Experimental function pointer support
+%include <function.i>
+
 %wrapper %{
 #ifdef __EMSCRIPTEN__
 const char *rootPath = "/";
@@ -157,7 +160,6 @@ public:
 
 %typemap(ts) PJ * "PJ";
 
-
 /**
  * Lists
  */
@@ -170,8 +172,30 @@ public:
 
 // The name LIST is not very accurate in JavaScript
 %rename(PJ_LIST_ELEMENT) PJ_LIST;
-// Skip the function for now
-%ignore PJ_LIST::PJ;
+
+// The function pointer
+%typemap(out) PJ *(*PJ_LIST::proj)(PJ *) {
+  $result = SWIG_NAPI_Function<PJ *, PJ *>(
+    env,
+    std::function<PJ *(PJ *)>($1),
+    // Note that arguments are the decayed types
+    std::function<void(Napi::Env, const Napi::CallbackInfo &, PJ *)>(
+        [](Napi::Env env, const Napi::CallbackInfo &info, PJ *in) -> void {
+          // Ignore these two, these are SWIG quirks
+          // that require some major refactoring to be eliminated
+          int res10;
+          void *argp10;
+          $typemap(in, PJ *, input=info[0], 1=in, argnum=PJ, disown=0);
+      }
+    ),
+    [](Napi::Env env, PJ *c_out) -> Napi::Value {
+      Napi::Value js_out;
+      $typemap(out, PJ *, 1=c_out, result=js_out, argnum=result)
+      return js_out;
+    }
+  );
+}
+%typemap(ts) PJ *(*PJ_LIST::proj)(PJ *) "(x: PJ) => PJ";
 
 // TODO: SWIG JavaScript has a built-in arrays_javascript
 // but it works only for numbers

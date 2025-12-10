@@ -17,10 +17,17 @@ describe('C-API special typemaps', () => {
     const list = PROJ.proj_list_operations();
     assert.isArray(list);
     assert.isAtLeast(list.length, 10);
+    const inp = PROJ.proj_create_crs_to_crs(
+      'EPSG:4326', '+proj=utm +zone=32 +datum=WGS84',
+      null);
+    assert.instanceOf(inp, PROJ.PJ);
     for (const op of list) {
       assert.instanceOf(op, PROJ.PJ_LIST_ELEMENT);
       assert.isString(op.id);
       assert.isString(op.descr);
+      assert.isFunction(op.proj);
+      const outp = op.proj(inp);
+      assert.instanceOf(outp, PROJ.PJ);
     }
   });
 });
