@@ -7,6 +7,9 @@ import { fileURLToPath } from 'url';
 describe('integration tests', function() {
   this.timeout(600000);
   this.slow(120000);
+  // @ts-expect-error this is waiting on @types/mocha
+  // which is waiting on the PR in the ****-major queue
+  this.repeats(1);
   const myDirname = path.dirname(fileURLToPath(import.meta.url));
   const testDir = path.resolve(myDirname, 'integration');
   const list = fs.readdirSync(testDir);
