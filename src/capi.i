@@ -102,8 +102,16 @@ const bool proj_js_inline_projdb = false;
 // SWIG can't deduce the type of PROJ_VERSION_NUMBER
 #pragma SWIG nowarn=304
 
+%apply bool { int allow_deprecated };
+%apply bool { int deprecated };
+%typemap(ts) const char *auth_name "string | null";
+%typemap(ts) const char *category "string | null";
+%typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
+
 /**
+ * ================
  * The PJ structure
+ * ================
  */
 
 // Only we can destroy
@@ -150,7 +158,9 @@ public:
 %typemap(ts) PJ * "PJ";
 
 /**
- * Lists
+ * =========================
+ * Lists of the PJ_LIST type
+ * =========================
  */
 // The descr field is simply a pointer to pointer
 // that must be copied to a string
@@ -224,7 +234,11 @@ PJ_LIST(PJ_OPERATIONS, proj_list_operations);
 PJ_LIST(PJ_ELLPS, proj_list_ellps);
 PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 
-%apply bool { int allow_deprecated };
+/**
+ * ================================
+ * Lists of the PJ_STRING_LIST type
+ * ================================
+ */
 
 %typemap(out) PROJ_STRING_LIST {
   if ($1 == NULL) {
@@ -245,31 +259,43 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   proj_string_list_destroy($1);
 }
 
+/**
+ * ================================
+ * Lists of the PROJ_UNIT_INFO type
+ * ================================
+ */
+
 // out_result_count is used in several functions
 // we transform it to a local variable in each wrapper
 %typemap(in, numinputs=0) int *out_result_count (int _global_out_result_count) {
   $1 = &_global_out_result_count;
 };
 
-%typemap(out) PROJ_UNIT_INFO **proj_get_units_from_database {
+%define PROJ_UNIT_INFO_LIST(TYPE, NAME, DESTROY)
+%typemap(out) TYPE **NAME {
   if ($1 == NULL) {
     SWIG_NAPI_Raise(env, "Error getting list");
     SWIG_fail;
   }
   Napi::Array r = Napi::Array::New(env);
-  PROJ_UNIT_INFO **p = $1;
+  TYPE **p = $1;
   size_t i = 0;
   while (*p) {
     Napi::Value el;
-    $typemap(out, PROJ_UNIT_INFO, 1=**p, result=el);
+    $typemap(out, TYPE, 1=**p, result=el);
     r.Set(i, el);
     i++;
     p++;
   }
   $result = r;
-  proj_unit_list_destroy($1);
+  DESTROY($1);
 }
-%typemap(ts) PROJ_UNIT_INFO **proj_get_units_from_database "PROJ_UNIT_INFO[]";
+%typemap(ts) TYPE **NAME #TYPE "[]";
+%enddef
+
+PROJ_UNIT_INFO_LIST(PROJ_UNIT_INFO, proj_get_units_from_database, proj_unit_list_destroy);
+PROJ_UNIT_INFO_LIST(PROJ_CELESTIAL_BODY_INFO, proj_get_celestial_body_list_from_database, proj_celestial_body_list_destroy);
+PROJ_UNIT_INFO_LIST(PROJ_CRS_INFO, proj_get_crs_info_list_from_database, proj_crs_info_list_destroy);
 
 // This is because "const char*" is not really "const"
 %immutable id;

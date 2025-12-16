@@ -63,7 +63,6 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_get_units_from_database', () => {
-    // @ts-ignore todo: tell TypeScript that null is a valid string in this case
     const list = PROJ.proj_get_units_from_database(null, null, true);
     assert.isArray(list);
     assert.isAbove(list.length, 0);
@@ -73,6 +72,33 @@ describe('C-API special typemaps', () => {
       assert.isString(element.category);
       assert.isString(element.name);
       assert.isString(element.code);
+    }
+  });
+
+  it('proj_get_celestial_body_list_from_database', () => {
+    const list = PROJ.proj_get_celestial_body_list_from_database(null);
+    // nothing here?
+    assert.isArray(list);
+    for (const element of list) {
+      assert.instanceOf(element, PROJ.PROJ_CELESTIAL_BODY_INFO);
+      assert.isString(element.auth_name);
+      assert.isString(element.name);
+    }
+  });
+
+  it('proj_get_crs_info_list_from_database', () => {
+    const list = PROJ.proj_get_crs_info_list_from_database('EPSG', null);
+    assert.isArray(list);
+    assert.isAbove(list.length, 0);
+    for (const element of list) {
+      assert.instanceOf(element, PROJ.PROJ_CRS_INFO);
+      assert.isString(element.auth_name);
+      assert.isNumber(element.bbox_valid);
+      assert.isBoolean(element.deprecated);
+      assert.isNumber(element.west_lon_degree);
+      assert.isNumber(element.south_lat_degree);
+      assert.isNumber(element.east_lon_degree);
+      assert.isNumber(element.north_lat_degree);
     }
   });
 });
