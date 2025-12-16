@@ -104,6 +104,7 @@ const bool proj_js_inline_projdb = false;
 
 %apply bool { int allow_deprecated };
 %apply bool { int deprecated };
+%apply bool { int crs_area_of_use_contains_bbox };
 %typemap(ts) const char *auth_name "string | null";
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
@@ -156,6 +157,50 @@ public:
 }
 
 %typemap(ts) PJ * "PJ";
+
+/**
+ * ===================
+ * The info structures
+ * ===================
+ *
+ * This is a candidate for SWIG %feature
+ * (transform directly to a JS structure instead of wrapping)
+ */
+%define STRUCT_FIELD(TYPE, NAME)
+  Napi::Value js_##NAME;
+  $typemap(out, TYPE, 1=$1.##NAME, result=js_##NAME);
+  r.Set(#NAME, js_##NAME);
+%enddef
+%ignore PROJ_CRS_INFO;
+%typemap(out) PROJ_CRS_INFO {
+  Napi::Object r = Napi::Object::New(env);
+  STRUCT_FIELD(char *, auth_name);
+  STRUCT_FIELD(char *, code);
+  STRUCT_FIELD(char *, name);
+  STRUCT_FIELD(PJ_TYPE, type);
+  STRUCT_FIELD(int deprecated, deprecated);
+  STRUCT_FIELD(int, bbox_valid);
+  STRUCT_FIELD(double, west_lon_degree);
+  STRUCT_FIELD(double, south_lat_degree);
+  STRUCT_FIELD(double, east_lon_degree);
+  STRUCT_FIELD(double, north_lat_degree);
+  STRUCT_FIELD(char *, area_name);
+  STRUCT_FIELD(char *, projection_method_name);
+  STRUCT_FIELD(char *, celestial_body_name);
+  $result = r;
+}
+%typemap(out) PROJ_UNIT_INFO {
+  Napi::Object r = Napi::Object::New(env);
+  STRUCT_FIELD(char *, auth_name);
+  STRUCT_FIELD(char *, code);
+  STRUCT_FIELD(char *, name);
+  STRUCT_FIELD(char *, category);
+  STRUCT_FIELD(double, conv_factor);
+  STRUCT_FIELD(char *, proj_short_name);
+  STRUCT_FIELD(int deprecated, deprecated);
+  $result = r;
+}
+
 
 /**
  * =========================
