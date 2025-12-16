@@ -171,7 +171,6 @@ public:
   $typemap(out, TYPE, 1=$1.##NAME, result=js_##NAME);
   r.Set(#NAME, js_##NAME);
 %enddef
-%ignore PROJ_CRS_INFO;
 %typemap(out) PROJ_CRS_INFO {
   Napi::Object r = Napi::Object::New(env);
   STRUCT_FIELD(char *, auth_name);
@@ -198,6 +197,12 @@ public:
   STRUCT_FIELD(double, conv_factor);
   STRUCT_FIELD(char *, proj_short_name);
   STRUCT_FIELD(int deprecated, deprecated);
+  $result = r;
+}
+%typemap(out) PROJ_CELESTIAL_BODY_INFO {
+  Napi::Object r = Napi::Object::New(env);
+  STRUCT_FIELD(char *, auth_name);
+  STRUCT_FIELD(char *, name);
   $result = r;
 }
 
