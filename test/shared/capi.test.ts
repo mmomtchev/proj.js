@@ -1,6 +1,7 @@
 // This is the mocha entry point for some C API functions.
 // These tests are shared between Node.js and the browser.
 import qPROJ from 'proj.js/capi';
+import type * as PROJ from 'proj.js';
 
 import { assert } from 'chai';
 
@@ -30,4 +31,32 @@ describe('C-API special typemaps', () => {
       assert.instanceOf(outp, PROJ.PJ);
     }
   });
+
+  it('proj_list_ellps', () => {
+    const list = PROJ.proj_list_ellps();
+    assert.isArray(list);
+    assert.isAtLeast(list.length, 10);
+    for (const op of list) {
+      assert.instanceOf(op, PROJ.PJ_ELLPS);
+      assert.isString(op.id);
+      assert.isString(op.major);
+      assert.isString(op.name);
+    }
+  });
+
+  it('proj_get_units_from_database', () => {
+    // @ts-ignore todo: tell TypeScript that null is a valid string in this case
+    const list = PROJ.proj_get_units_from_database(null, null, 1);
+    let element: PROJ.PROJ_UNIT_INFO;
+    let count = 0;
+    while ((element = list.next()) !== null) {
+      count++;
+      assert.isString(element.auth_name);
+      assert.isString(element.category);
+      assert.isString(element.name);
+      assert.isString(element.code);
+    }
+    assert.isAbove(count, 0);
+  });
+
 });

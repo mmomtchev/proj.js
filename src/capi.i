@@ -64,14 +64,6 @@ const bool proj_js_inline_projdb = false;
   $1 = static_cast<proj_instance_data *>(SWIG_NAPI_GetInstanceData(env))->context;
 }
 
-// proj_create_from_name
-%typemap(in, numinputs=1) (const PJ_TYPE *types, size_t typesCount) (std::shared_ptr<PJ_TYPE []> pj_types) {
-  $typemap(in, size_t, 1=$2, input=info[$argnum + 1]);
-  pj_types = std::shared_ptr<PJ_TYPE []>($2);
-  $1 = pj_types.get();
-}
-%typemap(ts, numinputs=1) (const PJ_TYPE *types, size_t typesCount) "PJ_TYPE[]"
-
 // Using a typedef enum with the same name as the enum is an edge case
 // especially when supporting both C++ and C
 #pragma SWIG nowarn=302
@@ -102,9 +94,6 @@ const bool proj_js_inline_projdb = false;
 
 // TODO: This is a huge amount of work but it will be useful
 %ignore PROJ_FILE_API;
-
-// https://github.com/swig/swig/issues/3120
-%ignore proj_create_from_name;
 
 // These types are opaque types in the C++ API
 %typemap(ts) PJ_OBJ_LIST "unknown"
@@ -225,8 +214,60 @@ public:
 %typemap(ts) TYPE *NAME "PJ_LIST_ELEMENT[]";
 %enddef
 
-PJ_LIST(PJ_OPERATIONS, proj_list_operations);
+%extend PJ_LIST {
+  std::string toString() {
+    return std::string{$self->id} + ": " + std::string{*($self->descr)};
+  }
+}
 
+PJ_LIST(PJ_OPERATIONS, proj_list_operations);
+PJ_LIST(PJ_ELLPS, proj_list_ellps);
+PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
+
+// out_result_count is used in several functions
+// we transform it to a local variable in each wrapper
+%typemap(in, numinputs=0) int *out_result_count (int _global_out_result_count) {
+  $1 = &_global_out_result_count;
+};
+
+// Structures of the PROJ_UNIT_INFO* type have a single ownership
+// and cannot easily be transformed to arrays.
+%inline %{
+class PROJ_UNIT_INFO_CONTAINER {
+  PROJ_UNIT_INFO **list;
+  PROJ_UNIT_INFO **current;
+public:
+  PROJ_UNIT_INFO_CONTAINER(PROJ_UNIT_INFO **v);
+  ~PROJ_UNIT_INFO_CONTAINER();
+  PROJ_UNIT_INFO *first();
+  PROJ_UNIT_INFO *next();
+};
+%}
+
+%wrapper %{
+PROJ_UNIT_INFO_CONTAINER::PROJ_UNIT_INFO_CONTAINER(PROJ_UNIT_INFO **v) {
+  list = v;
+  current = v;
+}
+PROJ_UNIT_INFO_CONTAINER::~PROJ_UNIT_INFO_CONTAINER() {
+  proj_unit_list_destroy(list);
+}
+PROJ_UNIT_INFO *PROJ_UNIT_INFO_CONTAINER::first() {
+  current = list;
+  return *current;
+}
+PROJ_UNIT_INFO *PROJ_UNIT_INFO_CONTAINER::next() {
+  if (*current)
+    current++;
+  return *current;
+}
+%}
+
+%typemap(out) PROJ_UNIT_INFO **proj_get_units_from_database {
+  PROJ_UNIT_INFO_CONTAINER *c = new PROJ_UNIT_INFO_CONTAINER($1);
+  $typemap(out, PROJ_UNIT_INFO_CONTAINER *, 1=c, owner=SWIG_POINTER_OWN);
+}
+%typemap(ts) PROJ_UNIT_INFO **proj_get_units_from_database "PROJ_UNIT_INFO_CONTAINER";
 
 // This is because "const char*" is not really "const"
 %immutable id;
