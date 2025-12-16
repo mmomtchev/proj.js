@@ -224,6 +224,27 @@ PJ_LIST(PJ_OPERATIONS, proj_list_operations);
 PJ_LIST(PJ_ELLPS, proj_list_ellps);
 PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 
+%apply bool { int allow_deprecated };
+
+%typemap(out) PROJ_STRING_LIST {
+  if ($1 == NULL) {
+    SWIG_NAPI_Raise(env, "Error getting list");
+    SWIG_fail;
+  }
+  Napi::Array r = Napi::Array::New(env);
+  char **s = $1;
+  size_t i = 0;
+  while (*s) {
+    Napi::Value el;
+    $typemap(out, char*, 1=*s, result=el);
+    r.Set(i, el);
+    i++;
+    s++;
+  }
+  $result = r;
+  proj_string_list_destroy($1);
+}
+
 // out_result_count is used in several functions
 // we transform it to a local variable in each wrapper
 %typemap(in, numinputs=0) int *out_result_count (int _global_out_result_count) {
@@ -231,6 +252,10 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 };
 
 %typemap(out) PROJ_UNIT_INFO **proj_get_units_from_database {
+  if ($1 == NULL) {
+    SWIG_NAPI_Raise(env, "Error getting list");
+    SWIG_fail;
+  }
   Napi::Array r = Napi::Array::New(env);
   PROJ_UNIT_INFO **p = $1;
   size_t i = 0;

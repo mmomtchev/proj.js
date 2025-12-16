@@ -44,12 +44,29 @@ describe('C-API special typemaps', () => {
     }
   });
 
-  it('proj_get_units_from_database', () => {
-    // @ts-ignore todo: tell TypeScript that null is a valid string in this case
-    const list = PROJ.proj_get_units_from_database(null, null, 1);
+  it('proj_get_authorities_from_database', () => {
+    const list = PROJ.proj_get_authorities_from_database();
     assert.isArray(list);
     assert.isAbove(list.length, 0);
-    console.log(list);
+    for (const element of list) {
+      assert.isString(element);
+    }
+  });
+
+  it('proj_get_codes_from_database', () => {
+    const list = PROJ.proj_get_codes_from_database('EPSG', PROJ.PJ_TYPE_CRS, true);
+    assert.isArray(list);
+    assert.isAbove(list.length, 0);
+    for (const element of list) {
+      assert.isString(element);
+    }
+  });
+
+  it('proj_get_units_from_database', () => {
+    // @ts-ignore todo: tell TypeScript that null is a valid string in this case
+    const list = PROJ.proj_get_units_from_database(null, null, true);
+    assert.isArray(list);
+    assert.isAbove(list.length, 0);
     for (const element of list) {
       assert.instanceOf(element, PROJ.PROJ_UNIT_INFO);
       assert.isString(element.auth_name);
