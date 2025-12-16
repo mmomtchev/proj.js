@@ -47,16 +47,15 @@ describe('C-API special typemaps', () => {
   it('proj_get_units_from_database', () => {
     // @ts-ignore todo: tell TypeScript that null is a valid string in this case
     const list = PROJ.proj_get_units_from_database(null, null, 1);
-    let element: PROJ.PROJ_UNIT_INFO;
-    let count = 0;
-    while ((element = list.next()) !== null) {
-      count++;
+    assert.isArray(list);
+    assert.isAbove(list.length, 0);
+    console.log(list);
+    for (const element of list) {
+      assert.instanceOf(element, PROJ.PROJ_UNIT_INFO);
       assert.isString(element.auth_name);
       assert.isString(element.category);
       assert.isString(element.name);
       assert.isString(element.code);
     }
-    assert.isAbove(count, 0);
   });
-
 });

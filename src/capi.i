@@ -230,44 +230,21 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   $1 = &_global_out_result_count;
 };
 
-// Structures of the PROJ_UNIT_INFO* type have a single ownership
-// and cannot easily be transformed to arrays.
-%inline %{
-class PROJ_UNIT_INFO_CONTAINER {
-  PROJ_UNIT_INFO **list;
-  PROJ_UNIT_INFO **current;
-public:
-  PROJ_UNIT_INFO_CONTAINER(PROJ_UNIT_INFO **v);
-  ~PROJ_UNIT_INFO_CONTAINER();
-  PROJ_UNIT_INFO *first();
-  PROJ_UNIT_INFO *next();
-};
-%}
-
-%wrapper %{
-PROJ_UNIT_INFO_CONTAINER::PROJ_UNIT_INFO_CONTAINER(PROJ_UNIT_INFO **v) {
-  list = v;
-  current = v;
-}
-PROJ_UNIT_INFO_CONTAINER::~PROJ_UNIT_INFO_CONTAINER() {
-  proj_unit_list_destroy(list);
-}
-PROJ_UNIT_INFO *PROJ_UNIT_INFO_CONTAINER::first() {
-  current = list;
-  return *current;
-}
-PROJ_UNIT_INFO *PROJ_UNIT_INFO_CONTAINER::next() {
-  if (*current)
-    current++;
-  return *current;
-}
-%}
-
 %typemap(out) PROJ_UNIT_INFO **proj_get_units_from_database {
-  PROJ_UNIT_INFO_CONTAINER *c = new PROJ_UNIT_INFO_CONTAINER($1);
-  $typemap(out, PROJ_UNIT_INFO_CONTAINER *, 1=c, owner=SWIG_POINTER_OWN);
+  Napi::Array r = Napi::Array::New(env);
+  PROJ_UNIT_INFO **p = $1;
+  size_t i = 0;
+  while (*p) {
+    Napi::Value el;
+    $typemap(out, PROJ_UNIT_INFO, 1=**p, result=el);
+    r.Set(i, el);
+    i++;
+    p++;
+  }
+  $result = r;
+  proj_unit_list_destroy($1);
 }
-%typemap(ts) PROJ_UNIT_INFO **proj_get_units_from_database "PROJ_UNIT_INFO_CONTAINER";
+%typemap(ts) PROJ_UNIT_INFO **proj_get_units_from_database "PROJ_UNIT_INFO[]";
 
 // This is because "const char*" is not really "const"
 %immutable id;
