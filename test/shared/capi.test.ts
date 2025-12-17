@@ -131,4 +131,10 @@ describe('C-API special typemaps', () => {
       assert.strictEqual(el.parent, list);
     }
   });
+
+  it('proj_create_from_name', () => {
+    const pj = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100, null);
+    assert.instanceOf(pj, PROJ.PJ_OBJ_LIST);
+    assert.isAbove(pj.length(), 0);
+  });
 });

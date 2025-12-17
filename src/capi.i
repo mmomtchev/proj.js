@@ -135,6 +135,25 @@ const bool proj_js_inline_projdb = false;
 }
 %typemap(ts) PJ_OBJ_LIST *proj_identify "[ PJ_OBJ_LIST, number[] ]";
 
+// Generic arrays from JS Array to C with pointer & length
+// (search for $*n_ltype in SWIG manual)
+%typemap(in, numinputs=1) (SWIGTYPE *array, size_t count) (std::shared_ptr<$*1_ltype []> data) {
+  if (!$input.IsArray()) {
+    SWIG_NAPI_Raise(env, "types must be an array");
+  }
+  Napi::Array js_array = $input.As<Napi::Array>();
+  data = std::shared_ptr<$*1_ltype []>(new $*1_ltype [js_array.Length()]);
+  for (size_t i = 0; i < js_array.Length(); i++) {
+    $1_ltype val;
+    $typemap(in, $*1_type, input=js_array.Get(i), 1=val, argnum=types array member);
+  }
+  $1 = data.get();
+  $2 = js_array.Length();
+}
+
+%typemap(in, numinputs=1) (PJ_TYPE *types, size_t typesCount) = (SWIGTYPE *array, size_t count);
+%typemap(ts) (PJ_TYPE *types, size_t typesCount) "PJ_TYPE[]";
+
 /**
  * ================
  * The PJ structure
@@ -271,7 +290,6 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 %typemap(out) PROJ_STRING_LIST {
   if ($1 == NULL) {
     SWIG_NAPI_Raise(env, "Error getting list");
-    SWIG_fail;
   }
   Napi::Array r = Napi::Array::New(env);
   char **s = $1;
@@ -338,7 +356,6 @@ public:
 %typemap(out) TYPE **NAME {
   if ($1 == NULL) {
     SWIG_NAPI_Raise(env, "Error getting list");
-    SWIG_fail;
   }
   TYPE##_CONTAINER *r = new TYPE##_CONTAINER{$1};
   $typemap(out, TYPE##_CONTAINER *, 1=r, owner=SWIG_POINTER_OWN);
@@ -399,7 +416,6 @@ public:
 %typemap(out) PJ_OBJ_LIST * {
   if ($1 == NULL) {
     SWIG_NAPI_Raise(env, "Error getting list");
-    SWIG_fail;
   }
   PJ_OBJ_LIST_WRAPPER *wrapper = new PJ_OBJ_LIST_WRAPPER($1);
   $typemap(out, PJ_OBJ_LIST_WRAPPER *, 1=wrapper, owner=SWIG_POINTER_OWN);
