@@ -314,6 +314,7 @@ public:
   $typemap(out, TYPE##_CONTAINER *, 1=r);
 }
 %typemap(ts) TYPE **NAME "$typemap(ts, " #TYPE "_CONTAINER)";
+%newobject NAME;
 %enddef
 
 PROJ_UNIT_INFO_LIST(PROJ_UNIT_INFO, proj_get_units_from_database, proj_unit_list_destroy);
