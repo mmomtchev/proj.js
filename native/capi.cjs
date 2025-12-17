@@ -13,7 +13,7 @@ module.exports = require(path.resolve(__dirname, '..', 'lib', 'binding', `${os.p
 function container_iterator () {
   const iter = this.iterator();
   const parent = this;
-  return {
+  const r = {
     next() {
       const v = iter.next();
       if (v !== null) {
@@ -25,6 +25,8 @@ function container_iterator () {
       return { done: true };
     }
   };
+  Object.defineProperty(r, 'parent', { writable: false, value: parent });
+  return r;
 };
 
 module.exports.PROJ_UNIT_INFO_CONTAINER.prototype[Symbol.iterator] = container_iterator;
