@@ -95,19 +95,45 @@ const bool proj_js_inline_projdb = false;
 // TODO: This is a huge amount of work but it will be useful
 %ignore PROJ_FILE_API;
 
-// These types are opaque types in the C++ API
-%typemap(ts) PJ_OBJ_LIST "unknown"
-%typemap(ts) PJ_INSERT_SESSION "unknown"
-
 // SWIG can't deduce the type of PROJ_VERSION_NUMBER
 #pragma SWIG nowarn=304
+
+/**
+ * ==================================================
+ * Miscellaneous arguments that need special handling
+ * ==================================================
+ */
 
 %apply bool { int allow_deprecated };
 %apply bool { int deprecated };
 %apply bool { int crs_area_of_use_contains_bbox };
+%apply bool { int approximateMatch };
 %typemap(ts) const char *auth_name "string | null";
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
+%typemap(ts) const char *const *options "null";
+
+// out_result_count is used in several functions
+// we transform it to a local variable in each wrapper
+%typemap(in, numinputs=0) int *out_result_count (int _global_out_result_count) {
+  $1 = &_global_out_result_count;
+};
+
+// out_confidence is added to the return values which become an array
+%typemap(in, numinputs=0) int **out_confidence (int *_global_out_confidence) {
+  $1 = &_global_out_confidence;
+};
+%typemap(argout, fragment=SWIG_From_frag(int)) int **out_confidence {
+  size_t elements = proj_list_get_count(result);
+  Napi::Array confidence = Napi::Array::New(env, elements);
+  if ($1 != nullptr) {
+    for (size_t i = 0; i < elements; i++)
+      confidence.Set(i, SWIG_From(int)(_global_out_confidence[i]));
+    proj_int_list_destroy(*$1);
+  }
+  $result = SWIG_AppendOutput($result, confidence);
+}
+%typemap(ts) PJ_OBJ_LIST *proj_identify "[ PJ_OBJ_LIST, number[] ]";
 
 /**
  * ================
@@ -116,7 +142,7 @@ const bool proj_js_inline_projdb = false;
  */
 
 // Only we can destroy
-%ignore proj_destroy;
+%rename("$ignore", regextarget=1) "proj.*_destroy";
 
 // Opaque types cannot be extended
 // This hack allows to add a destructor to an opaque type
@@ -263,20 +289,20 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 %typemap(ts) PROJ_STRING_LIST "string[]";
 
 /**
- * ================================
- * Lists of the PROJ_UNIT_INFO type
- * ================================
+ * ==================================
+ * Lists of the monolithic block type
+ * ==================================
+ *
+ * These are monolithic blocks of objects that must be freed as a whole.
+ * We expose a container object to JS that can be iterated.
+ * Each returned object will carry a reference to its parent, since
+ * the parent cannot be GCed until all objects have been released.
+ * The higher level part of the iterator is in the JS import.
  */
-
-// out_result_count is used in several functions
-// we transform it to a local variable in each wrapper
-%typemap(in, numinputs=0) int *out_result_count (int _global_out_result_count) {
-  $1 = &_global_out_result_count;
-};
 
 %newobject iterator;
 
-%define PROJ_UNIT_INFO_LIST(TYPE, NAME, DESTROY)
+%define PROJ_BLOCK_PTRARRAY(TYPE, NAME, DESTROY)
 
 %inline {
 class TYPE##_ITERATOR;
@@ -315,15 +341,71 @@ public:
     SWIG_fail;
   }
   TYPE##_CONTAINER *r = new TYPE##_CONTAINER{$1};
-  $typemap(out, TYPE##_CONTAINER *, 1=r);
+  $typemap(out, TYPE##_CONTAINER *, 1=r, owner=SWIG_POINTER_OWN);
 }
 %typemap(ts) TYPE **NAME "$typemap(ts, " #TYPE "_CONTAINER)";
-%newobject NAME;
+
 %enddef
 
-PROJ_UNIT_INFO_LIST(PROJ_UNIT_INFO, proj_get_units_from_database, proj_unit_list_destroy);
-PROJ_UNIT_INFO_LIST(PROJ_CELESTIAL_BODY_INFO, proj_get_celestial_body_list_from_database, proj_celestial_body_list_destroy);
-PROJ_UNIT_INFO_LIST(PROJ_CRS_INFO, proj_get_crs_info_list_from_database, proj_crs_info_list_destroy);
+
+/**
+ * ==============================
+ * Lists of the PJ_UNIT_INFO type
+ * ==============================
+ */
+PROJ_BLOCK_PTRARRAY(PROJ_UNIT_INFO, proj_get_units_from_database, proj_unit_list_destroy);
+PROJ_BLOCK_PTRARRAY(PROJ_CELESTIAL_BODY_INFO, proj_get_celestial_body_list_from_database, proj_celestial_body_list_destroy);
+PROJ_BLOCK_PTRARRAY(PROJ_CRS_INFO, proj_get_crs_info_list_from_database, proj_crs_info_list_destroy);
+
+
+/**
+ * =============================
+ * Lists of the PJ_OBJ_LIST type
+ * =============================
+ *
+ * These are opaque structures that the user cannot manipulate directly.
+ */
+%ignore PJ_OBJ_LIST;
+%ignore proj_list_get;
+%ignore proj_list_get_count;
+%rename(PJ_OBJ_LIST) PJ_OBJ_LIST_WRAPPER;
+// TODO: provide a mechanism to disallow constructing of certain classes from JS
+%inline {
+class PJ_OBJ_LIST_WRAPPER {
+  PJ_OBJ_LIST *list;
+public:
+  PJ_OBJ_LIST_WRAPPER(PJ_OBJ_LIST *v);
+  ~PJ_OBJ_LIST_WRAPPER();
+  // SWIG will eliminate the PJ_CONTEXT arguments
+  size_t length();
+  PJ *get(PJ_CONTEXT *ctx, size_t i);
+};
+}
+%wrapper {
+  PJ_OBJ_LIST_WRAPPER::PJ_OBJ_LIST_WRAPPER(PJ_OBJ_LIST *v) : list{v} {};
+  PJ_OBJ_LIST_WRAPPER::~PJ_OBJ_LIST_WRAPPER() {
+    proj_list_destroy(list);
+  }
+  size_t PJ_OBJ_LIST_WRAPPER::length() {
+    return proj_list_get_count(list);
+  }
+  PJ *PJ_OBJ_LIST_WRAPPER::get(PJ_CONTEXT *ctx, size_t i) {
+    if (i >= proj_list_get_count(list)) {
+      throw std::runtime_error{"Out of bounds"};
+    }
+    return proj_list_get(ctx, list, i);
+  }
+}
+%typemap(out) PJ_OBJ_LIST * {
+  if ($1 == NULL) {
+    SWIG_NAPI_Raise(env, "Error getting list");
+    SWIG_fail;
+  }
+  PJ_OBJ_LIST_WRAPPER *wrapper = new PJ_OBJ_LIST_WRAPPER($1);
+  $typemap(out, PJ_OBJ_LIST_WRAPPER *, 1=wrapper, owner=SWIG_POINTER_OWN);
+}
+%typemap(ts) PJ_OBJ_LIST * "PJ_OBJ_LIST";
+
 
 
 /**

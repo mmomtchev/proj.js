@@ -17,9 +17,7 @@ describe('C-API special typemaps', () => {
     const list = PROJ.proj_list_operations();
     assert.isArray(list);
     assert.isAtLeast(list.length, 10);
-    const inp = PROJ.proj_create_crs_to_crs(
-      'EPSG:4326', '+proj=utm +zone=32 +datum=WGS84',
-      null);
+    const inp = PROJ.proj_create('EPSG:4326');
     assert.instanceOf(inp, PROJ.PJ);
     for (const op of list) {
       assert.instanceOf(op, PROJ.PJ_LIST_ELEMENT);
@@ -109,5 +107,22 @@ describe('C-API special typemaps', () => {
       assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
+  });
+
+  it('proj_identify', () => {
+    const pj = PROJ.proj_create('EPSG:4326');
+    assert.instanceOf(pj, PROJ.PJ);
+
+    const [list, confidence] = PROJ.proj_identify(pj, null, null);
+
+    assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
+    assert.isArray(confidence);
+
+    assert.isNumber(list.length());
+    assert.strictEqual(list.length(), confidence.length);
+
+    assert.isNumber(confidence[0]);
+    assert.strictEqual(confidence[0], 100);
+    assert.instanceOf(list.get(0), PROJ.PJ);
   });
 });
