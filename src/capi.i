@@ -108,6 +108,12 @@ const bool proj_js_inline_projdb = false;
 %apply bool { int deprecated };
 %apply bool { int crs_area_of_use_contains_bbox };
 %apply bool { int approximateMatch };
+%apply bool { int proj_is_deprecated };
+%apply bool { int proj_is_equivalent_to };
+%apply bool { int proj_is_equivalent_to_with_ctx };
+%apply bool { int proj_is_crs };
+%apply bool { int proj_is_derived_crs };
+%apply bool { int proj_crs_is_derived };
 %typemap(ts) const char *auth_name "string | null";
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
@@ -137,22 +143,59 @@ const bool proj_js_inline_projdb = false;
 
 // Generic arrays from JS Array to C with pointer & length
 // (search for $*n_ltype in SWIG manual)
+// Alas this does not work for primitive types!!!
+// Investigate, because all SWIG JSE examples use $typemap
 %typemap(in, numinputs=1) (SWIGTYPE *array, size_t count) (std::shared_ptr<$*1_ltype []> data) {
   if (!$input.IsArray()) {
-    SWIG_NAPI_Raise(env, "types must be an array");
+    SWIG_NAPI_Raise(env, "argument must be an array");
   }
   Napi::Array js_array = $input.As<Napi::Array>();
   data = std::shared_ptr<$*1_ltype []>(new $*1_ltype [js_array.Length()]);
   for (size_t i = 0; i < js_array.Length(); i++) {
-    $1_ltype val;
-    $typemap(in, $*1_type, input=js_array.Get(i), 1=val, argnum=types array member);
+    $*1_ltype element;
+    $typemap(in, $*1_type, input=js_array.Get(i), 1=element, argnum=argument array member);
   }
   $1 = data.get();
   $2 = js_array.Length();
 }
 
-%typemap(in, numinputs=1) (PJ_TYPE *types, size_t typesCount) = (SWIGTYPE *array, size_t count);
+// proj_create_from_name
+%typemap(in, numinputs=1) (PJ_TYPE *types, size_t typesCount) (std::shared_ptr<PJ_TYPE[]> data) {
+  if (!$input.IsArray()) {
+    SWIG_NAPI_Raise(env, "argument must be an array");
+  }
+  Napi::Array js_array = $input.As<Napi::Array>();
+  data = std::shared_ptr<PJ_TYPE[]>(new PJ_TYPE[js_array.Length()]);
+  for (size_t i = 0; i < js_array.Length(); i++) {
+    int value;
+    SWIG_AsVal(int)(js_array.Get(i), &value);
+    PJ_TYPE element = static_cast<PJ_TYPE>(value);
+  }
+  $1 = data.get();
+  $2 = js_array.Length();
+}
 %typemap(ts) (PJ_TYPE *types, size_t typesCount) "PJ_TYPE[]";
+
+// proj_get_area_of_use
+%typemap(in, numinputs=0)
+  (double *out_west_lon_degree, double *out_south_lat_degree, double *out_east_lon_degree, double *out_north_lat_degree, const char **out_area_name)
+  (double _global_area[4], char *_global_area_name) {
+    $1 = &_global_area[0];
+    $2 = &_global_area[1];
+    $3 = &_global_area[2];
+    $4 = &_global_area[3];
+    $5 = &_global_area_name;
+  }
+%typemap(argout)
+  (double *out_west_lon_degree, double *out_south_lat_degree, double *out_east_lon_degree, double *out_north_lat_degree, const char **out_area_name) {
+    Napi::Value js_area_name;
+    $typemap(out, double[4], 1=_global_area);
+    $typemap(out, char *, 1=_global_area_name, result=js_area_name);
+    SWIG_AppendOutput($result, js_area_name);
+  }
+%typemap(tsout) (double *out_west_lon_degree, double *out_south_lat_degree, double *out_east_lon_degree, double *out_north_lat_degree, const char **out_area_name)
+  "[ number, number, number, number, string ]";
+
 
 /**
  * ================

@@ -133,8 +133,31 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_create_from_name', () => {
-    const pj = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100, null);
-    assert.instanceOf(pj, PROJ.PJ_OBJ_LIST);
-    assert.isAbove(pj.length(), 0);
+    const list = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100, null);
+    assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
+    assert.isAbove(list.length(), 0);
+
+    const pj = list.get(0);
+    assert.instanceOf(pj, PROJ.PJ);
+
+    assert.isString(PROJ.proj_get_id_code(pj, 0));
+    assert.isString(PROJ.proj_get_id_auth_name(pj, 0));
+    assert.strictEqual(PROJ.proj_get_id_auth_name(pj, 0), 'EPSG');
+    assert.isBoolean(PROJ.proj_is_deprecated(pj));
+    assert.isBoolean(PROJ.proj_is_crs(pj));
+  });
+
+  it('proj_get_area_of_use', () => {
+    const pj = PROJ.proj_create('EPSG:4326');
+    assert.instanceOf(pj, PROJ.PJ);
+
+    const area_of_use = PROJ.proj_get_area_of_use(pj);
+    assert.isArray(area_of_use);
+    assert.lengthOf(area_of_use, 5);
+    assert.isNumber(area_of_use[0]);
+    assert.isNumber(area_of_use[1]);
+    assert.isNumber(area_of_use[2]);
+    assert.isNumber(area_of_use[3]);
+    assert.isString(area_of_use[4]);
   });
 });
