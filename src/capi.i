@@ -310,6 +310,10 @@ public:
 }
 
 %typemap(out) TYPE **NAME {
+  if ($1 == NULL) {
+    SWIG_NAPI_Raise(env, "Error getting list");
+    SWIG_fail;
+  }
   TYPE##_CONTAINER *r = new TYPE##_CONTAINER{$1};
   $typemap(out, TYPE##_CONTAINER *, 1=r);
 }
