@@ -1,7 +1,6 @@
 // This is the mocha entry point for some C API functions.
 // These tests are shared between Node.js and the browser.
 import qPROJ from 'proj.js/capi';
-import type * as PROJ from 'proj.js';
 
 import { assert } from 'chai';
 
@@ -64,31 +63,33 @@ describe('C-API special typemaps', () => {
 
   it('proj_get_units_from_database', () => {
     const list = PROJ.proj_get_units_from_database(null, null, true);
-    assert.isArray(list);
-    assert.isAbove(list.length, 0);
+    let count = 0;
     for (const element of list) {
+      count++;
       assert.isString(element.auth_name);
       assert.isString(element.category);
       assert.isString(element.name);
       assert.isString(element.code);
     }
+    assert.isAbove(count, 0);
   });
 
   it('proj_get_celestial_body_list_from_database', () => {
     const list = PROJ.proj_get_celestial_body_list_from_database(null);
-    // nothing here?
-    assert.isArray(list);
+    let count = 0;
     for (const element of list) {
+      count++;
       assert.isString(element.auth_name);
       assert.isString(element.name);
     }
+    assert.isAbove(count, 0);
   });
 
   it('proj_get_crs_info_list_from_database', () => {
     const list = PROJ.proj_get_crs_info_list_from_database('EPSG', null);
-    assert.isArray(list);
-    assert.isAbove(list.length, 0);
+    let count = 0;
     for (const element of list) {
+      count++;
       assert.isString(element.auth_name);
       assert.isNumber(element.bbox_valid);
       assert.isBoolean(element.deprecated);
@@ -98,5 +99,6 @@ describe('C-API special typemaps', () => {
       assert.isNumber(element.north_lat_degree);
       assert.isNumber(element.type);
     }
+    assert.isAbove(count, 0);
   });
 });

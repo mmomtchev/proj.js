@@ -158,54 +158,6 @@ public:
 
 %typemap(ts) PJ * "PJ";
 
-/**
- * ===================
- * The info structures
- * ===================
- *
- * This is a candidate for SWIG %feature
- * (transform directly to a JS structure instead of wrapping)
- */
-%define STRUCT_FIELD(TYPE, NAME)
-  Napi::Value js_##NAME;
-  $typemap(out, TYPE, 1=$1.##NAME, result=js_##NAME);
-  r.Set(#NAME, js_##NAME);
-%enddef
-%typemap(out) PROJ_CRS_INFO {
-  Napi::Object r = Napi::Object::New(env);
-  STRUCT_FIELD(char *, auth_name);
-  STRUCT_FIELD(char *, code);
-  STRUCT_FIELD(char *, name);
-  STRUCT_FIELD(PJ_TYPE, type);
-  STRUCT_FIELD(int deprecated, deprecated);
-  STRUCT_FIELD(int, bbox_valid);
-  STRUCT_FIELD(double, west_lon_degree);
-  STRUCT_FIELD(double, south_lat_degree);
-  STRUCT_FIELD(double, east_lon_degree);
-  STRUCT_FIELD(double, north_lat_degree);
-  STRUCT_FIELD(char *, area_name);
-  STRUCT_FIELD(char *, projection_method_name);
-  STRUCT_FIELD(char *, celestial_body_name);
-  $result = r;
-}
-%typemap(out) PROJ_UNIT_INFO {
-  Napi::Object r = Napi::Object::New(env);
-  STRUCT_FIELD(char *, auth_name);
-  STRUCT_FIELD(char *, code);
-  STRUCT_FIELD(char *, name);
-  STRUCT_FIELD(char *, category);
-  STRUCT_FIELD(double, conv_factor);
-  STRUCT_FIELD(char *, proj_short_name);
-  STRUCT_FIELD(int deprecated, deprecated);
-  $result = r;
-}
-%typemap(out) PROJ_CELESTIAL_BODY_INFO {
-  Napi::Object r = Napi::Object::New(env);
-  STRUCT_FIELD(char *, auth_name);
-  STRUCT_FIELD(char *, name);
-  $result = r;
-}
-
 
 /**
  * =========================
@@ -308,6 +260,7 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   $result = r;
   proj_string_list_destroy($1);
 }
+%typemap(ts) PROJ_STRING_LIST "string[]";
 
 /**
  * ================================
@@ -321,31 +274,58 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   $1 = &_global_out_result_count;
 };
 
+%newobject iterator;
+
 %define PROJ_UNIT_INFO_LIST(TYPE, NAME, DESTROY)
-%typemap(out) TYPE **NAME {
-  if ($1 == NULL) {
-    SWIG_NAPI_Raise(env, "Error getting list");
-    SWIG_fail;
-  }
-  Napi::Array r = Napi::Array::New(env);
-  TYPE **p = $1;
-  size_t i = 0;
-  while (*p) {
-    Napi::Value el;
-    $typemap(out, TYPE, 1=**p, result=el);
-    r.Set(i, el);
-    i++;
-    p++;
-  }
-  $result = r;
-  DESTROY($1);
+
+%inline {
+class TYPE##_ITERATOR;
+class TYPE##_CONTAINER {
+  TYPE **list;
+public:
+  TYPE##_CONTAINER(TYPE **v);
+  ~TYPE##_CONTAINER();
+  TYPE##_ITERATOR *iterator();
+};
+
+class TYPE##_ITERATOR {
+  TYPE **current;
+public:
+  TYPE##_ITERATOR(TYPE **v);
+  TYPE *next();
+};
+
 }
-%typemap(ts) TYPE **NAME #TYPE "[]";
+%wrapper {
+  TYPE##_CONTAINER::TYPE##_CONTAINER(TYPE **v) : list{v} {}
+  TYPE##_CONTAINER::~TYPE##_CONTAINER(){ DESTROY(list); }
+  TYPE##_ITERATOR *TYPE##_CONTAINER::iterator(){ return new TYPE##_ITERATOR{list}; }
+
+  TYPE##_ITERATOR::TYPE##_ITERATOR(TYPE **v) : current{v} {}
+  TYPE *TYPE##_ITERATOR::next() {
+    if (*current)
+      return *(current++);
+    return NULL;
+  }
+}
+
+%typemap(out) TYPE **NAME {
+  TYPE##_CONTAINER *r = new TYPE##_CONTAINER{$1};
+  $typemap(out, TYPE##_CONTAINER *, 1=r);
+}
+%typemap(ts) TYPE **NAME "$typemap(ts, " #TYPE "_CONTAINER)";
 %enddef
 
 PROJ_UNIT_INFO_LIST(PROJ_UNIT_INFO, proj_get_units_from_database, proj_unit_list_destroy);
 PROJ_UNIT_INFO_LIST(PROJ_CELESTIAL_BODY_INFO, proj_get_celestial_body_list_from_database, proj_celestial_body_list_destroy);
 PROJ_UNIT_INFO_LIST(PROJ_CRS_INFO, proj_get_crs_info_list_from_database, proj_crs_info_list_destroy);
+
+
+/**
+ * ============
+ * Main Include
+ * ============
+ */
 
 // This is because "const char*" is not really "const"
 %immutable id;
