@@ -19,3 +19,8 @@ updates:
         - "*typescript*"
     cooldown:
       default-days: 15
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
