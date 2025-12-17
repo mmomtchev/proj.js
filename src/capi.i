@@ -45,6 +45,12 @@ const bool proj_js_inline_projdb = false;
   }
   SWIG_NAPI_SetInstanceData(env, instance_data);
   env.AddCleanupHook([instance_data]() {
+    // This is a huge problem because Node.js (the culprit being V8) will sometimes
+    // do a final GC pass after the environment has been destroyed - and this is
+    // something that PROJ does not appreciate at all.
+    // The WASM module does not have this problem, destruction in WASM happens
+    // when the tab is closed/refreshed which is NotOurProblem.
+    // There is no easy solution.
     proj_context_destroy(instance_data->context);
     delete instance_data;
   });
