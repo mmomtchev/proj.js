@@ -123,7 +123,6 @@ const bool proj_js_inline_projdb = false;
 %typemap(ts) const char *auth_name "string | null";
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
-%typemap(ts) const char *const *options "null";
 
 // out_result_count is used in several functions
 // we transform it to a local variable in each wrapper
