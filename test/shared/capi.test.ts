@@ -63,9 +63,11 @@ describe('C-API special typemaps', () => {
 
   it('proj_get_units_from_database', () => {
     const list = PROJ.proj_get_units_from_database(null, null, true);
+    assert.instanceOf(list, PROJ.PROJ_UNIT_INFO_CONTAINER);
     let count = 0;
     for (const element of list) {
       count++;
+      assert.instanceOf(element, PROJ.PROJ_UNIT_INFO);
       assert.isString(element.auth_name);
       assert.isString(element.category);
       assert.isString(element.name);
@@ -76,9 +78,11 @@ describe('C-API special typemaps', () => {
 
   it('proj_get_celestial_body_list_from_database', () => {
     const list = PROJ.proj_get_celestial_body_list_from_database(null);
+    assert.instanceOf(list, PROJ.PROJ_CELESTIAL_BODY_INFO_CONTAINER);
     let count = 0;
     for (const element of list) {
       count++;
+      assert.instanceOf(element, PROJ.PROJ_CELESTIAL_BODY_INFO);
       assert.isString(element.auth_name);
       assert.isString(element.name);
     }
@@ -87,9 +91,11 @@ describe('C-API special typemaps', () => {
 
   it('proj_get_crs_info_list_from_database', () => {
     const list = PROJ.proj_get_crs_info_list_from_database('EPSG', null);
+    assert.instanceOf(list, PROJ.PROJ_CRS_INFO_CONTAINER);
     let count = 0;
     for (const element of list) {
       count++;
+      assert.instanceOf(element, PROJ.PROJ_CRS_INFO);
       assert.isString(element.auth_name);
       assert.isNumber(element.bbox_valid);
       assert.isBoolean(element.deprecated);
