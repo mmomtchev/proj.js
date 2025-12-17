@@ -378,7 +378,7 @@ public:
   ~PJ_OBJ_LIST_WRAPPER();
   // SWIG will eliminate the PJ_CONTEXT arguments
   size_t length();
-  PJ *get(PJ_CONTEXT *ctx, size_t i);
+  PJ *unsafe_get(PJ_CONTEXT *ctx, size_t i);
 };
 }
 %wrapper {
@@ -389,7 +389,7 @@ public:
   size_t PJ_OBJ_LIST_WRAPPER::length() {
     return proj_list_get_count(list);
   }
-  PJ *PJ_OBJ_LIST_WRAPPER::get(PJ_CONTEXT *ctx, size_t i) {
+  PJ *PJ_OBJ_LIST_WRAPPER::unsafe_get(PJ_CONTEXT *ctx, size_t i) {
     if (i >= proj_list_get_count(list)) {
       throw std::runtime_error{"Out of bounds"};
     }

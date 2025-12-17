@@ -124,5 +124,11 @@ describe('C-API special typemaps', () => {
     assert.isNumber(confidence[0]);
     assert.strictEqual(confidence[0], 100);
     assert.instanceOf(list.get(0), PROJ.PJ);
+    assert.strictEqual(list.get(0).parent, list);
+
+    for (const el of list) {
+      assert.instanceOf(el, PROJ.PJ);
+      assert.strictEqual(el.parent, list);
+    }
   });
 });

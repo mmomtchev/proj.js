@@ -30,6 +30,11 @@ declare module '../swig/proj_capi.d.ts' {
   interface PROJ_CRS_INFO_CONTAINER {
     [Symbol.iterator](): Iterator<PROJ_CRS_INFO & { readonly parent: PROJ_CRS_INFO_CONTAINER; }>;
   }
+
+  interface PJ_OBJ_LIST {
+    [Symbol.iterator](): Iterator<PJ & { readonly parent: PJ; }>;
+    get(i: number): PJ & { readonly parent: PJ; };
+  }
 }
 
 declare const bindings: Promise<typeof PROJ>;
