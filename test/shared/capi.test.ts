@@ -72,6 +72,7 @@ describe('C-API special typemaps', () => {
       assert.isString(element.category);
       assert.isString(element.name);
       assert.isString(element.code);
+      assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
   });
@@ -85,6 +86,7 @@ describe('C-API special typemaps', () => {
       assert.instanceOf(element, PROJ.PROJ_CELESTIAL_BODY_INFO);
       assert.isString(element.auth_name);
       assert.isString(element.name);
+      assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
   });
@@ -104,6 +106,7 @@ describe('C-API special typemaps', () => {
       assert.isNumber(element.east_lon_degree);
       assert.isNumber(element.north_lat_degree);
       assert.isNumber(element.type);
+      assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
   });

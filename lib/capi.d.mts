@@ -22,13 +22,13 @@ declare module '../swig/proj_capi.d.ts' {
   function loadDatabase(db: Uint8Array): void;
 
   interface PROJ_UNIT_INFO_CONTAINER {
-    [Symbol.iterator](): Iterator<PROJ_UNIT_INFO>;
+    [Symbol.iterator](): Iterator<PROJ_UNIT_INFO & { readonly parent: PROJ_UNIT_INFO_CONTAINER }>;
   }
   interface PROJ_CELESTIAL_BODY_INFO_CONTAINER {
-    [Symbol.iterator](): Iterator<PROJ_CELESTIAL_BODY_INFO>;
+    [Symbol.iterator](): Iterator<PROJ_CELESTIAL_BODY_INFO & { readonly parent: PROJ_CELESTIAL_BODY_INFO_CONTAINER; }>;
   }
   interface PROJ_CRS_INFO_CONTAINER {
-    [Symbol.iterator](): Iterator<PROJ_CRS_INFO>;
+    [Symbol.iterator](): Iterator<PROJ_CRS_INFO & { readonly parent: PROJ_CRS_INFO_CONTAINER; }>;
   }
 }
 

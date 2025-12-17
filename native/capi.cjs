@@ -10,12 +10,16 @@ module.exports = require(path.resolve(__dirname, '..', 'lib', 'binding', `${os.p
 
 // Iterators are best implemented in JavaScript
 
-function container_iterator() {
+function container_iterator () {
   const iter = this.iterator();
+  const parent = this;
   return {
     next() {
       const v = iter.next();
       if (v !== null) {
+        // container elements are just pointers in the container
+        // keep a reference to the container, otherwise they may become invalid
+        Object.defineProperty(v, 'parent', { writable: false, value: parent });
         return { value: v, done: false };
       }
       return { done: true };
