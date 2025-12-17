@@ -144,7 +144,7 @@ describe('C-API special typemaps', () => {
     assert.isString(PROJ.proj_get_id_auth_name(pj, 0));
     assert.strictEqual(PROJ.proj_get_id_auth_name(pj, 0), 'EPSG');
     assert.isBoolean(PROJ.proj_is_deprecated(pj));
-    assert.isBoolean(PROJ.proj_is_crs(pj));
+    assert.isTrue(PROJ.proj_is_crs(pj));
   });
 
   it('proj_get_area_of_use', () => {

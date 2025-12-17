@@ -152,8 +152,7 @@ const bool proj_js_inline_projdb = false;
   Napi::Array js_array = $input.As<Napi::Array>();
   data = std::shared_ptr<$*1_ltype []>(new $*1_ltype [js_array.Length()]);
   for (size_t i = 0; i < js_array.Length(); i++) {
-    $*1_ltype element;
-    $typemap(in, $*1_type, input=js_array.Get(i), 1=element, argnum=argument array member);
+    $typemap(in, $*1_type, input=js_array.Get(i), 1=data[i], argnum=argument array member);
   }
   $1 = data.get();
   $2 = js_array.Length();
@@ -169,7 +168,7 @@ const bool proj_js_inline_projdb = false;
   for (size_t i = 0; i < js_array.Length(); i++) {
     int value;
     SWIG_AsVal(int)(js_array.Get(i), &value);
-    PJ_TYPE element = static_cast<PJ_TYPE>(value);
+    data[i] = static_cast<PJ_TYPE>(value);
   }
   $1 = data.get();
   $2 = js_array.Length();
