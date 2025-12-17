@@ -348,6 +348,72 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 }
 %typemap(ts) PROJ_STRING_LIST "string[]";
 
+// The generic case of const char *const *options
+%typemap(in) const char *const *options {
+  if (!$input.IsObject()) {
+    SWIG_NAPI_Raise(env, "options must be a Record<string, string | boolean | number>");
+  }
+  Napi::Object js_options = $input.ToObject();
+  Napi::Array keys = js_options.GetPropertyNames();
+  $1 = new char * [keys.Length() + 1];
+  for (size_t i = 0; i < keys.Length(); i++) {
+    Napi::Value js_key = keys.Get(i);
+    if (!js_key.IsString()) {
+      // new zeroed allocated memory which means
+      // that the delete below will work
+      SWIG_NAPI_Raise(env, "Keys must be strings");
+    }
+    std::string line = js_key.ToString().Utf8Value();
+    Napi::Value element = js_options.Get(js_key);
+    if (element.IsBoolean()) {
+      bool v = element.ToBoolean().Value();
+      if (v) {
+        line += "=YES";
+      } else {
+        line += "=NO";
+      }
+    } else if (element.IsNumber()) {
+      double d = element.ToNumber().DoubleValue();
+      line += "=" + std::to_string(d);
+    } else if (element.IsString()) {
+      line += "=" + element.ToString().Utf8Value();
+    } else {
+      SWIG_NAPI_Raise(env, "options must be a Record<string, string | boolean | number>");
+    }
+    $1[i] = new char[line.size()];
+    strncpy($1[i], line.c_str(), line.size());
+  }
+  $1[keys.Length()] = 0;
+}
+%typemap(freearg) const char *const *options {
+  char **s = $1;
+  while (*s) {
+    delete [] *s;
+    s++;
+  }
+  delete [] $1;
+}
+%typemap(ts) const char *const *options "Record<string, string | boolean | number>";
+
+// The special case of proj_create_from_wkt
+%typemap(in, numinputs=0) PROJ_STRING_LIST* (PROJ_STRING_LIST strings) {
+  $1 = &strings;
+};
+%typemap(argout) PROJ_STRING_LIST* {
+  PROJ_STRING_LIST s = *$1;
+  Napi::Array js_array = Napi::Array::New(env);
+  size_t i = 0;
+  while (s && s[i]) {
+    Napi::Value js_string;
+    $typemap(out, char*, 1=s[i], result=js_string);
+    js_array.Set(i++, js_string);
+  }
+  proj_string_list_destroy(*$1);
+  $result = SWIG_AppendOutput($result, js_array);
+}
+
+%typemap(ts) PJ *proj_create_from_wkt "[ PJ, string[], string[] ]";
+
 /**
  * ==================================
  * Lists of the monolithic block type

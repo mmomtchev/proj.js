@@ -113,7 +113,7 @@ describe('C-API special typemaps', () => {
     const pj = PROJ.proj_create('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
-    const [list, confidence] = PROJ.proj_identify(pj, null, null);
+    const [list, confidence] = PROJ.proj_identify(pj, null, {});
 
     assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
     assert.isArray(confidence);
@@ -133,7 +133,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_create_from_name', () => {
-    const list = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100, null);
+    const list = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100, {});
     assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
     assert.isAbove(list.length(), 0);
 
@@ -145,6 +145,7 @@ describe('C-API special typemaps', () => {
     assert.strictEqual(PROJ.proj_get_id_auth_name(pj, 0), 'EPSG');
     assert.isBoolean(PROJ.proj_is_deprecated(pj));
     assert.isTrue(PROJ.proj_is_crs(pj));
+    assert.strictEqual(PROJ.proj_get_type(pj), PROJ.PJ_TYPE_PROJECTED_CRS);
   });
 
   it('proj_get_area_of_use', () => {
@@ -159,5 +160,24 @@ describe('C-API special typemaps', () => {
     assert.isNumber(area_of_use[2]);
     assert.isNumber(area_of_use[3]);
     assert.isString(area_of_use[4]);
+  });
+
+  it('proj_create_from_wkt with warning', () => {
+    // Maybe this should throw with the errors array in the exception?
+    const [ pj, warnings, grammar_errors ] = PROJ.proj_create_from_wkt('layman projection', { STRICT: true });
+    assert.instanceOf(pj, PROJ.PJ);
+    assert.isArray(warnings);
+    assert.isArray(grammar_errors);
+    assert.isString(grammar_errors[0]);
+  });
+
+  it('proj_create_from_wkt w/o any warning', () => {
+    const wkt = 'GEOGCS["WGS 84", DATUM["WGS_1984", SPHEROID["WGS 84", 6378137, 298.257223563, AUTHORITY["EPSG", "7030"]], AUTHORITY["EPSG", "6326"]], PRIMEM["Greenwich", 0, AUTHORITY["EPSG", "8901"]], UNIT["degree", 0.0174532925199433, AUTHORITY["EPSG", "9122"]], AUTHORITY["EPSG", "4326"]]';
+    const [pj, warnings, grammar_errors] = PROJ.proj_create_from_wkt(wkt, { STRICT: true });
+    assert.instanceOf(pj, PROJ.PJ);
+    assert.isArray(warnings);
+    assert.isArray(grammar_errors);
+    assert.isEmpty(grammar_errors);
+    assert.instanceOf(pj, PROJ.PJ);
   });
 });
