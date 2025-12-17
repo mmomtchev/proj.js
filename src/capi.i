@@ -386,8 +386,8 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
     } else {
       SWIG_NAPI_Raise(env, "options must be a Record<string, string | boolean | number>");
     }
-    $1[i] = new char[line.size()];
-    strncpy($1[i], line.c_str(), line.size());
+    $1[i] = new char[line.size() + 1];
+    strlcpy($1[i], line.c_str(), line.size() + 1);
   }
   $1[keys.Length()] = 0;
 }
