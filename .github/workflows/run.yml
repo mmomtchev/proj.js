@@ -144,19 +144,19 @@ jobs:
         node-version: 20
 
     - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: swig-generated
         path: swig
 
     - name: Download the native artifact ${{ matrix.platform }}
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
         path: lib/binding
 
     - name: Download the WASM artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: wasm-${{ matrix.inline_projdb && 'inlined' || 'external' }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
         path: lib/binding
@@ -197,19 +197,19 @@ jobs:
         node-version: 18
 
     - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: swig-generated
         path: swig
 
     - name: Download the WASM artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: wasm-inlined-tiff
         path: lib/binding
 
     - name: Download the ASAN instrumented artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: native-asan
         path: lib/binding
@@ -246,25 +246,25 @@ jobs:
         node-version: 20
 
     - name: Download the SWIG-generated wrappers
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: swig-generated
         path: swig
 
     - name: Download the WASM artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: wasm-${{ matrix.inline_projdb }}-tiff
         path: lib/binding
 
     - name: Download the code coverage artifact
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: native-codecov
         path: lib/binding
 
     - name: Download the build directory
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: build-native-codecov
         path: build/native
