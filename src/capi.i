@@ -356,6 +356,7 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 
 // The generic case of const char *const *options
 %typemap(in) const char *const *options {
+  $1 = nullptr;
   if (!$input.IsObject()) {
     SWIG_NAPI_Raise(env, "options must be a Record<string, string | boolean | number>");
   }
@@ -393,7 +394,7 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 }
 %typemap(freearg) const char *const *options {
   char **s = $1;
-  while (*s) {
+  while (s && *s) {
     delete [] *s;
     s++;
   }
