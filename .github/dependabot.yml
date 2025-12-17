@@ -17,3 +17,5 @@ updates:
       typescript:
         patterns:
         - "*typescript*"
+    cooldown:
+      default-days: 15
