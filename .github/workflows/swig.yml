@@ -27,6 +27,7 @@ jobs:
         branch: jse
         version: exit-guard-tag
         token: ${{ secrets.GITHUB_TOKEN }}
+        cache: false
 
     - name: Run SWIG to generate the wrappers
       run: npx xpm run generate
