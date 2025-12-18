@@ -163,21 +163,17 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_create_from_wkt with warning', () => {
-    // Maybe this should throw with the errors array in the exception?
-    const [ pj, warnings, grammar_errors ] = PROJ.proj_create_from_wkt('layman projection', { STRICT: true });
-    assert.instanceOf(pj, PROJ.PJ);
-    assert.isArray(warnings);
-    assert.isArray(grammar_errors);
-    assert.isString(grammar_errors[0]);
+    assert.throws(() => {
+      PROJ.proj_create_from_wkt('layman projection', { STRICT: true });
+    }, /missing \[/);
   });
 
   it('proj_create_from_wkt w/o any warning', () => {
     const wkt = 'GEOGCS["WGS 84", DATUM["WGS_1984", SPHEROID["WGS 84", 6378137, 298.257223563, AUTHORITY["EPSG", "7030"]], AUTHORITY["EPSG", "6326"]], PRIMEM["Greenwich", 0, AUTHORITY["EPSG", "8901"]], UNIT["degree", 0.0174532925199433, AUTHORITY["EPSG", "9122"]], AUTHORITY["EPSG", "4326"]]';
-    const [pj, warnings, grammar_errors] = PROJ.proj_create_from_wkt(wkt, { STRICT: true });
+    const [pj, warnings] = PROJ.proj_create_from_wkt(wkt, { STRICT: true });
     assert.instanceOf(pj, PROJ.PJ);
     assert.isArray(warnings);
-    assert.isArray(grammar_errors);
-    assert.isEmpty(grammar_errors);
+    assert.isEmpty(warnings);
     assert.instanceOf(pj, PROJ.PJ);
   });
 });

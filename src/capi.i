@@ -409,7 +409,7 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 %typemap(in, numinputs=0) PROJ_STRING_LIST* (PROJ_STRING_LIST strings) {
   $1 = &strings;
 };
-%typemap(argout) PROJ_STRING_LIST* {
+%typemap(argout) PROJ_STRING_LIST * {
   PROJ_STRING_LIST s = *$1;
   Napi::Array js_array = Napi::Array::New(env);
   size_t i = 0;
@@ -421,8 +421,15 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   proj_string_list_destroy(*$1);
   $result = SWIG_AppendOutput($result, js_array);
 }
+// If there are errors, simply throw the very first one
+%typemap(argout) PROJ_STRING_LIST *out_grammar_errors {
+  PROJ_STRING_LIST s = *$1;
+  if (s && s[0]) {
+    SWIG_NAPI_Raise(env, s[0]);
+  }
+}
 
-%typemap(ts) PJ *proj_create_from_wkt "[ PJ, string[], string[] ]";
+%typemap(ts) PJ *proj_create_from_wkt "[ PJ, string[] ]";
 
 /**
  * ==================================
