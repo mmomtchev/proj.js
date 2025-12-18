@@ -25,7 +25,7 @@ jobs:
     - uses: mmomtchev/setup-swig@main
       with:
         branch: jse
-        version: exit-guard
+        version: exit-guard-tag
         token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Run SWIG to generate the wrappers
