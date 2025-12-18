@@ -400,6 +400,10 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   delete [] $1;
 }
 %typemap(ts) const char *const *options "Record<string, string | boolean | number>";
+// options are obviously optional
+%typemap(default) const char *const *options {
+  $1 = nullptr;
+}
 
 // The special case of proj_create_from_wkt
 %typemap(in, numinputs=0) PROJ_STRING_LIST* (PROJ_STRING_LIST strings) {

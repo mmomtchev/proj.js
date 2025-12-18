@@ -113,7 +113,7 @@ describe('C-API special typemaps', () => {
     const pj = PROJ.proj_create('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
-    const [list, confidence] = PROJ.proj_identify(pj, null, {});
+    const [list, confidence] = PROJ.proj_identify(pj, null);
 
     assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
     assert.isArray(confidence);
@@ -133,7 +133,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_create_from_name', () => {
-    const list = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100, {});
+    const list = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100);
     assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
     assert.isAbove(list.length(), 0);
 
