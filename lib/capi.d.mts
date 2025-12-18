@@ -32,8 +32,8 @@ declare module '../swig/proj_capi.d.ts' {
   }
 
   interface PJ_OBJ_LIST {
-    [Symbol.iterator](): Iterator<PJ & { readonly parent: PJ; }>;
-    get(i: number): PJ & { readonly parent: PJ; };
+    [Symbol.iterator](): Iterator<PJ & { readonly parent: PJ_OBJ_LIST; }>;
+    get(i: number): PJ & { readonly parent: PJ_OBJ_LIST; };
   }
 }
 
