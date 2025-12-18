@@ -418,7 +418,6 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
     $typemap(out, char*, 1=s[i], result=js_string);
     js_array.Set(i++, js_string);
   }
-  proj_string_list_destroy(*$1);
   $result = SWIG_AppendOutput($result, js_array);
 }
 // If there are errors, simply throw the very first one
@@ -427,6 +426,10 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   if (s && s[0]) {
     SWIG_NAPI_Raise(env, s[0]);
   }
+}
+// freearg gets run even if exiting with an exception
+%typemap(freearg) PROJ_STRING_LIST * {
+  proj_string_list_destroy(*$1);
 }
 
 %typemap(ts) PJ *proj_create_from_wkt "[ PJ, string[] ]";
