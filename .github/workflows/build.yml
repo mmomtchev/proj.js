@@ -161,14 +161,14 @@ jobs:
       if: runner.os == 'macOS' && inputs.native
 
     - name: Upload artifact ${{ inputs.id }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ inputs.id }}
         path: lib/binding/*
 
     - name: Upload build directory ${{ inputs.id }}
       if: inputs.codecov
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: build-${{ inputs.id }}
         path: build/native/*
