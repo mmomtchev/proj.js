@@ -161,8 +161,6 @@ const bool proj_js_inline_projdb = false;
 
 // Generic arrays from JS Array to C with pointer & length
 // (search for $*n_ltype in SWIG manual)
-// Alas this does not work for primitive types!!!
-// Investigate, because all SWIG JSE examples use $typemap
 %typemap(in, numinputs=1) (SWIGTYPE *array, size_t count) (std::shared_ptr<$*1_ltype []> data) {
   if (!$input.IsArray()) {
     SWIG_NAPI_Raise(env, "argument must be an array");
