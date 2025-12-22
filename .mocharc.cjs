@@ -5,7 +5,8 @@ module.exports = {
   ],
   'node-option': [
     'no-warnings',
-    'loader=ts-node/esm'
+    'loader=ts-node/esm',
+    'expose-gc'
   ],
   'timeout': 20000,
   'repeats': 100,
