@@ -165,20 +165,7 @@ const bool proj_js_inline_projdb = false;
 }
 
 // proj_create_from_name
-%typemap(in, numinputs=1) (PJ_TYPE *types, size_t typesCount) (std::shared_ptr<PJ_TYPE[]> data) {
-  if (!$input.IsArray()) {
-    SWIG_NAPI_Raise(env, "argument must be an array");
-  }
-  Napi::Array js_array = $input.As<Napi::Array>();
-  data = std::shared_ptr<PJ_TYPE[]>(new PJ_TYPE[js_array.Length()]);
-  for (size_t i = 0; i < js_array.Length(); i++) {
-    int value;
-    SWIG_AsVal(int)(js_array.Get(i), &value);
-    data[i] = static_cast<PJ_TYPE>(value);
-  }
-  $1 = data.get();
-  $2 = js_array.Length();
-}
+%typemap(in, numinputs=1) (PJ_TYPE *types, size_t typesCount) = (SWIGTYPE *array, size_t count);
 %typemap(ts) (PJ_TYPE *types, size_t typesCount) "PJ_TYPE[]";
 
 // proj_get_area_of_use
