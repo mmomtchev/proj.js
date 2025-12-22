@@ -176,4 +176,31 @@ describe('C-API special typemaps', () => {
     assert.isEmpty(warnings);
     assert.instanceOf(pj, PROJ.PJ);
   });
+
+  it('PJ_OPERATION_FACTORY_CONTEXT', () => {
+    const factory_ctx = PROJ.proj_create_operation_factory_context('EPSG');
+    assert.instanceOf(factory_ctx, PROJ.PJ_OPERATION_FACTORY_CONTEXT);
+    
+    PROJ.proj_operation_factory_context_set_area_of_interest(factory_ctx,
+      -152, -18, -148, -16);
+    PROJ.proj_operation_factory_context_set_allow_use_intermediate_crs(factory_ctx,
+      PROJ.PROJ_INTERMEDIATE_CRS_USE_IF_NO_DIRECT_TRANSFORMATION);
+    PROJ.proj_operation_factory_context_set_desired_accuracy(factory_ctx, 10);
+    PROJ.proj_operation_factory_context_set_spatial_criterion(factory_ctx,
+      PROJ.PROJ_SPATIAL_CRITERION_STRICT_CONTAINMENT);
+    PROJ.proj_operation_factory_context_set_allowed_intermediate_crs(factory_ctx,
+      ['EPSG', '4326']);
+
+    const geo = PROJ.proj_create('EPSG:4326');
+    const mercator = PROJ.proj_create('EPSG:3857');
+
+    const ops = PROJ.proj_create_operations(geo, mercator, factory_ctx);
+    assert.instanceOf(ops, PROJ.PJ_OBJ_LIST);
+    assert.isAbove(ops.length(), 0);
+    for (const op of ops) {
+      assert.instanceOf(op, PROJ.PJ);
+      assert.isString(op.toString());
+      assert.include(op.toString(), 'Mercator');
+    }
+  })
 });

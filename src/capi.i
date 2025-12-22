@@ -117,6 +117,10 @@ const bool proj_js_inline_projdb = false;
 // SWIG can't deduce the type of PROJ_VERSION_NUMBER
 #pragma SWIG nowarn=304
 
+// Only we can destroy and only when the GC calls us
+%rename("$ignore", regextarget=1) "proj.*_destroy";
+%ignore proj_cleanup;
+
 /**
  * ==================================================
  * Miscellaneous arguments that need special handling
@@ -200,54 +204,55 @@ const bool proj_js_inline_projdb = false;
 
 
 /**
- * ================
- * The PJ structure
- * ================
+ * ======================================
+ * Opaque typedefs that must be destroyed
+ * PJ, PJ_OPERATION_FACTORY_CONTEXT
+ * ======================================
  */
-
-// Only we can destroy
-%rename("$ignore", regextarget=1) "proj.*_destroy";
 
 // Opaque types cannot be extended
 // This hack allows to add a destructor to an opaque type
 // Maybe this could become a SWIG feature at some point
 // because it is a common design pattern in old C software
+%define PROJ_OPAQUE_TYPE_WITH_DESTROY(NAME, DESTROY, TOSTRING)
 
-// Do not wrap PROJ's own PJ
-%ignore PJconsts;
-%ignore PJ;
+// Do not wrap PROJ's original
+%ignore NAME;
 
 // Create another type that holds a pointer to PJ
 // and destroys it on destruction.
 // It will replace PJ and take its name
-%rename(PJ) jsPJ;
-%ignore jsPJ::get;
-%ignore jsPJ::jsPJ;
+%rename(NAME) js##NAME;
+%ignore js##NAME::get;
+%ignore js##NAME::js##NAME;
 %inline %{
-class jsPJ {
-  PJ *self;
+class js##NAME {
+  NAME *self;
 public:
-  jsPJ(PJ *v): self(v) {}
-  ~jsPJ() { proj_destroy(self); }
-  PJ *get() { return self; }
-  const char* toString() { return proj_get_name(self); }
+  js##NAME(NAME *v): self(v) {}
+  ~js##NAME() { DESTROY(self); }
+  NAME *get() { return self; }
+  TOSTRING
 };
-
 %}
 
 // Convert all PJ to jsPJ
-%typemap(in) PJ * {
-  jsPJ *wrap;
-  $typemap(in, jsPJ *, 1=wrap);
+%typemap(in) NAME * {
+  js##NAME *wrap;
+  $typemap(in, js##NAME *, 1=wrap);
   $1 = wrap->get();
 }
-%typemap(out) PJ * {
-  jsPJ *wrap = new jsPJ($1);
-  $typemap(out, jsPJ *, 1=wrap, owner=SWIG_POINTER_OWN);
+%typemap(out) NAME * {
+  js##NAME *wrap = new js##NAME($1);
+  $typemap(out, js##NAME *, 1=wrap, owner=SWIG_POINTER_OWN);
 }
 
-%typemap(ts) PJ * "PJ";
+%typemap(ts) NAME * #NAME;
+%enddef
 
+%ignore PJconsts;
+PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ, proj_destroy, const char* toString() { return proj_get_name(self); });
+PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_OPERATION_FACTORY_CONTEXT, proj_operation_factory_context_destroy, );
 
 /**
  * =========================
@@ -351,6 +356,42 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 }
 %typemap(ts) PROJ_STRING_LIST "string[]";
 
+// The special case of proj_create_from_wkt
+%typemap(in, numinputs=0) PROJ_STRING_LIST* (PROJ_STRING_LIST strings) {
+  $1 = &strings;
+};
+%typemap(argout) PROJ_STRING_LIST * {
+  PROJ_STRING_LIST s = *$1;
+  Napi::Array js_array = Napi::Array::New(env);
+  size_t i = 0;
+  while (s && s[i]) {
+    Napi::Value js_string;
+    $typemap(out, char*, 1=s[i], result=js_string);
+    js_array.Set(i++, js_string);
+  }
+  $result = SWIG_AppendOutput($result, js_array);
+}
+// If there are errors, simply throw the very first one
+%typemap(argout) PROJ_STRING_LIST *out_grammar_errors {
+  PROJ_STRING_LIST s = *$1;
+  if (s && s[0]) {
+    SWIG_NAPI_Raise(env, s[0]);
+  }
+}
+// freearg gets run even if exiting with an exception
+%typemap(freearg) PROJ_STRING_LIST * {
+  proj_string_list_destroy(*$1);
+}
+
+%typemap(ts) PJ *proj_create_from_wkt "[ PJ, string[] ]";
+
+
+/**
+ * ================
+ * Lists of options
+ * ================
+ */
+
 // The generic case of const char *const *options
 %typemap(in) const char *const *options {
   $1 = nullptr;
@@ -387,7 +428,7 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
     $1[i] = new char[line.size() + 1];
     strncpy($1[i], line.c_str(), line.size() + 1);
   }
-  $1[keys.Length()] = 0;
+  $1[keys.Length()] = NULL;
 }
 %typemap(freearg) const char *const *options {
   char **s = $1;
@@ -403,34 +444,37 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
   $1 = nullptr;
 }
 
-// The special case of proj_create_from_wkt
-%typemap(in, numinputs=0) PROJ_STRING_LIST* (PROJ_STRING_LIST strings) {
-  $1 = &strings;
-};
-%typemap(argout) PROJ_STRING_LIST * {
-  PROJ_STRING_LIST s = *$1;
-  Napi::Array js_array = Napi::Array::New(env);
-  size_t i = 0;
-  while (s && s[i]) {
-    Napi::Value js_string;
-    $typemap(out, char*, 1=s[i], result=js_string);
-    js_array.Set(i++, js_string);
-  }
-  $result = SWIG_AppendOutput($result, js_array);
-}
-// If there are errors, simply throw the very first one
-%typemap(argout) PROJ_STRING_LIST *out_grammar_errors {
-  PROJ_STRING_LIST s = *$1;
-  if (s && s[0]) {
-    SWIG_NAPI_Raise(env, s[0]);
-  }
-}
-// freearg gets run even if exiting with an exception
-%typemap(freearg) PROJ_STRING_LIST * {
-  proj_string_list_destroy(*$1);
-}
 
-%typemap(ts) PJ *proj_create_from_wkt "[ PJ, string[] ]";
+/**
+ * ======================
+ * Other lists of strings
+ * ======================
+ */
+
+// Generic NULL-terminated array of NULL-terminated strings in
+//     const char *const *
+// This one has enough reuse potential to be included in SWIG
+%typemap(in) const char *const *strings_null_terminated {
+  $1 = nullptr;
+  if (!$input.IsArray()) {
+    SWIG_Raise("argument must be an array of strings");
+  }
+  Napi::Array array = $input.As<Napi::Array>();
+  $1 = new char * [array.Length() + 1];
+  for (size_t i = 0; i < array.Length(); i++) {
+    if (!array.Get(i).IsString())
+      SWIG_Raise("argument must be an array of strings");
+    std::string element = array.Get(i).ToString().Utf8Value();
+    $1[i] = new char [element.size() + 1];
+    strncpy($1[i], element.c_str(), element.size() + 1);
+  }
+  $1[array.Length()] = NULL;
+}
+%typemap(freearg) const char *const *strings_null_terminated = const char *const *options;
+%typemap(ts) const char *const *strings_null_terminated "string[]";
+
+// proj_operation_factory_context_set_allowed_intermediate_crs
+%apply(const char *const *strings_null_terminated) { const char *const *list_of_auth_name_codes };
 
 /**
  * ==================================
