@@ -37,13 +37,19 @@ const bool proj_js_inline_projdb = false;
 #endif
 %}
 
-%init %{
+// Normal braces expand SWIG macros such
+// as SWIG_Raise
+%init {
   auto *instance_data = new proj_instance_data;
   instance_data->context = proj_context_create();
   if (instance_data->context == nullptr) {
     SWIG_Raise("Failed to initialize PROJ context");
   }
   SWIG_NAPI_SetInstanceData(env, instance_data);
+}
+
+// %{%} braces conserve and emit preprocessor directives
+%init %{
   env.AddCleanupHook([instance_data]() {
     // This is a huge problem because Node.js will  do a final GC pass
     // after the environment has been destroyed - and this is
