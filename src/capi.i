@@ -51,7 +51,8 @@ const bool proj_js_inline_projdb = false;
     // The WASM module does not have this problem, destruction in WASM happens
     // when the tab is closed/refreshed which is NotOurProblem.
     // There is no easy solution.
-    proj_context_destroy(instance_data->context);
+    // For now, proj.js leaks memory when loaded repeatedly in worker_threads
+    // proj_context_destroy(instance_data->context);
     delete instance_data;
   });
 }
