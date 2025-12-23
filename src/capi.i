@@ -209,49 +209,99 @@ const bool proj_js_inline_projdb = false;
     const char **out_area_name)
   "[ number, number, number, number, string ]";
 
-// proj_coordoperation_get_param
-// The elegance is questionable, but it is reusable and can be swept under the carpet
-%define ARGS(EXPAND)
-EXPAND(1, const char **, out_name, name)
-EXPAND(2, const char **, out_auth_name, auth_name)
-EXPAND(3, const char **, out_code, code)
-EXPAND(4, double *, out_value, value)
-EXPAND(5, const char **, out_value_string, value_string)
-EXPAND(6, double *, out_unit_conv_factor, unit_conv_factor)
-EXPAND(7, const char **, out_unit_name, unit_name)
-EXPAND(8, const char **, out_unit_auth_name, unit_auth_name)
-EXPAND(9, const char **, out_unit_code, unit_code)
-EXPAND(10, const char **, out_unit_category, unit_category)
+/**
+ * ==================================================================
+ * Methods that expect a number of output arguments in raw C pointers
+ * and are transformed to return a structured object in JS
+ * ==================================================================
+ */
+
+/**
+ * Macros for returning a number of output arguments in
+ * C pointers as a single structured JS object
+ */
+#define ARGS_TO_STRUCT_PARAMS(NUM, TYPE, CNAME, JSNAME) TYPE CNAME,
+
+#define ARGS_TO_STRUCT_VARS(NUM, TYPE, CNAME, JSNAME) $*##NUM##_ltype _global_##CNAME,
+#define ARGS_TO_STRUCT_ASSIGN(NUM, TYPE, CNAME, JSNAME) $##NUM = &_global_##CNAME;
+#define ARGS_TO_STRUCT_JS_VARS(NUM, TYPE, CNAME, JSNAME) Napi::Value js_##JSNAME;
+#define ARGS_TO_STRUCT_TMAP_OUT(NUM, TYPE, CNAME, JSNAME) $typemap(out, $*##NUM##_type, 1=_global_##CNAME, result=js_##JSNAME);
+#define ARGS_TO_STRUCT_JS_SET(NUM, TYPE, CNAME, JSNAME) js_obj.Set(#JSNAME, js_##JSNAME);
+#define ARGS_TO_STRUCT_TS_TYPES(NUM, TYPE, CNAME, JSNAME) JSNAME: $typemap(ts, $*##NUM##_type)
+
+%define ARGS_TO_STRUCT_TMAP_IN(ARGS)
+%typemap(in, numinputs=0) (ARGS(ARGS_TO_STRUCT_PARAMS)) (ARGS(ARGS_TO_STRUCT_VARS)) {
+  ARGS(ARGS_TO_STRUCT_ASSIGN);
+}
 %enddef
 
-#define PARAMS(NUM, TYPE, CNAME, JSNAME) TYPE CNAME,
-#define VARS(NUM, TYPE, CNAME, JSNAME) $*##NUM##_ltype _global_##CNAME,
-#define ASSIGN(NUM, TYPE, CNAME, JSNAME) $##NUM = &_global_##CNAME;
-
-%typemap(in, numinputs=0) (ARGS(PARAMS)) (ARGS(VARS)) {
-  ARGS(ASSIGN);
-}
-
-#define JS_VARS(NUM, TYPE, CNAME, JSNAME) Napi::Value js_##JSNAME;
-#define TMAP_OUT(NUM, TYPE, CNAME, JSNAME) $typemap(out, $*##NUM##_type, 1=_global_##CNAME, result=js_##JSNAME);
-#define JS_SET(NUM, TYPE, CNAME, JSNAME) js_obj.Set(#JSNAME, js_##JSNAME);
-
-%typemap(argout) (ARGS(PARAMS)) {
-  ARGS(JS_VARS);
-
-  ARGS(TMAP_OUT);
-
+%define ARGS_TO_STRUCT_TMAP_ARGOUT(ARGS)
+%typemap(argout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
+  ARGS(ARGS_TO_STRUCT_JS_VARS);
+  ARGS(ARGS_TO_STRUCT_TMAP_OUT);
   Napi::Object js_obj = Napi::Object::New(env);
+  ARGS(ARGS_TO_STRUCT_JS_SET);
+  $result = js_obj;
+}
+%enddef
 
-  ARGS(JS_SET);
+%define ARGS_TO_STRUCT_TMAP_TS(ARGS)
+%typemap(tsout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
+  ARGS(ARGS_TO_STRUCT_TS_TYPES)
+}
+%enddef
 
+
+// proj_prime_meridian_get_parameters
+%define ARGS(EXPAND)
+EXPAND(1, double *,       out_longitude,          longitude)
+EXPAND(2, double *,       out_unit_conv_factor,   unit_conv_factor)
+EXPAND(3, const char **,  out_unit_name,          unit_name)
+%enddef
+ARGS_TO_STRUCT_TMAP_IN(ARGS)
+ARGS_TO_STRUCT_TMAP_ARGOUT(ARGS)
+ARGS_TO_STRUCT_TMAP_TS(ARGS)
+#undef ARGS
+
+
+// proj_coordoperation_get_method_info
+%define ARGS(EXPAND)
+EXPAND(1, const char **,  out_method_name,       method_name)
+EXPAND(2, const char **,  out_method_auth_name,  method_auth_name)
+EXPAND(3, const char **,  out_method_code,       method_code)
+%enddef
+ARGS_TO_STRUCT_TMAP_IN(ARGS)
+ARGS_TO_STRUCT_TMAP_ARGOUT(ARGS)
+ARGS_TO_STRUCT_TMAP_TS(ARGS)
+#undef ARGS
+
+
+// proj_coordoperation_get_param
+%define ARGS(EXPAND)
+EXPAND(1, const char **,  out_name,             name)
+EXPAND(2, const char **,  out_auth_name,        auth_name)
+EXPAND(3, const char **,  out_code,             code)
+EXPAND(4, double *,       out_value,            value)
+EXPAND(5, const char **,  out_value_string,     value_string)
+EXPAND(6, double *,       out_unit_conv_factor, unit_conv_factor)
+EXPAND(7, const char **,  out_unit_name,        unit_name)
+EXPAND(8, const char **,  out_unit_auth_name,   unit_auth_name)
+EXPAND(9, const char **,  out_unit_code,        unit_code)
+EXPAND(10, const char **, out_unit_category,    unit_category)
+%enddef
+
+ARGS_TO_STRUCT_TMAP_IN(ARGS)
+%typemap(argout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
+  ARGS(ARGS_TO_STRUCT_JS_VARS);
+  ARGS(ARGS_TO_STRUCT_TMAP_OUT);
+  Napi::Object js_obj = Napi::Object::New(env);
+  ARGS(ARGS_TO_STRUCT_JS_SET);
   if (_global_out_value_string)
     js_obj.Set("value", js_value_string);
   js_obj.Delete("value_string");
   $result = js_obj;
 }
-
-%typemap(tsout) (ARGS(PARAMS)) {
+%typemap(tsout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
   name: string,
   auth_name: string,
   code: string,
@@ -262,13 +312,6 @@ EXPAND(10, const char **, out_unit_category, unit_category)
   unit_code: string,
   unit_category: string
 };
-
-#undef JS_SET
-#undef TMAP_OUT
-#undef JS_VARS
-#undef ASSIGN
-#undef VARS
-#undef PARAMS
 #undef ARGS
 
 /**

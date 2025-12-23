@@ -204,13 +204,19 @@ describe('C-API special typemaps', () => {
     }
   });
 
-  it('proj_coordoperation_get_param', () => {
-    const factory_ctx = PROJ.proj_create_operation_factory_context('EPSG');
-    const list = PROJ.proj_create_operations(
+  it('proj_coordoperation_get_param / proj_coordoperation_get_info', () => {
+    const op = PROJ.proj_create_operations(
       PROJ.proj_create('EPSG:4326'),
       PROJ.proj_create('EPSG:3857'),
-      factory_ctx);
-    const op = list.get(0);
+      PROJ.proj_create_operation_factory_context('EPSG')).get(0);
+
+    const info = PROJ.proj_coordoperation_get_method_info(op);
+    assert.deepStrictEqual(info, {
+      method_name: 'Popular Visualisation Pseudo Mercator',
+      method_auth_name: 'EPSG',
+      method_code: '1024'
+    });
+
     const param = PROJ.proj_coordoperation_get_param(op, 0);
     assert.deepStrictEqual(param, {
       name: 'Latitude of natural origin',
