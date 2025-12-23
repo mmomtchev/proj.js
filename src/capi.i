@@ -263,8 +263,10 @@ const bool proj_js_inline_projdb = false;
   js_obj.Set("name", js_out_name);
   js_obj.Set("auth_name", js_out_auth_name);
   js_obj.Set("code", js_out_code);
-  js_obj.Set("value", js_out_value);
-  js_obj.Set("value_string", js_out_value_string);
+  if (_global_out_value_string)
+    js_obj.Set("value", js_out_value_string);
+  else
+    js_obj.Set("value", js_out_value);
   js_obj.Set("unit_conv_factor", js_out_unit_conv_factor);
   js_obj.Set("unit_name", js_out_unit_name);
   js_obj.Set("unit_auth_name", js_out_unit_auth_name);
@@ -282,8 +284,7 @@ const bool proj_js_inline_projdb = false;
     name: string,
     auth_name: string,
     code: string,
-    value: number,
-    value_string: string | null,
+    value: number | string | null,
     unit_conv_factor: number,
     unit_name: string,
     unit_auth_name: string,

@@ -217,7 +217,6 @@ describe('C-API special typemaps', () => {
       auth_name: 'EPSG',
       code: '8801',
       value: 0,
-      value_string: null,
       unit_conv_factor: 0.017453292519943295,
       unit_name: 'degree',
       unit_auth_name: 'EPSG',
