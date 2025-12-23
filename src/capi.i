@@ -210,87 +210,66 @@ const bool proj_js_inline_projdb = false;
   "[ number, number, number, number, string ]";
 
 // proj_coordoperation_get_param
-// It would be nice if there is a more elegant solution to this
-%typemap(in, numinputs=0)
-    (const char **out_name,
-    const char **out_auth_name, const char **out_code, double *out_value,
-    const char **out_value_string, double *out_unit_conv_factor,
-    const char **out_unit_name, const char **out_unit_auth_name,
-    const char **out_unit_code, const char **out_unit_category)
-    (char *_global_out_name,
-    char *_global_out_auth_name, char *_global_out_code, double _global_out_value,
-    char *_global_out_value_string, double _global_out_unit_conv_factor,
-    char *_global_out_unit_name, char *_global_out_unit_auth_name,
-    char *_global_out_unit_code, char *_global_out_unit_category) {
-  $1 = &_global_out_name;
-  $2 = &_global_out_auth_name;
-  $3 = &_global_out_code;
-  $4 = &_global_out_value;
-  $5 = &_global_out_value_string;
-  $6 = &_global_out_unit_conv_factor;
-  $7 = &_global_out_unit_name;
-  $8 = &_global_out_unit_auth_name;
-  $9 = &_global_out_unit_code;
-  $10 = &_global_out_unit_category;
+// The elegance is questionable, but it is reusable and can be swept under the carpet
+%define ARGS(EXPAND)
+EXPAND(1, const char **, out_name, name)
+EXPAND(2, const char **, out_auth_name, auth_name)
+EXPAND(3, const char **, out_code, code)
+EXPAND(4, double *, out_value, value)
+EXPAND(5, const char **, out_value_string, value_string)
+EXPAND(6, double *, out_unit_conv_factor, unit_conv_factor)
+EXPAND(7, const char **, out_unit_name, unit_name)
+EXPAND(8, const char **, out_unit_auth_name, unit_auth_name)
+EXPAND(9, const char **, out_unit_code, unit_code)
+EXPAND(10, const char **, out_unit_category, unit_category)
+%enddef
+
+#define PARAMS(NUM, TYPE, CNAME, JSNAME) TYPE CNAME,
+#define VARS(NUM, TYPE, CNAME, JSNAME) $*##NUM##_ltype _global_##CNAME,
+#define ASSIGN(NUM, TYPE, CNAME, JSNAME) $##NUM = &_global_##CNAME;
+
+%typemap(in, numinputs=0) (ARGS(PARAMS)) (ARGS(VARS)) {
+  ARGS(ASSIGN);
 }
-%typemap(argout)
-    (const char **out_name,
-    const char **out_auth_name, const char **out_code, double *out_value,
-    const char **out_value_string, double *out_unit_conv_factor,
-    const char **out_unit_name, const char **out_unit_auth_name,
-    const char **out_unit_code, const char **out_unit_category) {
-  Napi::Value js_out_name;
-  Napi::Value js_out_auth_name;
-  Napi::Value js_out_code;
-  Napi::Value js_out_value;
-  Napi::Value js_out_value_string;
-  Napi::Value js_out_unit_conv_factor;
-  Napi::Value js_out_unit_name;
-  Napi::Value js_out_unit_auth_name;
-  Napi::Value js_out_unit_code;
-  Napi::Value js_out_unit_category;
-  $typemap(out, char *, 1=_global_out_name, result=js_out_name);
-  $typemap(out, char *, 1=_global_out_auth_name, result=js_out_auth_name);
-  $typemap(out, char *, 1=_global_out_code, result=js_out_code);
-  $typemap(out, double, 1=_global_out_value, result=js_out_value);
-  $typemap(out, char *, 1=_global_out_value_string, result=js_out_value_string);
-  $typemap(out, double, 1=_global_out_unit_conv_factor, result=js_out_unit_conv_factor);
-  $typemap(out, char *, 1=_global_out_unit_name, result=js_out_unit_name);
-  $typemap(out, char *, 1=_global_out_unit_auth_name, result=js_out_unit_auth_name);
-  $typemap(out, char *, 1=_global_out_unit_code, result=js_out_unit_code);
-  $typemap(out, char *, 1=_global_out_unit_category, result=js_out_unit_category);
+
+#define JS_VARS(NUM, TYPE, CNAME, JSNAME) Napi::Value js_##JSNAME;
+#define TMAP_OUT(NUM, TYPE, CNAME, JSNAME) $typemap(out, $*##NUM##_type, 1=_global_##CNAME, result=js_##JSNAME);
+#define JS_SET(NUM, TYPE, CNAME, JSNAME) js_obj.Set(#JSNAME, js_##JSNAME);
+
+%typemap(argout) (ARGS(PARAMS)) {
+  ARGS(JS_VARS);
+
+  ARGS(TMAP_OUT);
+
   Napi::Object js_obj = Napi::Object::New(env);
-  js_obj.Set("name", js_out_name);
-  js_obj.Set("auth_name", js_out_auth_name);
-  js_obj.Set("code", js_out_code);
+
+  ARGS(JS_SET);
+
   if (_global_out_value_string)
-    js_obj.Set("value", js_out_value_string);
-  else
-    js_obj.Set("value", js_out_value);
-  js_obj.Set("unit_conv_factor", js_out_unit_conv_factor);
-  js_obj.Set("unit_name", js_out_unit_name);
-  js_obj.Set("unit_auth_name", js_out_unit_auth_name);
-  js_obj.Set("unit_code", js_out_unit_code);
-  js_obj.Set("unit_category", js_out_unit_category);
+    js_obj.Set("value", js_value_string);
+  js_obj.Delete("value_string");
   $result = js_obj;
 }
-%typemap(tsout)
-    (const char **out_name,
-    const char **out_auth_name, const char **out_code, double *out_value,
-    const char **out_value_string, double *out_unit_conv_factor,
-    const char **out_unit_name, const char **out_unit_auth_name,
-    const char **out_unit_code, const char **out_unit_category)
-  {
-    name: string,
-    auth_name: string,
-    code: string,
-    value: number | string | null,
-    unit_conv_factor: number,
-    unit_name: string,
-    unit_auth_name: string,
-    unit_code: string,
-    unit_category: string
-  };
+
+%typemap(tsout) (ARGS(PARAMS)) {
+  name: string,
+  auth_name: string,
+  code: string,
+  value: number | string | null,
+  unit_conv_factor: number,
+  unit_name: string,
+  unit_auth_name: string,
+  unit_code: string,
+  unit_category: string
+};
+
+#undef JS_SET
+#undef TMAP_OUT
+#undef JS_VARS
+#undef ASSIGN
+#undef VARS
+#undef PARAMS
+#undef ARGS
 
 /**
  * ======================================
