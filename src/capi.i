@@ -184,24 +184,112 @@ const bool proj_js_inline_projdb = false;
 
 // proj_get_area_of_use
 %typemap(in, numinputs=0)
-  (double *out_west_lon_degree, double *out_south_lat_degree, double *out_east_lon_degree, double *out_north_lat_degree, const char **out_area_name)
-  (double _global_area[4], char *_global_area_name) {
-    $1 = &_global_area[0];
-    $2 = &_global_area[1];
-    $3 = &_global_area[2];
-    $4 = &_global_area[3];
-    $5 = &_global_area_name;
-  }
+    (double *out_west_lon_degree, double *out_south_lat_degree,
+    double *out_east_lon_degree, double *out_north_lat_degree,
+    const char **out_area_name)
+    (double _global_area[4], char *_global_area_name) {
+  $1 = &_global_area[0];
+  $2 = &_global_area[1];
+  $3 = &_global_area[2];
+  $4 = &_global_area[3];
+  $5 = &_global_area_name;
+}
 %typemap(argout)
-  (double *out_west_lon_degree, double *out_south_lat_degree, double *out_east_lon_degree, double *out_north_lat_degree, const char **out_area_name) {
-    Napi::Value js_area_name;
-    $typemap(out, double[4], 1=_global_area);
-    $typemap(out, char *, 1=_global_area_name, result=js_area_name);
-    SWIG_AppendOutput($result, js_area_name);
-  }
-%typemap(tsout) (double *out_west_lon_degree, double *out_south_lat_degree, double *out_east_lon_degree, double *out_north_lat_degree, const char **out_area_name)
+    (double *out_west_lon_degree, double *out_south_lat_degree,
+    double *out_east_lon_degree, double *out_north_lat_degree,
+    const char **out_area_name) {
+  Napi::Value js_area_name;
+  $typemap(out, double[4], 1=_global_area);
+  $typemap(out, char *, 1=_global_area_name, result=js_area_name);
+  SWIG_AppendOutput($result, js_area_name);
+}
+%typemap(tsout)
+    (double *out_west_lon_degree, double *out_south_lat_degree,
+    double *out_east_lon_degree, double *out_north_lat_degree,
+    const char **out_area_name)
   "[ number, number, number, number, string ]";
 
+// proj_coordoperation_get_param
+// It would be nice if there is a more elegant solution to this
+%typemap(in, numinputs=0)
+    (const char **out_name,
+    const char **out_auth_name, const char **out_code, double *out_value,
+    const char **out_value_string, double *out_unit_conv_factor,
+    const char **out_unit_name, const char **out_unit_auth_name,
+    const char **out_unit_code, const char **out_unit_category)
+    (char *_global_out_name,
+    char *_global_out_auth_name, char *_global_out_code, double _global_out_value,
+    char *_global_out_value_string, double _global_out_unit_conv_factor,
+    char *_global_out_unit_name, char *_global_out_unit_auth_name,
+    char *_global_out_unit_code, char *_global_out_unit_category) {
+  $1 = &_global_out_name;
+  $2 = &_global_out_auth_name;
+  $3 = &_global_out_code;
+  $4 = &_global_out_value;
+  $5 = &_global_out_value_string;
+  $6 = &_global_out_unit_conv_factor;
+  $7 = &_global_out_unit_name;
+  $8 = &_global_out_unit_auth_name;
+  $9 = &_global_out_unit_code;
+  $10 = &_global_out_unit_category;
+}
+%typemap(argout)
+    (const char **out_name,
+    const char **out_auth_name, const char **out_code, double *out_value,
+    const char **out_value_string, double *out_unit_conv_factor,
+    const char **out_unit_name, const char **out_unit_auth_name,
+    const char **out_unit_code, const char **out_unit_category) {
+  Napi::Value js_out_name;
+  Napi::Value js_out_auth_name;
+  Napi::Value js_out_code;
+  Napi::Value js_out_value;
+  Napi::Value js_out_value_string;
+  Napi::Value js_out_unit_conv_factor;
+  Napi::Value js_out_unit_name;
+  Napi::Value js_out_unit_auth_name;
+  Napi::Value js_out_unit_code;
+  Napi::Value js_out_unit_category;
+  $typemap(out, char *, 1=_global_out_name, result=js_out_name);
+  $typemap(out, char *, 1=_global_out_auth_name, result=js_out_auth_name);
+  $typemap(out, char *, 1=_global_out_code, result=js_out_code);
+  $typemap(out, double, 1=_global_out_value, result=js_out_value);
+  $typemap(out, char *, 1=_global_out_value_string, result=js_out_value_string);
+  $typemap(out, double, 1=_global_out_unit_conv_factor, result=js_out_unit_conv_factor);
+  $typemap(out, char *, 1=_global_out_unit_name, result=js_out_unit_name);
+  $typemap(out, char *, 1=_global_out_unit_auth_name, result=js_out_unit_auth_name);
+  $typemap(out, char *, 1=_global_out_unit_code, result=js_out_unit_code);
+  $typemap(out, char *, 1=_global_out_unit_category, result=js_out_unit_category);
+  Napi::Object js_obj = Napi::Object::New(env);
+  js_obj.Set("name", js_out_name);
+  js_obj.Set("auth_name", js_out_auth_name);
+  js_obj.Set("code", js_out_code);
+  js_obj.Set("value", js_out_value);
+  js_obj.Set("value_string", js_out_value_string);
+  js_obj.Set("unit_conv_factor", js_out_unit_conv_factor);
+  js_obj.Set("unit_name", js_out_unit_name);
+  js_obj.Set("unit_auth_name", js_out_unit_auth_name);
+  js_obj.Set("unit_code", js_out_unit_code);
+  js_obj.Set("unit_category", js_out_unit_category);
+  $result = js_obj;
+}
+%typemap(tsout)
+    (const char **out_name,
+    const char **out_auth_name, const char **out_code, double *out_value,
+    const char **out_value_string, double *out_unit_conv_factor,
+    const char **out_unit_name, const char **out_unit_auth_name,
+    const char **out_unit_code, const char **out_unit_category)
+  {
+    name: string,
+    auth_name: string,
+    code: string,
+    value: number,
+    value_string: string | null,
+    unit_conv_factor: number,
+    unit_name: string,
+    unit_auth_name: string,
+    unit_code: string,
+    unit_category: string
+  };
 
 /**
  * ======================================

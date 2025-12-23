@@ -133,7 +133,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_create_from_name', () => {
-    const list = PROJ.proj_create_from_name('EPSG', 'utm', [ PROJ.PJ_TYPE_CRS ], true, 100);
+    const list = PROJ.proj_create_from_name('EPSG', 'utm', [PROJ.PJ_TYPE_CRS], true, 100);
     assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
     assert.isAbove(list.length(), 0);
 
@@ -180,7 +180,7 @@ describe('C-API special typemaps', () => {
   it('PJ_OPERATION_FACTORY_CONTEXT', () => {
     const factory_ctx = PROJ.proj_create_operation_factory_context('EPSG');
     assert.instanceOf(factory_ctx, PROJ.PJ_OPERATION_FACTORY_CONTEXT);
-    
+
     PROJ.proj_operation_factory_context_set_area_of_interest(factory_ctx,
       -152, -18, -148, -16);
     PROJ.proj_operation_factory_context_set_allow_use_intermediate_crs(factory_ctx,
@@ -202,5 +202,28 @@ describe('C-API special typemaps', () => {
       assert.isString(op.toString());
       assert.include(op.toString(), 'Mercator');
     }
-  })
+  });
+
+  it('proj_coordoperation_get_param', () => {
+    const factory_ctx = PROJ.proj_create_operation_factory_context('EPSG');
+    const list = PROJ.proj_create_operations(
+      PROJ.proj_create('EPSG:4326'),
+      PROJ.proj_create('EPSG:3857'),
+      factory_ctx);
+    const op = list.get(0);
+    const param = PROJ.proj_coordoperation_get_param(op, 0);
+    assert.deepStrictEqual(param, {
+      name: 'Latitude of natural origin',
+      auth_name: 'EPSG',
+      code: '8801',
+      value: 0,
+      value_string: null,
+      unit_conv_factor: 0.017453292519943295,
+      unit_name: 'degree',
+      unit_auth_name: 'EPSG',
+      unit_code: '9102',
+      unit_category: 'angular'
+    });
+  });
+
 });
