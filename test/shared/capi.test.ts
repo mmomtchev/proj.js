@@ -110,7 +110,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_identify', () => {
-    const pj = PROJ.proj_create('EPSG:4326');
+    const pj = new PROJ.PJ('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
     const [list, confidence] = PROJ.proj_identify(pj, null);
@@ -149,7 +149,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_get_area_of_use', () => {
-    const pj = PROJ.proj_create('EPSG:4326');
+    const pj = new PROJ.PJ('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
     const area_of_use = PROJ.proj_get_area_of_use(pj);
@@ -206,8 +206,8 @@ describe('C-API special typemaps', () => {
 
   it('proj_coordoperation_get_param / proj_coordoperation_get_info', () => {
     const op = PROJ.proj_create_operations(
-      PROJ.proj_create('EPSG:4326'),
-      PROJ.proj_create('EPSG:3857'),
+      new PROJ.PJ('EPSG:4326'),
+      new PROJ.PJ('EPSG:3857'),
       PROJ.proj_create_operation_factory_context('EPSG')).get(0);
 
     const info = PROJ.proj_coordoperation_get_method_info(op);
@@ -233,7 +233,7 @@ describe('C-API special typemaps', () => {
 
   it('proj_coordoperation_get_towgs84_values', () => {
     const op = PROJ.proj_create_crs_to_crs('EPSG:4326',
-      '+proj=latlong +ellps=GRS80 +towgs84=-199.87,74.79,246.62', null);
+      '+proj=latlong +ellps=GRS80 +towgs84=-199.87,74.79,246.62');
     const transform = PROJ.proj_coordoperation_get_towgs84_values(op);
     assert.isArray(transform);
     assert.lengthOf(transform, 3);
@@ -241,13 +241,21 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_ellipsoid_get_parameters', () => {
-    const pj = PROJ.proj_get_ellipsoid(PROJ.proj_create('EPSG:4326'));
+    const pj = PROJ.proj_get_ellipsoid(new PROJ.PJ('EPSG:4326'));
     const ellipsoid = PROJ.proj_ellipsoid_get_parameters(pj);
     assert.isNumber(ellipsoid.semi_major_metre);
     assert.isNumber(ellipsoid.semi_minor_metre);
     assert.isBoolean(ellipsoid.is_semi_minor_computed);
     assert.isNumber(ellipsoid.inv_flattening);
     assert.closeTo(ellipsoid.inv_flattening, 298, 0.5);
+    assert.closeTo(ellipsoid.semi_major_metre / ellipsoid.semi_minor_metre, 1 + 1 / ellipsoid.inv_flattening, 1);
   });
 
+  it('PJ_AREA', () => {
+    const area = new PROJ.PJ_AREA(-8.0125, 37.9875, 12.0125, 53.0125);
+    area.set_name('AROME');
+    const pj = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857', area);
+    assert.instanceOf(pj, PROJ.PJ);
+    assert.isTrue(PROJ.proj_coordoperation_is_instantiable(pj));
+  });
 });

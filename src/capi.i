@@ -129,16 +129,19 @@ const bool proj_js_inline_projdb = false;
  * ==================================================
  */
 
-%apply bool { int allow_deprecated };
-%apply bool { int deprecated };
-%apply bool { int crs_area_of_use_contains_bbox };
-%apply bool { int approximateMatch };
-%apply bool { int proj_is_deprecated };
-%apply bool { int proj_is_equivalent_to };
-%apply bool { int proj_is_equivalent_to_with_ctx };
-%apply bool { int proj_is_crs };
-%apply bool { int proj_is_derived_crs };
-%apply bool { int proj_crs_is_derived };
+%apply bool {
+  int allow_deprecated,
+  int deprecated,
+  int crs_area_of_use_contains_bbox,
+  int approximateMatch,
+  int proj_is_deprecated,
+  int proj_is_equivalent_to,
+  int proj_is_equivalent_to_with_ctx,
+  int proj_is_crs,
+  int proj_is_derived_crs,
+  int proj_crs_is_derived,
+  int proj_coordoperation_is_instantiable
+};
 %typemap(ts) const char *auth_name "string | null";
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
@@ -345,17 +348,17 @@ OUTPUT_FIELD_CAST(int, out_available, bool, available)
 %typemap(tsout, merge="object") (double *out_value, const char **out_value_string) "value: string | number";
 
 /**
- * ======================================
+ * =========================================
  * Opaque typedefs that must be destroyed
- * PJ, PJ_OPERATION_FACTORY_CONTEXT
- * ======================================
+ * PJ, PJ_OPERATION_FACTORY_CONTEXT, PJ_AREA
+ * =========================================
  */
 
 // Opaque types cannot be extended
 // This hack allows to add a destructor to an opaque type
 // Maybe this could become a SWIG feature at some point
 // because it is a common design pattern in old C software
-%define PROJ_OPAQUE_TYPE_WITH_DESTROY(NAME, DESTROY, TOSTRING)
+%define PROJ_OPAQUE_TYPE_WITH_DESTROY(NAME, DESTROY)
 
 // Do not wrap PROJ's original
 %ignore NAME;
@@ -365,7 +368,7 @@ OUTPUT_FIELD_CAST(int, out_available, bool, available)
 // It will replace PJ and take its name
 %rename(NAME) js##NAME;
 %ignore js##NAME::get;
-%ignore js##NAME::js##NAME;
+%ignore js##NAME::js##NAME(NAME *v);
 %inline %{
 class js##NAME {
   NAME *self;
@@ -373,7 +376,6 @@ public:
   js##NAME(NAME *v): self(v) {}
   ~js##NAME() { DESTROY(self); }
   NAME *get() { return self; }
-  TOSTRING
 };
 %}
 
@@ -381,7 +383,7 @@ public:
 %typemap(in) NAME * {
   js##NAME *wrap;
   $typemap(in, js##NAME *, 1=wrap);
-  $1 = wrap->get();
+  $1 = wrap ? wrap->get() : nullptr;
 }
 %typemap(out) NAME * {
   js##NAME *wrap = new js##NAME($1);
@@ -392,8 +394,41 @@ public:
 %enddef
 
 %ignore PJconsts;
-PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ, proj_destroy, const char* toString() { return proj_get_name(self); });
-PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_OPERATION_FACTORY_CONTEXT, proj_operation_factory_context_destroy, );
+PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ, proj_destroy);
+PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_OPERATION_FACTORY_CONTEXT, proj_operation_factory_context_destroy);
+PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
+
+// Attach some specific methods to the object itself
+%extend jsPJ {
+  jsPJ(PJ_CONTEXT *ctx, const char *definition) {
+    return new jsPJ(proj_create(ctx, definition));
+  }
+  const char* toString() {
+    return proj_get_name($self->get());
+  }
+}
+%extend jsPJ_AREA {
+  jsPJ_AREA() {
+    return new jsPJ_AREA(proj_area_create());
+  }
+  jsPJ_AREA(double west_lon_degree, double south_lat_degree,
+                double east_lon_degree, double north_lat_degree) {
+    jsPJ_AREA *self = new jsPJ_AREA(proj_area_create());
+    proj_area_set_bbox(self->get(), west_lon_degree, south_lat_degree,
+      east_lon_degree, north_lat_degree);
+    return self;
+  }
+  void set_bbox(double west_lon_degree, double south_lat_degree,
+                double east_lon_degree, double north_lat_degree) {
+    proj_area_set_bbox($self->get(), west_lon_degree, south_lat_degree,
+      east_lon_degree, north_lat_degree);
+  }
+  void set_name(const char *name) {
+    proj_area_set_name($self->get(), name);
+  }
+}
+// Area is always optional
+%typemap(default) PJ_AREA *area { $1 = nullptr; };
 
 /**
  * =========================
