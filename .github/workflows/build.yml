@@ -62,7 +62,7 @@ jobs:
       with:
         submodules: true
     - name: Setup Node.js 20
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: 20
 
@@ -79,7 +79,7 @@ jobs:
 
     - name: Download the SWIG-generated wrappers
       if: ${{ !inputs.regen_swig }}
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v7
       with:
         name: swig-generated
         path: swig
@@ -161,14 +161,14 @@ jobs:
       if: runner.os == 'macOS' && inputs.native
 
     - name: Upload artifact ${{ inputs.id }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: ${{ inputs.id }}
         path: lib/binding/*
 
     - name: Upload build directory ${{ inputs.id }}
       if: inputs.codecov
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v6
       with:
         name: build-${{ inputs.id }}
         path: build/native/*
