@@ -258,4 +258,27 @@ describe('C-API special typemaps', () => {
     assert.instanceOf(pj, PROJ.PJ);
     assert.isTrue(PROJ.proj_coordoperation_is_instantiable(pj));
   });
+
+  it('proj_trans_generic', () => {
+    const coords = new Float64Array([
+      -8.0125000, 53.0125000,
+      -8.0125000, 37.9875000,
+      12.0125000, 53.0125000,
+      12.0125000, 37.9875000,
+      2.0000000, 45.5000000
+    ]);
+    const expected = new Float64Array([
+      5901324.505678415, -894868.9412058722,
+      4228749.1565094795, -894868.9412058722,
+      5901324.505678415, 1347131.021836296,
+      4228749.1565094795, 1347131.021836296,
+      5065036.831093947, 222684.20850554405
+    ]);
+
+    const op = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857');
+    PROJ.proj_trans_generic(op, PROJ.PJ_FWD, { data: coords, stride: 2 }, { data: coords, stride: 2, offset: 1 }, { data: 0 }, { data: 0 });
+    assert.strictEqual(coords.length, expected.length);
+    for (const i in coords)
+      assert.closeTo(coords[i], expected[i], 1e-5);
+  });
 });

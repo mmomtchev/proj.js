@@ -349,6 +349,78 @@ OUTPUT_FIELD_CAST(int, out_available, bool, available)
 
 /**
  * =========================================
+ * proj_trans_generic
+ * =========================================
+ */
+
+// This is a very special case. We want to preserve the bulk
+// nature of this function and its ability to accept arbitrarily
+// structured data which in the JS world will likely come as
+// scijs/ndarray or @stdlib/ndarray.
+// It accepts four TypedArrays, each with a stride, allowing
+// to use a single TypedArray in which the values are interleaved.
+// Alas, numinputs>1 typemaps are very limited in SWIG.
+// This is why we accept an object of the TS type below
+// for each dimension.
+// JS is expected to express the strides the JS way - in elements
+// and not in bytes.
+
+%typemap(ts) (double *x, size_t sx, size_t nx)
+    "{ data: Float64Array | number, stride?: number, offset?: number }";
+%typemap(in, numinputs=1) (double *x, size_t sx, size_t nx) (double constant) {
+  if (!$input.IsObject()) {
+    SWIG_Raise("Expected { data: TypedArray, stride?: number } for each dimension");
+  }
+  Napi::Object input = $input.ToObject();
+  Napi::Value data = input.Get("data");
+  if (data.IsNumber()) {
+    constant = data.ToNumber().DoubleValue();
+    $1 = &constant;
+    $2 = 1;
+    $3 = 1;
+  } else {
+    if (!data.IsTypedArray()) {
+      SWIG_Raise("Expected a TypedArray for data");
+    }
+    if (data.As<Napi::TypedArray>().TypedArrayType() != napi_float64_array) {
+      SWIG_Raise("Expected a Float64Array for data");
+    }
+    Napi::Float64Array values = data.As<Napi::Float64Array>();
+    Napi::Value stride = input.Get("stride");
+    if (stride.IsUndefined()) {
+      $2 = 1;
+    } else if (stride.IsNumber()) {
+      $2 = stride.ToNumber().Int64Value();
+    } else {
+      SWIG_Raise("Expected a number or undefined for stride");
+    }
+    Napi::Value first = input.Get("offset");
+    size_t offset;
+    if (first.IsUndefined()) {
+      offset = 0;
+    } else if (first.IsNumber()) {
+      offset = first.ToNumber().Int64Value();
+    } else {
+      SWIG_Raise("Expected a number or undefined for offset");
+    }
+    if (offset >= values.ElementLength()) {
+      SWIG_Raise("Offset is beyond the end of the array");
+    }
+    $3 = (values.ElementLength() - offset) / $2 + (((values.ElementLength() - offset) % $2) ? 1 : 0);
+    // Pointer arithmetic is of double* type
+    $1 = values.Data() + offset;
+  }
+  // PROJ expects strides in bytes
+  $2 *= sizeof(double);
+}
+%apply(double *x, size_t sx, size_t nx) {
+  (double *y, size_t sy, size_t ny),
+  (double *z, size_t sz, size_t nz),
+  (double *t, size_t st, size_t nt)
+};
+
+/**
+ * =========================================
  * Opaque typedefs that must be destroyed
  * PJ, PJ_OPERATION_FACTORY_CONTEXT, PJ_AREA
  * =========================================
