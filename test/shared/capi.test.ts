@@ -113,22 +113,22 @@ describe('C-API special typemaps', () => {
     const pj = new PROJ.PJ('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
-    const [list, confidence] = PROJ.proj_identify(pj, null);
+    const { result, confidence } = PROJ.proj_identify(pj, null);
 
-    assert.instanceOf(list, PROJ.PJ_OBJ_LIST);
+    assert.instanceOf(result, PROJ.PJ_OBJ_LIST);
     assert.isArray(confidence);
 
-    assert.isNumber(list.length());
-    assert.strictEqual(list.length(), confidence.length);
+    assert.isNumber(result.length());
+    assert.strictEqual(result.length(), confidence.length);
 
     assert.isNumber(confidence[0]);
     assert.strictEqual(confidence[0], 100);
-    assert.instanceOf(list.get(0), PROJ.PJ);
-    assert.strictEqual(list.get(0).parent, list);
+    assert.instanceOf(result.get(0), PROJ.PJ);
+    assert.strictEqual(result.get(0).parent, result);
 
-    for (const el of list) {
+    for (const el of result) {
       assert.instanceOf(el, PROJ.PJ);
-      assert.strictEqual(el.parent, list);
+      assert.strictEqual(el.parent, result);
     }
   });
 

@@ -19,6 +19,8 @@ const char *proj_js_build;
 const bool proj_js_inline_projdb;
 %mutable;
 
+%include <arrays_javascript.i>
+
 // Experimental function pointer support
 %include <function.i>
 
@@ -153,27 +155,42 @@ const bool proj_js_inline_projdb = false;
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
 
+// Generic output typemap for dynamic length arrays
+%define OUTPUT_DATA_LENGTH(TYPE)
+%typemap(out) (TYPE *OUTPUT_DATA, size_t OUTPUT_LENGTH) {
+  Napi::Array array = Napi::Array::New(env, $2);
+  for (int i = 0; i < $2; i++) {
+    Napi::Value js_val;
+    $typemap(out, TYPE, 1=$1[i], result=js_val);
+    array.Set(i, js_val);
+  }
+  $result = array;
+}
+%enddef
+// Instantiated for int and double
+OUTPUT_DATA_LENGTH(int)
+OUTPUT_DATA_LENGTH(double)
+
 // out_result_count is used in several functions
 // we transform it to a local variable in each wrapper
 %typemap(in, numinputs=0) int *out_result_count (int _global_out_result_count) {
   $1 = &_global_out_result_count;
 };
 
-// out_confidence is added to the return values which become an array
+// out_confidence is added to the return values which become an object
 %typemap(in, numinputs=0) int **out_confidence (int *_global_out_confidence) {
   $1 = &_global_out_confidence;
 };
-%typemap(argout, fragment=SWIG_From_frag(int)) int **out_confidence {
+%typemap(argout) int **out_confidence {
   size_t elements = proj_list_get_count(result);
-  Napi::Array confidence = Napi::Array::New(env, elements);
   if ($1 != nullptr) {
-    for (size_t i = 0; i < elements; i++)
-      confidence.Set(i, SWIG_From(int)(_global_out_confidence[i]));
+    Napi::Value js_val;
+    $typemap(out, (int *OUTPUT_DATA, size_t OUTPUT_LENGTH), 1=_global_out_confidence, 2=elements, result=js_val);
     proj_int_list_destroy(*$1);
+    %append_output_field("confidence", js_val);
   }
-  %append_output(confidence);
 }
-%typemap(ts) PJ_OBJ_LIST *proj_identify "[ PJ_OBJ_LIST, number[] ]";
+%typemap(tsout, merge="object") int **out_confidence "confidence: number[]";
 
 // Generic arrays from JS Array to C with pointer & length
 // (search for $*n_ltype in SWIG manual)
@@ -276,18 +293,12 @@ const bool proj_js_inline_projdb = false;
   memset($1, 0, sizeof(values));
 }
 %typemap(argout) (double *out_values, int value_count) {
-  // TODO C Arrays support in SWIG JSE is inherited from JavaScriptCore and lacks many features
-
   Napi::Array js_array = Napi::Array::New(env);
-  // Ignore trailing zeros
+  // Find the true length, ignore trailing zeros
   size_t len = 15;
   while ($1[len - 1] == 0 && len > 0) len--;
-  for (size_t i = 0; i < len; i++) {
-    Napi::Value js_val;
-    $typemap(out, double, 1=$1[i], result=js_val);
-    js_array.Set(i, js_val);
-  }
-  $result = js_array;
+  // Apply the generic typemap from above
+  $typemap(out, (double *OUTPUT_DATA, size_t OUTPUT_LENGTH), 2=len);
 }
 %typemap(tsout, merge="overwrite") (double *out_values, int value_count) "number[]";
 
