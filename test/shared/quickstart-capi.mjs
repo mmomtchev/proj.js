@@ -3,8 +3,7 @@ import { assert } from 'chai';
 export default async function (PROJ) {
   console.time('proj_create_crs_to_crs');
   const P = PROJ.proj_create_crs_to_crs(
-    'EPSG:4326', '+proj=utm +zone=32 +datum=WGS84',
-    null);
+    'EPSG:4326', '+proj=utm +zone=32 +datum=WGS84');
   console.timeEnd('proj_create_crs_to_crs');
   console.log(P.toString());
   assert.instanceOf(P, PROJ.PJ);
