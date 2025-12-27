@@ -37,6 +37,13 @@ const bool proj_js_inline_projdb = false;
 #endif
 %}
 
+%header %{
+#ifdef __EMSCRIPTEN__
+// There are few very subtle differences between native and WASM (see proj_trans_generic)
+#include <emnapi.h>
+#endif
+%}
+
 // Normal braces expand SWIG macros such
 // as SWIG_Raise
 %init {
@@ -367,12 +374,13 @@ OUTPUT_FIELD_CAST(int, out_available, bool, available)
 
 %typemap(ts) (double *x, size_t sx, size_t nx)
     "{ data: Float64Array | number, stride?: number, offset?: number }";
-%typemap(in, numinputs=1) (double *x, size_t sx, size_t nx) (double constant) {
+%typemap(in, numinputs=1) (double *x, size_t sx, size_t nx) (double constant, napi_value js_data) {
   if (!$input.IsObject()) {
     SWIG_Raise("Expected { data: TypedArray, stride?: number } for each dimension");
   }
   Napi::Object input = $input.ToObject();
-  Napi::Value data = input.Get("data");
+  js_data = input.Get("data");
+  Napi::Value data{env, js_data};
   if (data.IsNumber()) {
     constant = data.ToNumber().DoubleValue();
     $1 = &constant;
@@ -406,13 +414,31 @@ OUTPUT_FIELD_CAST(int, out_available, bool, available)
     if (offset >= values.ElementLength()) {
       SWIG_Raise("Offset is beyond the end of the array");
     }
-    $3 = (values.ElementLength() - offset) / $2 + (((values.ElementLength() - offset) % $2) ? 1 : 0);
+    $3 = (values.ElementLength() - offset) / $2 +
+        (((values.ElementLength() - offset) % $2) ? 1 : 0);
     // Pointer arithmetic is of double* type
     $1 = values.Data() + offset;
   }
   // PROJ expects strides in bytes
   $2 *= sizeof(double);
 }
+
+// This is one of the very few differences between Node-API for native modules and emnapi for WASM
+// WASM operates with a separate heap, so when going out of the proj_trans_generic function we must copy
+// the data back to the JS memory space.
+// Note that this is not asyncable since we are not allowed to keep local V8 references this way,
+// if one day this project supports async, this will have to be implemented with a persistent reference.
+// This also means that in the WASM world the zero-copy nature of this function is lost.
+// TODO: I just saw there is some progress on this issue:
+// https://github.com/WebAssembly/design/issues/1555
+// Follow this development.
+%typemap(argout) (double *x, size_t sx, size_t nx)
+%{
+#ifdef __EMSCRIPTEN__
+emnapi_sync_memory(env, false, &js_data$argnum, 0, NAPI_AUTO_LENGTH);
+#endif
+%}
+
 %apply(double *x, size_t sx, size_t nx) {
   (double *y, size_t sy, size_t ny),
   (double *z, size_t sz, size_t nz),
