@@ -48,9 +48,7 @@ if get_option('debug')
 endif
 wasm = meson.get_compiler('cpp').get_id() == 'emscripten'
 if wasm
-  add_project_arguments([
-    '-Wno-potentially-evaluated-expression',
-    '-fexceptions' ], language: [ 'cpp' ])
+  add_project_arguments(['-fexceptions' ], language: [ 'cpp' ])
   # Recent emnapi versions require POSIX_C_SOURCE
   add_project_arguments([ '-D_POSIX_C_SOURCE=200112L' ], language: [ 'c' ])
   add_project_link_arguments([
