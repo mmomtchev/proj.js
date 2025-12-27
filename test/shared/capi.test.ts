@@ -231,4 +231,23 @@ describe('C-API special typemaps', () => {
     });
   });
 
+  it('proj_coordoperation_get_towgs84_values', () => {
+    const op = PROJ.proj_create_crs_to_crs('EPSG:4326',
+      '+proj=latlong +ellps=GRS80 +towgs84=-199.87,74.79,246.62', null);
+    const transform = PROJ.proj_coordoperation_get_towgs84_values(op);
+    assert.isArray(transform);
+    assert.lengthOf(transform, 3);
+    assert.deepStrictEqual(transform, [199.87, -74.79, -246.62]);
+  });
+
+  it('proj_ellipsoid_get_parameters', () => {
+    const pj = PROJ.proj_get_ellipsoid(PROJ.proj_create('EPSG:4326'));
+    const ellipsoid = PROJ.proj_ellipsoid_get_parameters(pj);
+    assert.isNumber(ellipsoid.semi_major_metre);
+    assert.isNumber(ellipsoid.semi_minor_metre);
+    assert.isBoolean(ellipsoid.is_semi_minor_computed);
+    assert.isNumber(ellipsoid.inv_flattening);
+    assert.closeTo(ellipsoid.inv_flattening, 298, 0.5);
+  });
+
 });

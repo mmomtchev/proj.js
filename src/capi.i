@@ -65,6 +65,8 @@ const bool proj_js_inline_projdb = false;
 #ifdef __SANITIZE_ADDRESS__
     proj_context_destroy(instance_data->context);
     delete instance_data;
+#else
+    (void)instance_data;
 #endif
   });
 %}
@@ -159,7 +161,7 @@ const bool proj_js_inline_projdb = false;
       confidence.Set(i, SWIG_From(int)(_global_out_confidence[i]));
     proj_int_list_destroy(*$1);
   }
-  $result = SWIG_AppendOutput($result, confidence);
+  %append_output(confidence);
 }
 %typemap(ts) PJ_OBJ_LIST *proj_identify "[ PJ_OBJ_LIST, number[] ]";
 
@@ -201,9 +203,9 @@ const bool proj_js_inline_projdb = false;
   Napi::Value js_area_name;
   $typemap(out, double[4], 1=_global_area);
   $typemap(out, char *, 1=_global_area_name, result=js_area_name);
-  SWIG_AppendOutput($result, js_area_name);
+  %append_output(js_area_name);
 }
-%typemap(tsout)
+%typemap(tsout, merge="overwrite")
     (double *out_west_lon_degree, double *out_south_lat_degree,
     double *out_east_lon_degree, double *out_north_lat_degree,
     const char **out_area_name)
@@ -216,103 +218,131 @@ const bool proj_js_inline_projdb = false;
  * ==================================================================
  */
 
-/**
- * Macros for returning a number of output arguments in
- * C pointers as a single structured JS object
- */
-#define ARGS_TO_STRUCT_PARAMS(NUM, TYPE, CNAME, JSNAME) TYPE CNAME,
-
-#define ARGS_TO_STRUCT_VARS(NUM, TYPE, CNAME, JSNAME) $*##NUM##_ltype _global_##CNAME,
-#define ARGS_TO_STRUCT_ASSIGN(NUM, TYPE, CNAME, JSNAME) $##NUM = &_global_##CNAME;
-#define ARGS_TO_STRUCT_JS_VARS(NUM, TYPE, CNAME, JSNAME) Napi::Value js_##JSNAME;
-#define ARGS_TO_STRUCT_TMAP_OUT(NUM, TYPE, CNAME, JSNAME) $typemap(out, $*##NUM##_type, 1=_global_##CNAME, result=js_##JSNAME);
-#define ARGS_TO_STRUCT_JS_SET(NUM, TYPE, CNAME, JSNAME) js_obj.Set(#JSNAME, js_##JSNAME);
-#define ARGS_TO_STRUCT_TS_TYPES(NUM, TYPE, CNAME, JSNAME) JSNAME: $typemap(ts, $*##NUM##_type)
-
-%define ARGS_TO_STRUCT_TMAP_IN(ARGS)
-%typemap(in, numinputs=0) (ARGS(ARGS_TO_STRUCT_PARAMS)) (ARGS(ARGS_TO_STRUCT_VARS)) {
-  ARGS(ARGS_TO_STRUCT_ASSIGN);
+// Return an input argument as a named field in a structured object with rename
+%define OUTPUT_FIELD_NAME(TYPE, CNAME, JSNAME)
+%typemap(in, numinputs=0) TYPE *CNAME ($*1_ltype val) {
+  $1 = &val;
 }
+%typemap(argout) TYPE *CNAME {
+  Napi::Value js_out;
+  $typemap(out, $*1_ltype, 1=*$1, result=js_out)
+  %append_output_field(#JSNAME, js_out);
+}
+%typemap(tsout, merge="object") TYPE *CNAME #JSNAME ": $typemap(ts, $*1_ltype)";
 %enddef
 
-%define ARGS_TO_STRUCT_TMAP_ARGOUT(ARGS)
-%typemap(argout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
-  ARGS(ARGS_TO_STRUCT_JS_VARS);
-  ARGS(ARGS_TO_STRUCT_TMAP_OUT);
-  Napi::Object js_obj = Napi::Object::New(env);
-  ARGS(ARGS_TO_STRUCT_JS_SET);
-  $result = js_obj;
+// Same thing but the C name is always out_<JS name>
+#define OUTPUT_FIELD(TYPE, NAME) OUTPUT_FIELD_NAME(TYPE, out_##NAME, NAME)
+
+// Transform return true/false to void/throw
+%typemap(out) int THROW_IF_FALSE {
+  if (!$1)
+    SWIG_Raise("$1_name failed");
+  $result = env.Undefined();
 }
+%typemap(ts) int THROW_IF_FALSE "void";
+
+// Return an input argument as a named field in a structured object with rename and new type
+%define OUTPUT_FIELD_CAST(CTYPE, CNAME, JSTYPE, JSNAME)
+%typemap(in, numinputs=0) CTYPE *CNAME ($*1_ltype val) {
+  $1 = &val;
+}
+%typemap(argout) CTYPE *CNAME {
+  Napi::Value js_out;
+  $typemap(out, JSTYPE, 1=static_cast<CTYPE>(*$1), result=js_out)
+  %append_output_field(#JSNAME, js_out);
+}
+%typemap(tsout, merge="object") CTYPE *CNAME #JSNAME ": $typemap(ts, " #JSTYPE ")";
 %enddef
 
-%define ARGS_TO_STRUCT_TMAP_TS(ARGS)
-%typemap(tsout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
-  ARGS(ARGS_TO_STRUCT_TS_TYPES)
+// proj_coordoperation_get_towgs84_values
+%typemap(in, numinputs=0, noblock=1) int emit_error_if_incompatible "$1 = 1;";
+// Helmert transform
+// (array of up to 15 values)
+%typemap(in, numinputs=0) (double *out_values, int value_count)
+    (double values[15]) {
+  $1 = values;
+  $2 = 15;
+  memset($1, 0, sizeof(values));
 }
-%enddef
+%typemap(argout) (double *out_values, int value_count) {
+  // TODO C Arrays support in SWIG JSE is inherited from JavaScriptCore and lacks many features
 
+  Napi::Array js_array = Napi::Array::New(env);
+  // Ignore trailing zeros
+  size_t len = 15;
+  while ($1[len - 1] == 0 && len > 0) len--;
+  for (size_t i = 0; i < len; i++) {
+    Napi::Value js_val;
+    $typemap(out, double, 1=$1[i], result=js_val);
+    js_array.Set(i, js_val);
+  }
+  $result = js_array;
+}
+%typemap(tsout, merge="overwrite") (double *out_values, int value_count) "number[]";
 
+// proj_trans_bounds
+OUTPUT_FIELD(double,        xmin)
+OUTPUT_FIELD(double,        ymin)
+OUTPUT_FIELD(double,        xmax)
+OUTPUT_FIELD(double,        ymax)
+OUTPUT_FIELD_CAST(int, out_open_license, bool, open_license);
+OUTPUT_FIELD(int,           available);
 // proj_prime_meridian_get_parameters
-%define ARGS(EXPAND)
-EXPAND(1, double *,       out_longitude,          longitude)
-EXPAND(2, double *,       out_unit_conv_factor,   unit_conv_factor)
-EXPAND(3, const char **,  out_unit_name,          unit_name)
-%enddef
-ARGS_TO_STRUCT_TMAP_IN(ARGS)
-ARGS_TO_STRUCT_TMAP_ARGOUT(ARGS)
-ARGS_TO_STRUCT_TMAP_TS(ARGS)
-#undef ARGS
-
-
+OUTPUT_FIELD(double,        longitude)
+OUTPUT_FIELD(double,        unit_conv_factor)
+OUTPUT_FIELD(const char *,  unit_name)
 // proj_coordoperation_get_method_info
-%define ARGS(EXPAND)
-EXPAND(1, const char **,  out_method_name,       method_name)
-EXPAND(2, const char **,  out_method_auth_name,  method_auth_name)
-EXPAND(3, const char **,  out_method_code,       method_code)
-%enddef
-ARGS_TO_STRUCT_TMAP_IN(ARGS)
-ARGS_TO_STRUCT_TMAP_ARGOUT(ARGS)
-ARGS_TO_STRUCT_TMAP_TS(ARGS)
-#undef ARGS
-
-
+OUTPUT_FIELD(const char *,  method_name)
+OUTPUT_FIELD(const char *,  method_auth_name)
+OUTPUT_FIELD(const char *,  method_code)
 // proj_coordoperation_get_param
-%define ARGS(EXPAND)
-EXPAND(1, const char **,  out_name,             name)
-EXPAND(2, const char **,  out_auth_name,        auth_name)
-EXPAND(3, const char **,  out_code,             code)
-EXPAND(4, double *,       out_value,            value)
-EXPAND(5, const char **,  out_value_string,     value_string)
-EXPAND(6, double *,       out_unit_conv_factor, unit_conv_factor)
-EXPAND(7, const char **,  out_unit_name,        unit_name)
-EXPAND(8, const char **,  out_unit_auth_name,   unit_auth_name)
-EXPAND(9, const char **,  out_unit_code,        unit_code)
-EXPAND(10, const char **, out_unit_category,    unit_category)
-%enddef
+OUTPUT_FIELD(const char *,  name)
+OUTPUT_FIELD(const char *,  auth_name)
+OUTPUT_FIELD(const char *,  code)
+OUTPUT_FIELD(double,        value)
+OUTPUT_FIELD(const char *,  value_string)
+OUTPUT_FIELD(const char *,  unit_auth_name)
+OUTPUT_FIELD(const char *,  unit_code)
+OUTPUT_FIELD(const char *,  unit_category)
+// proj_cs_get_axis_info
+OUTPUT_FIELD(const char *,  abbrev)
+OUTPUT_FIELD(const char *,  direction)
+// proj_ellipsoid_get_parameters
+OUTPUT_FIELD(double,        semi_major_metre)
+OUTPUT_FIELD(double,        semi_minor_metre)
+OUTPUT_FIELD(double,        inv_flattening)
+OUTPUT_FIELD_CAST(int, out_is_semi_minor_computed, bool, is_semi_minor_computed)
+// proj_coordoperation_get_grid_used
+OUTPUT_FIELD(const char *,  short_name)
+OUTPUT_FIELD(const char *,  full_name)
+OUTPUT_FIELD(const char *,  package_name)
+OUTPUT_FIELD(const char *,  url)
+OUTPUT_FIELD_CAST(int, out_direct_download, bool, direct_download)
+OUTPUT_FIELD_CAST(int, out_available, bool, available)
 
-ARGS_TO_STRUCT_TMAP_IN(ARGS)
-%typemap(argout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
-  ARGS(ARGS_TO_STRUCT_JS_VARS);
-  ARGS(ARGS_TO_STRUCT_TMAP_OUT);
-  Napi::Object js_obj = Napi::Object::New(env);
-  ARGS(ARGS_TO_STRUCT_JS_SET);
-  if (_global_out_value_string)
-    js_obj.Set("value", js_value_string);
-  js_obj.Delete("value_string");
-  $result = js_obj;
-}
-%typemap(tsout) (ARGS(ARGS_TO_STRUCT_PARAMS)) {
-  name: string,
-  auth_name: string,
-  code: string,
-  value: number | string | null,
-  unit_conv_factor: number,
-  unit_name: string,
-  unit_auth_name: string,
-  unit_code: string,
-  unit_category: string
+%apply int THROW_IF_FALSE {
+  int proj_trans_bounds,
+  int proj_prime_meridian_get_parameters,
+  int proj_coordoperation_get_method_info,
+  int proj_coordoperation_get_param,
+  int proj_cs_get_axis_info,
+  int proj_ellipsoid_get_parameters,
+  int proj_coordoperation_get_grid_used,
+  int proj_coordoperation_get_towgs84_values
 };
-#undef ARGS
+
+// Merge out_value / out_value_string in a single value with two possible types
+%typemap(argout) (double *out_value, const char **out_value_string) {
+  Napi::Value js_val;
+  if (*$2) {
+    $typemap(out, char *, 1=*$2, result=js_val);
+  } else {
+    $typemap(out, double, 1=*$1, result=js_val);
+  }
+  %append_output_field("value", js_val);
+}
+%typemap(tsout, merge="object") (double *out_value, const char **out_value_string) "value: string | number";
 
 /**
  * ======================================
@@ -480,7 +510,7 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
     $typemap(out, char*, 1=s[i], result=js_string);
     js_array.Set(i++, js_string);
   }
-  $result = SWIG_AppendOutput($result, js_array);
+  %append_output(js_array);
 }
 // If there are errors, simply throw the very first one
 %typemap(argout) PROJ_STRING_LIST *out_grammar_errors {
