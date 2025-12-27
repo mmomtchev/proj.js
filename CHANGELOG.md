@@ -1,5 +1,6 @@
 # 0.9.1
 
+* Include a second entry point, `proj.js/capi` with the old C API - this module is smaller and the setup is slightly faster
 * Migrate to the new `hadron` build system
 * Integrate SWIG JSE in the build and support regenerating the wrappers on all supported platforms
 * Test the integration of the published package in various environments - you can check the `test/integration` directory for working examples for using this package from Node.js, Webpack, React, Vite and etc...

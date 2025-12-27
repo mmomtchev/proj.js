@@ -49,7 +49,7 @@ jobs:
       wasm: false
       id: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
       enable_tiff: ${{ matrix.enable_tiff }}
-      regen_swig: true
+      #regen_swig: true
 
   build-standalone:
     name: Standalone build native ${{ matrix.platform && '' || '' }}
@@ -191,10 +191,10 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-    - name: Setup Node.js 18
-      uses: actions/setup-node@v6
+    - name: Setup Node.js 24
+      uses: actions/setup-node@v4
       with:
-        node-version: 18
+        node-version: 24
 
     - name: Download the SWIG-generated wrappers
       uses: actions/download-artifact@v7

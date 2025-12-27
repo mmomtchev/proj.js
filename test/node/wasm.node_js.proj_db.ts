@@ -7,7 +7,7 @@ import qPROJ from 'proj.js/wasm';
 const PROJ = await qPROJ;
 
 // This loads proj.db into the environment in Node.js
-// when it hasn't been already inlined
+// when it hasn't been already inlined.
 
 async function loadProjDb() {
   const proj_db_path = process.env.PROJ_DB_PATH ?
@@ -22,5 +22,9 @@ async function loadProjDb() {
 }
 
 export const mochaHooks = {
-  beforeAll: PROJ.proj_js_inline_projdb ? () => { } : loadProjDb
+  beforeAll: PROJ.proj_js_inline_projdb ? () => { } : loadProjDb,
+
+  // This forces the GC to run after each test if the interfaces is exposed.
+  // It is used mainly for ASAN testing.
+  afterEach: globalThis.gc ? globalThis.gc : () => { }
 };

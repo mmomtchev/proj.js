@@ -5,16 +5,17 @@ module.exports = {
   ],
   'node-option': [
     'no-warnings',
-    'loader=ts-node/esm'
+    'loader=ts-node/esm',
+    'expose-gc'
   ],
-  'timeout': 5000,
+  'timeout': 20000,
+  'repeats': 100,
   'v8-expose-gc': true,
   'extensions': [
     'ts'
   ],
   'require': [
     'ts-node/register',
-    'tsconfig-paths/register.js',
     'test/node/wasm.node_js.proj_db.ts'
   ]
 };
