@@ -17,15 +17,15 @@ describe('C-API special typemaps', () => {
     const list = PROJ.proj_list_operations();
     assert.isArray(list);
     assert.isAtLeast(list.length, 10);
-    const inp = PROJ.proj_create('EPSG:4326');
-    assert.instanceOf(inp, PROJ.PJ);
     for (const op of list) {
       assert.instanceOf(op, PROJ.PJ_LIST_ELEMENT);
       assert.isString(op.id);
       assert.isString(op.descr);
       assert.isFunction(op.proj);
-      const outp = op.proj(inp);
-      assert.instanceOf(outp, PROJ.PJ);
+      // Alas, some of these operations expect very different types
+      // of arguments and simply calling them with a projection
+      // or whatever amounts to a very good fuzzing test for PROJ,
+      // which obviously sooner or later finds a weak point.
     }
   });
 

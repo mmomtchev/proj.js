@@ -19,10 +19,7 @@ const char *proj_js_build;
 const bool proj_js_inline_projdb;
 %mutable;
 
-%include <arrays_javascript.i>
-
-// Experimental function pointer support
-%include <function.i>
+%include <std_function.i>
 
 %wrapper %{
 #ifdef __EMSCRIPTEN__
@@ -555,28 +552,16 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
 %rename(PJ_LIST_ELEMENT) PJ_LIST;
 
 // The function pointer
-%typemap(out) PJ *(*PJ_LIST::proj)(PJ *) {
-  $result = SWIG_NAPI_Function<PJ *, PJ *>(
-    env,
-    std::function<PJ *(PJ *)>($1),
-    // Note that arguments are the decayed types
-    std::function<void(Napi::Env, const Napi::CallbackInfo &, PJ *)>(
-        [](Napi::Env env, const Napi::CallbackInfo &info, PJ *in) -> void {
-          // Ignore these two, these are SWIG quirks
-          // that require some major refactoring to be eliminated
-          int res10;
-          void *argp10;
-          $typemap(in, PJ *, input=info[0], 1=in, argnum=PJ, disown=0);
-      }
-    ),
-    [](Napi::Env env, PJ *c_out) -> Napi::Value {
-      Napi::Value js_out;
-      $typemap(out, PJ *, 1=c_out, result=js_out, argnum=result)
-      return js_out;
-    }
-  );
+%typemap(out) PJ *_SWIG_call_funcptr< PJ *,PJ * > {
+  // The calling semantics of this function pointer are rather unusual
+  // we simply return the same JS object with which we were called.
+  // Most functions do exactly this and wrapping it again as a non-owned
+  // proxy is very dangerous as the original can disappear.
+  // Do not add complexity.
+  // This entry point will probably be removed from the JS interface.
+  $result = info[0];
 }
-%typemap(ts) PJ *(*PJ_LIST::proj)(PJ *) "(x: PJ) => PJ";
+%napi_funcptr(proj_op_func_ptr, PJ *, PJ *);
 
 // TODO: SWIG JavaScript has a built-in arrays_javascript
 // but it works only for numbers
