@@ -273,6 +273,7 @@ OUTPUT_DATA_LENGTH(PJ_TYPE)
     return proj_get_crs_list_parameters_create();
   }
   ~PROJ_CRS_LIST_PARAMETERS() {
+    if ($self->types && $self->typesCount) delete [] $self->types;
     proj_get_crs_list_parameters_destroy($self);
   }
   std::vector<int> getTypes() {
