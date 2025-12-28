@@ -1,10 +1,13 @@
-// PJ_COORD
-%apply double[4] { double v[4] };
+// proj.js is a sync-only project, this skips lots of complexity
+%begin %{
+#define NAPI_HAS_THREADS 0
+%}
 
 // Per V8-isolate initialization
 %header %{
 struct proj_instance_data {
   PJ_CONTEXT *context;
+  std::function<void(int, const char *)> log_fn;
 };
 #ifdef __EMSCRIPTEN__
 extern const char *rootPath;
@@ -19,7 +22,10 @@ const char *proj_js_build;
 const bool proj_js_inline_projdb;
 %mutable;
 
+// Support for transforming C/C++ functions into JS functions
 %include <std_function.i>
+// Support for transforming JS function into C/C++ function
+// uses the SWIG_NAPI_Callback fragment and is much more awkward
 
 %wrapper %{
 #ifdef __EMSCRIPTEN__
@@ -134,6 +140,9 @@ const bool proj_js_inline_projdb = false;
  * Miscellaneous arguments that need special handling
  * ==================================================
  */
+
+ // PJ_COORD
+%apply double[4] { double v[4] };
 
 %apply bool {
   int allow_deprecated,
@@ -862,6 +871,81 @@ public:
 }
 %typemap(ts) PJ_OBJ_LIST * "PJ_OBJ_LIST";
 
+
+/**
+ * ================
+ * The log function
+ * ================
+ */
+
+// The original PROJ log function setter is not usable from JS
+%ignore proj_log_func;
+
+// This is very tricky, especially when dealing with async JS functions.
+// There is a section in the SWIG JSE manual that covers it in detail.
+%rename(proj_log_func) proj_log_func_wrapper;
+
+%typemap(in, fragment="SWIG_NAPI_Callback") std::function<void(int, const const char *)> {
+  if (!$input.IsFunction()) {
+    %argument_fail(SWIG_TypeError, "$type", $symname, $argnum);
+  }
+  
+  // SWIG_NAPI_Callback returns an std::function that can be used to call into JS
+  $1 = SWIG_NAPI_Callback<void, int, const char *>(
+    // First argument is the JavaScript function
+    $input,
+    // The second argument is a function
+    // The first two arguments are fixed - the Node-API environment pointer
+    //   and a reference to a napi_value vector that will receive the
+    //   converted arguments
+    // The next arguments are the C++ function type arguments
+    std::function<void(Napi::Env, std::vector<napi_value> &, int, const char *)>(
+        [](Napi::Env env, std::vector<napi_value> &js_args, int err, const char *msg) -> void {
+        // $typemap allows to simply insert the existing SWIG typemap for this type
+        $typemap(out, int, 1=err, result=js_args.at(0), argnum=err);
+        $typemap(out, char *, 1=msg, result=js_args.at(1), argnum=msg);
+      }
+    ),
+    // This argument is a function that will convert the returned value
+    [](Napi::Env env, Napi::Value js_ret) -> void {
+      if (!js_ret.IsUndefined())
+        SWIG_Raise("JavaScript log function returned a value, it should return undefined");
+    },
+    // This will be the value of 'this' inside the JavaScript function
+    env.Global()
+  );
+}
+
+// This is the associated TypeScript type
+%typemap(ts) std::function<void(int, const char *)>
+  "(this: typeof globalThis, err: number, msg: string) => Promise<void> | void";
+
+// If a function asks for the instance_data, produce it out of thin air
+%typemap(in, numinputs=0) proj_instance_data *instance_data {
+  $1 = static_cast<proj_instance_data *>(SWIG_NAPI_GetInstanceData(env));
+}
+
+// This is the log function setter that will be exported to JavaScript. It accepts
+// an std::function parameter that SWIG will transform using the above typemaps.
+// It will use the void* data parameter to send itself back the std::function to call.
+// (C++ lambdas that do not capture anything can be casted to function pointers).
+%inline %{
+void proj_log_func_wrapper(proj_instance_data *instance_data, PJ_CONTEXT *ctx, std::function<void(int, const char *)> fn);  
+%}
+%wrapper %{
+void proj_log_func_wrapper(proj_instance_data *instance_data, PJ_CONTEXT *ctx, std::function<void(int, const char *)> fn) {
+  using cb_t = decltype(fn);
+  // Store the log function in the instance data
+  // (to avoid complex allocation/deallocation)
+  instance_data->log_fn = fn;
+  // Pass a pointer to this std::function
+  auto *cb = &instance_data->log_fn;
+  proj_log_func(ctx, cb, [](void *context, int err, const char *msg) -> void {
+    auto fn_ = reinterpret_cast<cb_t*>(context);
+    (*fn_)(err, msg);
+  });
+}
+%}
 
 
 /**

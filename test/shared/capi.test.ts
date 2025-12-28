@@ -13,6 +13,17 @@ describe('C-API special typemaps', () => {
     }).catch(done);
   });
 
+  it('proj_log_func', () => {
+    const msgs: string[] = [];
+    PROJ.proj_log_func(((err, msg) => {
+      msgs.push(`PROJ sent ${err} : ${msg}`);
+    }));
+    PROJ.proj_log_level(PROJ.PJ_LOG_DEBUG);
+    PROJ.proj_create('FIFA:1996');
+    assert.include(msgs.join(), 'FIFA:1996');
+    PROJ.proj_log_level(PROJ.PJ_LOG_ERROR);
+  });
+
   it('proj_list_operations', () => {
     const p = new PROJ.PJ('EPSG:4326');
     const list = PROJ.proj_list_operations();
