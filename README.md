@@ -131,7 +131,7 @@ The C API has many caveats and it is more prone to errors when interfacing to JS
 
 Using it for anything but basic coordinate transformation is not tested at the moment.
 
-**Avoid loading both modules at the same time, because SWIG shares the code for the identical types between the two. This is SWIG multi-module support which has never been tested for JavaScript Node-API.**
+**Keep in mind that if you load both modules, you will end with two completely separate and independent PROJ instances that cannot talk to each other.**
 
 # WASM size considerations
 

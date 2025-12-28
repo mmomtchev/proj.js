@@ -14,6 +14,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_list_operations', () => {
+    const p = new PROJ.PJ('EPSG:4326');
     const list = PROJ.proj_list_operations();
     assert.isArray(list);
     assert.isAtLeast(list.length, 10);
@@ -110,7 +111,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_identify', () => {
-    const pj = PROJ.proj_create('EPSG:4326');
+    const pj = new PROJ.PJ('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
     const { result, confidence } = PROJ.proj_identify(pj, null);
@@ -149,7 +150,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_get_area_of_use', () => {
-    const pj = PROJ.proj_create('EPSG:4326');
+    const pj = new PROJ.PJ('EPSG:4326');
     assert.instanceOf(pj, PROJ.PJ);
 
     const area_of_use = PROJ.proj_get_area_of_use(pj);
@@ -191,8 +192,8 @@ describe('C-API special typemaps', () => {
     PROJ.proj_operation_factory_context_set_allowed_intermediate_crs(factory_ctx,
       ['EPSG', '4326']);
 
-    const geo = PROJ.proj_create('EPSG:4326');
-    const mercator = PROJ.proj_create('EPSG:3857');
+    const geo = new PROJ.PJ('EPSG:4326');
+    const mercator = new PROJ.PJ('EPSG:3857');
 
     const ops = PROJ.proj_create_operations(geo, mercator, factory_ctx);
     assert.instanceOf(ops, PROJ.PJ_OBJ_LIST);
@@ -206,8 +207,8 @@ describe('C-API special typemaps', () => {
 
   it('proj_coordoperation_get_param / proj_coordoperation_get_info', () => {
     const op = PROJ.proj_create_operations(
-      PROJ.proj_create('EPSG:4326'),
-      PROJ.proj_create('EPSG:3857'),
+      new PROJ.PJ('EPSG:4326'),
+      new PROJ.PJ('EPSG:3857'),
       PROJ.proj_create_operation_factory_context('EPSG')).get(0);
 
     const info = PROJ.proj_coordoperation_get_method_info(op);
@@ -241,7 +242,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_ellipsoid_get_parameters', () => {
-    const pj = PROJ.proj_get_ellipsoid(PROJ.proj_create('EPSG:4326'));
+    const pj = PROJ.proj_get_ellipsoid(new PROJ.PJ('EPSG:4326'));
     const ellipsoid = PROJ.proj_ellipsoid_get_parameters(pj);
     assert.isNumber(ellipsoid.semi_major_metre);
     assert.isNumber(ellipsoid.semi_minor_metre);

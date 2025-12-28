@@ -506,8 +506,6 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
 
 // Attach some specific methods to the object itself
 %extend jsPJ {
-  // Alas, this really pushes the multi-module support too hard
-  // There are two PROJ instances at the moment
   jsPJ(PJ_CONTEXT *ctx, const char *definition) {
     return new jsPJ(proj_create(ctx, definition));
   }
