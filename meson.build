@@ -120,7 +120,8 @@ main_target = napi.extension_module(
     'environments': ['web','webview','worker'],
     # Export the FS subsystem
     'exported_runtime_methods': ['emnapiInit', 'FS']
-  }
+  },
+  gnu_symbol_visibility : 'hidden'
 )
 
 # When compiling to WASM, build a second bundle specifically for Node.js
@@ -136,7 +137,8 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
       'environments': ['node'],
       # Export the FS subsystem
       'exported_runtime_methods': ['emnapiInit', 'FS']
-    }
+    },
+    gnu_symbol_visibility : 'hidden'
   )
 endif
 
@@ -151,7 +153,8 @@ capi_target = napi.extension_module(
     'swig': true,
     'environments': ['web','webview','worker'],
     'exported_runtime_methods': ['emnapiInit', 'FS']
-  }
+  },
+  gnu_symbol_visibility : 'hidden'
 )
 
 # --------------------
