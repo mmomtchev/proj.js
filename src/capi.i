@@ -918,7 +918,7 @@ public:
 
 // This is the associated TypeScript type
 %typemap(ts) std::function<void(int, const char *)>
-  "(this: typeof globalThis, err: number, msg: string) => Promise<void> | void";
+  "(this: typeof globalThis, err: number, msg: string) => void";
 
 // If a function asks for the instance_data, produce it out of thin air
 %typemap(in, numinputs=0) proj_instance_data *instance_data {
