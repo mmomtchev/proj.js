@@ -1,6 +1,8 @@
 // proj.js is a sync-only project, this skips lots of complexity
 %begin %{
 #define NAPI_HAS_THREADS 0
+// This is a bug in SWIG
+#include <condition_variable>
 %}
 
 // Per V8-isolate initialization
