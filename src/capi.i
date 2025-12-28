@@ -163,7 +163,7 @@ const bool proj_js_inline_projdb = false;
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
 
-// Generic output typemap for dynamic length arrays
+// Generic arrays from C pointer & length to JS Array
 %define OUTPUT_DATA_LENGTH(TYPE)
 %typemap(out) (TYPE *OUTPUT_DATA, size_t OUTPUT_LENGTH) {
   Napi::Array array = Napi::Array::New(env, $2);
@@ -175,9 +175,10 @@ const bool proj_js_inline_projdb = false;
   $result = array;
 }
 %enddef
-// Instantiated for int and double
+// Instantiated for int, double and PJ_TYPE
 OUTPUT_DATA_LENGTH(int)
 OUTPUT_DATA_LENGTH(double)
+OUTPUT_DATA_LENGTH(PJ_TYPE)
 
 // out_result_count is used in several functions
 // we transform it to a local variable in each wrapper
@@ -247,6 +248,50 @@ OUTPUT_DATA_LENGTH(double)
   "[ number, number, number, number, string ]";
 
 /**
+ * ========================
+ * PROJ_CRS_LIST_PARAMETERS
+ * ========================
+ */
+
+// This is an ordinary structure which must be enriched
+// with constructor/destructor and conversions for the types
+%typemap(out) std::vector<int> getTypes = std::vector RETURN;
+%typemap(ts)  std::vector<int> getTypes "PJ_TYPE[]";
+%typemap(in)  const std::vector<int> &paramTypes = std::vector const &INPUT;
+%typemap(ts)  const std::vector<int> &paramTypes "PJ_TYPE[]";
+
+// As these cannot be used from JS they must be replaced with
+// setters/getters. Alas, a typedef anonymous struct cannot have
+// ignores so we cannot ignore only PROJ_CRS_LIST_PARAMETERS::types.
+// Thus we ignore all member variables called types but not any
+// eventual function arguments.
+%rename("$ignore", %$isvariable) types;
+%rename("$ignore", %$isvariable) typesCount;
+
+%extend PROJ_CRS_LIST_PARAMETERS {
+  PROJ_CRS_LIST_PARAMETERS() {
+    return proj_get_crs_list_parameters_create();
+  }
+  ~PROJ_CRS_LIST_PARAMETERS() {
+    proj_get_crs_list_parameters_destroy($self);
+  }
+  std::vector<int> getTypes() {
+    std::vector<int> r;
+    for (size_t i = 0; i < $self->typesCount; i++)
+      r.push_back($self->types[i]);
+    return r;
+  }
+  void setTypes(std::vector<int> const &paramTypes) {
+    if ($self->types && $self->typesCount) delete [] $self->types;
+    PJ_TYPE *types = new PJ_TYPE[paramTypes.size()];
+    for (size_t i = 0; i < paramTypes.size(); i++)
+      types[i] = static_cast<PJ_TYPE>(paramTypes[i]);
+    $self->types = types;
+    $self->typesCount = paramTypes.size();
+  }
+}
+
+/**
  * ==================================================================
  * Methods that expect a number of output arguments in raw C pointers
  * and are transformed to return a structured object in JS
@@ -301,7 +346,6 @@ OUTPUT_DATA_LENGTH(double)
   memset($1, 0, sizeof(values));
 }
 %typemap(argout) (double *out_values, int value_count) {
-  Napi::Array js_array = Napi::Array::New(env);
   // Find the true length, ignore trailing zeros
   size_t len = 15;
   while ($1[len - 1] == 0 && len > 0) len--;
@@ -524,6 +568,7 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
     return proj_get_name($self->get());
   }
 }
+
 %extend jsPJ_AREA {
   jsPJ_AREA() {
     return new jsPJ_AREA(proj_area_create());

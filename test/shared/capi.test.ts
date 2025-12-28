@@ -22,6 +22,9 @@ describe('C-API special typemaps', () => {
     PROJ.proj_create('FIFA:1996');
     assert.include(msgs.join(), 'FIFA:1996');
     PROJ.proj_log_level(PROJ.PJ_LOG_ERROR);
+    PROJ.proj_log_func(((err, msg) => {
+      console.log(`PROJ ${err}: ${msg}`);
+    }));
   });
 
   it('proj_list_operations', () => {
@@ -293,5 +296,20 @@ describe('C-API special typemaps', () => {
     assert.strictEqual(coords.length, expected.length);
     for (const i in coords)
       assert.closeTo(coords[i], expected[i], 1e-5);
+  });
+
+  it('PROJ_CRS_LIST_PARAMETERS', () => {
+    const params = new PROJ.PROJ_CRS_LIST_PARAMETERS;
+    assert.deepEqual(params.getTypes(), []);
+    params.setTypes([PROJ.PJ_TYPE_GEOGRAPHIC_2D_CRS]);
+    assert.deepEqual(params.getTypes(), [PROJ.PJ_TYPE_GEOGRAPHIC_2D_CRS]);
+    const list = PROJ.proj_get_crs_info_list_from_database('EPSG', params);
+    let atLeastOne = false;
+    for (const p of list) {
+      atLeastOne = true;
+      assert.instanceOf(p, PROJ.PROJ_CRS_INFO);
+      assert.strictEqual(p.auth_name, 'EPSG');
+    }
+    assert.isTrue(atLeastOne);
   });
 });
