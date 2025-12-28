@@ -249,7 +249,8 @@ describe('C-API special typemaps', () => {
     assert.isBoolean(ellipsoid.is_semi_minor_computed);
     assert.isNumber(ellipsoid.inv_flattening);
     assert.closeTo(ellipsoid.inv_flattening, 298, 0.5);
-    assert.closeTo(ellipsoid.semi_major_metre / ellipsoid.semi_minor_metre, 1 + 1 / ellipsoid.inv_flattening, 1);
+    assert.closeTo((ellipsoid.semi_major_metre - ellipsoid.semi_minor_metre) / ellipsoid.semi_major_metre,
+      1 / ellipsoid.inv_flattening, 1e-12);
   });
 
   it('PJ_AREA', () => {
