@@ -255,10 +255,10 @@ OUTPUT_DATA_LENGTH(PJ_TYPE)
 
 // This is an ordinary structure which must be enriched
 // with constructor/destructor and conversions for the types
-%typemap(out) std::vector<int> getTypes = std::vector RETURN;
-%typemap(ts)  std::vector<int> getTypes "PJ_TYPE[]";
-%typemap(in)  const std::vector<int> &paramTypes = std::vector const &INPUT;
-%typemap(ts)  const std::vector<int> &paramTypes "PJ_TYPE[]";
+%apply        std::vector             RETURN        { std::vector<int> getTypes };
+%typemap(ts)  std::vector<int>        getTypes      "PJ_TYPE[]";
+%apply        std::vector const       &INPUT        { const std::vector<int> &paramTypes };
+%typemap(ts)  const std::vector<int>  &paramTypes   "PJ_TYPE[]";
 
 // As these cannot be used from JS they must be replaced with
 // setters/getters. Alas, a typedef anonymous struct cannot have
@@ -273,7 +273,8 @@ OUTPUT_DATA_LENGTH(PJ_TYPE)
     return proj_get_crs_list_parameters_create();
   }
   ~PROJ_CRS_LIST_PARAMETERS() {
-    if ($self->types && $self->typesCount) delete [] $self->types;
+    if ($self->types && $self->typesCount)
+      delete [] $self->types;
     proj_get_crs_list_parameters_destroy($self);
   }
   std::vector<int> getTypes() {
@@ -283,7 +284,8 @@ OUTPUT_DATA_LENGTH(PJ_TYPE)
     return r;
   }
   void setTypes(std::vector<int> const &paramTypes) {
-    if ($self->types && $self->typesCount) delete [] $self->types;
+    if ($self->types && $self->typesCount)
+      delete [] $self->types;
     PJ_TYPE *types = new PJ_TYPE[paramTypes.size()];
     for (size_t i = 0; i < paramTypes.size(); i++)
       types[i] = static_cast<PJ_TYPE>(paramTypes[i]);
