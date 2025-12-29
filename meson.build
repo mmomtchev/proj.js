@@ -81,6 +81,11 @@ if meson.get_compiler('cpp').get_id() == 'msvc'
   add_global_arguments([ '/bigobj' ], language: 'cpp')
 endif
 
+# Alas, there are still a number of JS typemaps that do this
+if meson.get_compiler('cpp').get_id() != 'msvc'
+  add_project_arguments([ '-Wno-unused-variable' ], language: 'cpp')
+endif
+
 cmake_opts = cmake.subproject_options()
 # Build proj as a static library to be included in a shared module
 cmake_opts.add_cmake_defines([

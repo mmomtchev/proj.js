@@ -687,6 +687,8 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
   // Do not add complexity.
   // This entry point will probably be removed from the JS interface.
   $result = info[0];
+  // Yes, we do not use result
+  (void *)result;
 }
 %napi_funcptr(proj_op_func_ptr, PJ *, PJ *);
 
