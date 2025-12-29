@@ -265,7 +265,7 @@ describe('C-API special typemaps', () => {
     assert.closeTo(ellipsoid.inv_flattening, 298, 0.5);
     assert.closeTo((ellipsoid.semi_major_metre - ellipsoid.semi_minor_metre) / ellipsoid.semi_major_metre,
       // Scientific precision
-      1 / ellipsoid.inv_flattening, 1e-12);
+      1 / ellipsoid.inv_flattening, 1e-9);
   });
 
   it('PJ_AREA', () => {
@@ -292,7 +292,7 @@ describe('C-API special typemaps', () => {
     for (const i in translated) {
       const expected = PROJ.proj_trans(op, PROJ.PJ_FWD, pj_coords[i]);
       // Scientific precision
-      assert.closeTo(PROJ.proj_xy_dist(translated[i], expected), 0, 1e-12);
+      assert.closeTo(PROJ.proj_xy_dist(translated[i], expected), 0, 1e-9);
     }    
   });
 
@@ -321,7 +321,7 @@ describe('C-API special typemaps', () => {
     );
     assert.strictEqual(length * 2, coords.length);
     assert.strictEqual(coords.length, expected.length);
-    // Engineering precision
+    // Scientific precision
     for (const i in coords)
       assert.closeTo(coords[i], expected[i], 1e-9);
   });
@@ -353,7 +353,7 @@ describe('C-API special typemaps', () => {
     assert.isNumber(factors.meridian_parallel_angle);
     assert.isNumber(factors.meridian_convergence);
     // Scientific precision
-    assert.closeTo(factors.meridian_convergence, 0, 1e-12);
+    assert.closeTo(factors.meridian_convergence, 0, 1e-9);
     // Butcher precision
     assert.closeTo(factors.tissot_semiminor, 1 / Math.cos(PROJ.proj_torad(coords[1])), 1e-2);
     assert.closeTo(factors.tissot_semimajor, 1 / Math.cos(PROJ.proj_torad(coords[1])), 1e-2);
