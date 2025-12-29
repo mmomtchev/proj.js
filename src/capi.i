@@ -137,28 +137,32 @@ const bool proj_js_inline_projdb = false;
 %rename("$ignore", regextarget=1) "proj.*_destroy";
 %ignore proj_cleanup;
 
+// TODO: One day
+%ignore proj_download_file;
+
 /**
- * ==================================================
- * Miscellaneous arguments that need special handling
- * ==================================================
+ * ========================================
+ * Miscellaneous arguments that need simple
+ * but special handling
+ * ========================================
  */
 
  // PJ_COORD
 %apply double[4] { double v[4] };
+// Note that the constructor must return a pointer
+// to a heap object - this is the only object type in JS
+%extend PJ_COORD {
+  PJ_COORD() {
+    return new PJ_COORD;
+  }
+  PJ_COORD(double x, double y, double z, double t) {
+    return new PJ_COORD(proj_coord(x, y, z, t));
+  }
+}
 
-%apply bool {
-  int allow_deprecated,
-  int deprecated,
-  int crs_area_of_use_contains_bbox,
-  int approximateMatch,
-  int proj_is_deprecated,
-  int proj_is_equivalent_to,
-  int proj_is_equivalent_to_with_ctx,
-  int proj_is_crs,
-  int proj_is_derived_crs,
-  int proj_crs_is_derived,
-  int proj_coordoperation_is_instantiable
-};
+// These are usually optional
+// (this is a problem only with TypeScript - SWIG wil always
+// transform JS null to C++ nullptr)
 %typemap(ts) const char *auth_name "string | null";
 %typemap(ts) const char *category "string | null";
 %typemap(ts) PROJ_CRS_LIST_PARAMETERS *params "PROJ_CRS_LIST_PARAMETERS | null";
@@ -175,10 +179,11 @@ const bool proj_js_inline_projdb = false;
   $result = array;
 }
 %enddef
-// Instantiated for int, double and PJ_TYPE
+// Instantiated for int, double, PJ_TYPE and PJ_COORD
 OUTPUT_DATA_LENGTH(int)
 OUTPUT_DATA_LENGTH(double)
 OUTPUT_DATA_LENGTH(PJ_TYPE)
+OUTPUT_DATA_LENGTH(PJ_COORD)
 
 // out_result_count is used in several functions
 // we transform it to a local variable in each wrapper
@@ -246,6 +251,88 @@ OUTPUT_DATA_LENGTH(PJ_TYPE)
     double *out_east_lon_degree, double *out_north_lat_degree,
     const char **out_area_name)
   "[ number, number, number, number, string ]";
+
+/**
+ * ===========================
+ * Transform the return values
+ * ===========================
+ */
+
+// Transform return true/false to void/throw
+%typemap(out) int THROW_IF_FALSE {
+  if (!$1)
+    SWIG_Raise("$1_name failed");
+  $result = env.Undefined();
+}
+%typemap(ts) int THROW_IF_FALSE "void";
+ 
+ // These should throw in JS
+ %apply int THROW_IF_FALSE {
+  int proj_trans_bounds,
+  int proj_prime_meridian_get_parameters,
+  int proj_coordoperation_get_method_info,
+  int proj_coordoperation_get_param,
+  int proj_cs_get_axis_info,
+  int proj_ellipsoid_get_parameters,
+  int proj_coordoperation_get_grid_used,
+  int proj_coordoperation_get_towgs84_values,
+  int proj_uom_get_info_from_database,
+  int proj_grid_get_info_from_database,
+  int proj_get_area_of_use,
+  int proj_get_area_of_use_ex,
+  int proj_cs_get_axis_info
+};
+
+// These should be bool in JS
+%apply bool {
+  // arguments/fields
+  int allow_deprecated,
+  int deprecated,
+  int crs_area_of_use_contains_bbox,
+  int approximateMatch,
+  // methods
+  int proj_is_download_needed,
+  int proj_angular_input,
+  int proj_angular_output,
+  int proj_degree_input,
+  int proj_degree_output,
+  int proj_is_deprecated,
+  int proj_is_equivalent_to,
+  int proj_is_equivalent_to_with_ctx,
+  int proj_is_crs,
+  int proj_is_derived_crs,
+  int proj_crs_is_derived,
+  int proj_coordoperation_is_instantiable,
+  int proj_coordoperation_has_ballpark_transformation,
+  int proj_crs_has_point_motion_operation,
+  int proj_coordoperation_requires_per_coordinate_input_time
+};
+
+/**
+ * ================
+ * proj_trans_array
+ * ================
+ */
+// The arguments are in reverse order,
+%typemap(in) (PJ_COORD *coord, size_t n) = (SWIGTYPE *array, size_t count);
+%typemap(in, numinputs=1) (size_t n, PJ_COORD *coord) {
+  $typemap(in, (PJ_COORD *coord, size_t n), 1=$2, 2=$1);
+}
+%typemap(ts) (size_t n, PJ_COORD *coord) "PJ_COORD[]";
+// the return value also works the other way around,
+%typemap(out) int proj_trans_array {
+  if ($1 != 0) {
+    auto *ctx = static_cast<proj_instance_data *>(SWIG_NAPI_GetInstanceData(env))->context;
+    SWIG_Raise(proj_context_errno_string(ctx, $1));
+  }
+}
+// and the JS return value must be constructed from the input.
+// This is because we are not using contiguous memory TypedArray but
+// rather a JavaScript Array.
+%typemap(argout) (size_t n, PJ_COORD *coord) {
+  $typemap(out, (PJ_COORD *OUTPUT_DATA, size_t OUTPUT_LENGTH), 1=$2, 2=$1);
+}
+%typemap(ts, merge="overwrite") int proj_trans_array "PJ_COORD[]";
 
 /**
  * ========================
@@ -316,14 +403,6 @@ OUTPUT_DATA_LENGTH(PJ_TYPE)
 
 // Same thing but the C name is always out_<JS name>
 #define OUTPUT_FIELD(TYPE, NAME) OUTPUT_FIELD_NAME(TYPE, out_##NAME, NAME)
-
-// Transform return true/false to void/throw
-%typemap(out) int THROW_IF_FALSE {
-  if (!$1)
-    SWIG_Raise("$1_name failed");
-  $result = env.Undefined();
-}
-%typemap(ts) int THROW_IF_FALSE "void";
 
 // Return an input argument as a named field in a structured object with rename and new type
 %define OUTPUT_FIELD_CAST(CTYPE, CNAME, JSTYPE, JSNAME)
@@ -396,17 +475,6 @@ OUTPUT_FIELD(const char *,  package_name)
 OUTPUT_FIELD(const char *,  url)
 OUTPUT_FIELD_CAST(int, out_direct_download, bool, direct_download)
 OUTPUT_FIELD_CAST(int, out_available, bool, available)
-
-%apply int THROW_IF_FALSE {
-  int proj_trans_bounds,
-  int proj_prime_meridian_get_parameters,
-  int proj_coordoperation_get_method_info,
-  int proj_coordoperation_get_param,
-  int proj_cs_get_axis_info,
-  int proj_ellipsoid_get_parameters,
-  int proj_coordoperation_get_grid_used,
-  int proj_coordoperation_get_towgs84_values
-};
 
 // Merge out_value / out_value_string in a single value with two possible types
 %typemap(argout) (double *out_value, const char **out_value_string) {

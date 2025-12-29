@@ -264,6 +264,7 @@ describe('C-API special typemaps', () => {
     assert.isNumber(ellipsoid.inv_flattening);
     assert.closeTo(ellipsoid.inv_flattening, 298, 0.5);
     assert.closeTo((ellipsoid.semi_major_metre - ellipsoid.semi_minor_metre) / ellipsoid.semi_major_metre,
+      // Scientific precision
       1 / ellipsoid.inv_flattening, 1e-12);
   });
 
@@ -273,6 +274,26 @@ describe('C-API special typemaps', () => {
     const pj = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857', area);
     assert.instanceOf(pj, PROJ.PJ);
     assert.isTrue(PROJ.proj_coordoperation_is_instantiable(pj));
+  });
+
+  it('proj_trans_array', () => {
+    const coords = [
+      [-8.0125000, 53.0125000],
+      [-8.0125000, 37.9875000],
+      [12.0125000, 53.0125000],
+      [12.0125000, 37.9875000],
+      [2.0000000, 45.5000000]
+    ];
+    const pj_coords = coords.map((c) => new PROJ.PJ_COORD(c[0], c[1], 0, 0));
+    const op = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857');
+    const translated = PROJ.proj_trans_array(op, PROJ.PJ_FWD, pj_coords);
+    assert.isArray(translated);
+    assert.lengthOf(translated, pj_coords.length);
+    for (const i in translated) {
+      const expected = PROJ.proj_trans(op, PROJ.PJ_FWD, pj_coords[i]);
+      // Scientific precision
+      assert.closeTo(PROJ.proj_xy_dist(translated[i], expected), 0, 1e-12);
+    }    
   });
 
   it('proj_trans_generic', () => {
@@ -292,10 +313,17 @@ describe('C-API special typemaps', () => {
     ]);
 
     const op = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857');
-    PROJ.proj_trans_generic(op, PROJ.PJ_FWD, { data: coords, stride: 2 }, { data: coords, stride: 2, offset: 1 }, { data: 0 }, { data: 0 });
+    const length = PROJ.proj_trans_generic(op, PROJ.PJ_FWD,
+      { data: coords, stride: 2 },
+      { data: coords, stride: 2, offset: 1 },
+      { data: 0 },
+      { data: 0 }
+    );
+    assert.strictEqual(length * 2, coords.length);
     assert.strictEqual(coords.length, expected.length);
+    // Scientific precision
     for (const i in coords)
-      assert.closeTo(coords[i], expected[i], 1e-5);
+      assert.closeTo(coords[i], expected[i], 1e-12);
   });
 
   it('PROJ_CRS_LIST_PARAMETERS', () => {
@@ -311,5 +339,23 @@ describe('C-API special typemaps', () => {
       assert.strictEqual(p.auth_name, 'EPSG');
     }
     assert.isTrue(atLeastOne);
+  });
+
+  it('PJ_FACTORS', () => {
+    const coords = [2.23337, 48.8051];
+    const factors = PROJ.proj_factors(
+      new PROJ.PJ('EPSG:3857'),
+      new PROJ.PJ_COORD(PROJ.proj_torad(coords[0]), PROJ.proj_torad(coords[1]), 0, 0)
+    );
+    assert.isNumber(factors.tissot_semimajor);
+    assert.isNumber(factors.tissot_semiminor);
+    assert.isNumber(factors.angular_distortion);
+    assert.isNumber(factors.meridian_parallel_angle);
+    assert.isNumber(factors.meridian_convergence);
+    // Scientific precision
+    assert.closeTo(factors.meridian_convergence, 0, 1e-12);
+    // Butcher precision
+    assert.closeTo(factors.tissot_semiminor, 1 / Math.cos(PROJ.proj_torad(coords[1])), 1e-2);
+    assert.closeTo(factors.tissot_semimajor, 1 / Math.cos(PROJ.proj_torad(coords[1])), 1e-2);
   });
 });
