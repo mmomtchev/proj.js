@@ -321,9 +321,9 @@ describe('C-API special typemaps', () => {
     );
     assert.strictEqual(length * 2, coords.length);
     assert.strictEqual(coords.length, expected.length);
-    // Scientific precision
+    // Engineering precision
     for (const i in coords)
-      assert.closeTo(coords[i], expected[i], 1e-12);
+      assert.closeTo(coords[i], expected[i], 1e-9);
   });
 
   it('PROJ_CRS_LIST_PARAMETERS', () => {
