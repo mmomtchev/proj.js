@@ -20,6 +20,7 @@
 
 // These must be renamed to work in JavaScript and TypeScript
 // https://github.com/mmomtchev/swig/issues/145
+%rename("createGeographic") osgeo::proj::crs::GeographicCRS::create;
 %rename("createDerivedVertical") osgeo::proj::crs::DerivedVerticalCRS::create;
 %rename("createDerivedGeographic") osgeo::proj::crs::DerivedGeographicCRS::create;
 %rename("createDerivedGeodetic") osgeo::proj::crs::DerivedGeodeticCRS::create;

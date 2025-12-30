@@ -10,83 +10,97 @@ import { FlatCompat } from '@eslint/eslintrc';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: js.configs.recommended,
-    allConfig: js.configs.all
+  baseDirectory: __dirname,
+  recommendedConfig: js.configs.recommended,
+  allConfig: js.configs.all
 });
 
 export default [{
-    ignores: [
-        'test/browser/build/*',
-        'test/integration/*',
-        'build/*',
-        'lib/binding/*'
-    ],
+  ignores: [
+    'test/browser/build/*',
+    'test/integration/*/build',
+    'test/integration/*/dist',
+    'build/*',
+    'lib/binding/*'
+  ],
 }, ...compat.extends('eslint:recommended'), {
-    plugins: {
-        mocha,
+  plugins: {
+    mocha,
+  },
+
+  languageOptions: {
+    globals: {
+      ...globals.mocha,
+      ...globals['shared-node-browser'],
+      __karma__: true,
+      process: true,
     },
 
-    languageOptions: {
-        globals: {
-            ...globals.mocha,
-            ...globals['shared-node-browser'],
-            __karma__: true,
-            process: true,
-        },
+    ecmaVersion: 2020,
+    sourceType: 'module',
+  },
 
-        ecmaVersion: 2020,
-        sourceType: 'module',
-    },
-
-    rules: {
-        semi: [2, 'always'],
-        quotes: ['error', 'single'],
-    },
+  rules: {
+    semi: [2, 'always'],
+    quotes: ['error', 'single'],
+    'no-console': ['error', { allow: ['warn', 'error'] }],
+    'indent': ['error', 2]
+  },
 }, ...compat.extends(
-    'eslint:recommended',
-    'plugin:@typescript-eslint/eslint-recommended',
-    'plugin:@typescript-eslint/recommended',
+  'eslint:recommended',
+  'plugin:@typescript-eslint/eslint-recommended',
+  'plugin:@typescript-eslint/recommended',
 ).map(config => ({
-    ...config,
-    files: ['test/*.ts'],
+  ...config,
+  files: ['**/*.ts'],
 })), {
-    files: ['test/*.ts'],
+  files: ['**/*.ts'],
 
-    plugins: {
-        '@typescript-eslint': typescriptEslint,
-    },
+  plugins: {
+    '@typescript-eslint': typescriptEslint,
+  },
 
-    languageOptions: {
-        parser: tsParser,
-    },
+  languageOptions: {
+    parser: tsParser,
+  },
 
-    rules: {
-        '@typescript-eslint/ban-ts-comment': 'off',
-    },
+  rules: {
+    '@typescript-eslint/ban-ts-comment': 'off',
+  },
 }, {
-    files: ['**/*.cjs'],
+  files: ['**/*.cjs'],
 
-    languageOptions: {
-        ecmaVersion: 2015,
-        sourceType: 'commonjs',
-        globals: {
-            ...globals.node
-        }
-    },
+  languageOptions: {
+    ecmaVersion: 2015,
+    sourceType: 'commonjs',
+    globals: {
+      ...globals.node
+    }
+  },
 }, {
-    files: ['test/browser/*.js'],
+  files: ['**/*.@(js|mjs)'],
 
-    languageOptions: {
-        globals: {
-            ...globals.browser,
-        },
-    },
-},
-{
-    files: ['scripts/*.mjs'],
+  languageOptions: {
+    ecmaVersion: 2022
+  },
+}, {
+  files: ['test/browser/*.js', 'test/integration/browser*/*.@(js|jsx|mjs|cjs|ts|tsx)'],
 
-    languageOptions: {
-        ecmaVersion: 2022
+  languageOptions: {
+    globals: {
+      ...globals.browser,
     },
+  }
+}, {
+  files: ['swig/*.d.*ts'],
+
+  rules: {
+    'indent': 'off'
+  }
+}, {
+  files: ['**/timing*.@(mjs|js|ts)'],
+
+  rules: {
+    'no-console': ['off']
+  }
 }];

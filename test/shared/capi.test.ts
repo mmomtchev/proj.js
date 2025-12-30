@@ -23,12 +23,11 @@ describe('C-API special typemaps', () => {
     assert.include(msgs.join(), 'FIFA:1996');
     PROJ.proj_log_level(PROJ.PJ_LOG_ERROR);
     PROJ.proj_log_func(((err, msg) => {
-      console.log(`PROJ ${err}: ${msg}`);
+      console.error(`PROJ ${err}: ${msg}`);
     }));
   });
 
   it('proj_list_operations', () => {
-    const p = new PROJ.PJ('EPSG:4326');
     const list = PROJ.proj_list_operations();
     assert.isArray(list);
     assert.isAtLeast(list.length, 10);

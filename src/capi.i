@@ -889,6 +889,19 @@ PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 
 %define PROJ_BLOCK_PTRARRAY(TYPE, NAME, DESTROY)
 
+%ignore TYPE##_CONTAINER::TYPE##_CONTAINER(TYPE **v);
+%ignore TYPE##_ITERATOR(TYPE **v);
+
+%typemap(out) TYPE **NAME {
+  if ($1 == NULL) {
+    SWIG_NAPI_Raise(env, "Error getting list");
+  }
+  TYPE##_CONTAINER *r = new TYPE##_CONTAINER{$1};
+  $typemap(out, TYPE##_CONTAINER *, 1=r, owner=SWIG_POINTER_OWN);
+}
+%typemap(ts) TYPE **NAME "$typemap(ts, " #TYPE "_CONTAINER)";
+%typemap(ts) TYPE *TYPE##_ITERATOR::next #TYPE;
+
 %inline {
 class TYPE##_ITERATOR;
 class TYPE##_CONTAINER {
@@ -905,8 +918,8 @@ public:
   TYPE##_ITERATOR(TYPE **v);
   TYPE *next();
 };
-
 }
+
 %wrapper {
   TYPE##_CONTAINER::TYPE##_CONTAINER(TYPE **v) : list{v} {}
   TYPE##_CONTAINER::~TYPE##_CONTAINER(){ DESTROY(list); }
@@ -920,17 +933,7 @@ public:
   }
 }
 
-%typemap(out) TYPE **NAME {
-  if ($1 == NULL) {
-    SWIG_NAPI_Raise(env, "Error getting list");
-  }
-  TYPE##_CONTAINER *r = new TYPE##_CONTAINER{$1};
-  $typemap(out, TYPE##_CONTAINER *, 1=r, owner=SWIG_POINTER_OWN);
-}
-%typemap(ts) TYPE **NAME "$typemap(ts, " #TYPE "_CONTAINER)";
-
 %enddef
-
 
 /**
  * ==============================
@@ -952,6 +955,7 @@ PROJ_BLOCK_PTRARRAY(PROJ_CRS_INFO, proj_get_crs_info_list_from_database, proj_cr
 %ignore PJ_OBJ_LIST;
 %ignore proj_list_get;
 %ignore proj_list_get_count;
+%ignore PJ_OBJ_LIST_WRAPPER::PJ_OBJ_LIST_WRAPPER(PJ_OBJ_LIST *v);
 %rename(PJ_OBJ_LIST) PJ_OBJ_LIST_WRAPPER;
 // TODO: provide a mechanism to disallow constructing of certain classes from JS
 %inline {

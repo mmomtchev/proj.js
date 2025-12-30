@@ -14,8 +14,6 @@ import type * as PROJ from 'proj.js';
 // @ts-ignore
 import proj_db_url from 'proj.js/proj.db';
 
-console.log('Hello from WASM');
-
 function print(msg: string) {
   const div = document.createElement('div');
   const text = document.createTextNode(msg);
@@ -27,7 +25,6 @@ print('Loading WASM');
 (async function () {
   const PROJ = await qPROJ;
   print('WASM loaded and transpiled');
-  console.log('WASM', PROJ);
 
   print(`proj.db is inlined: ${PROJ.proj_js_inline_projdb}`);
 
