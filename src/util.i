@@ -98,8 +98,11 @@ baseobject_downcast_table.insert({typeid(TYPE).hash_code(), $descriptor(TYPE *)}
  * Unrecognized objects remain as BaseObjectNNPtr objects.
  */
 %define TRY_DOWNCASTING(INPUT, OUTPUT, BASE_TYPE, TABLE)
-  std::size_t rtti_code = typeid(*INPUT.get()).hash_code();
-  SWIG_VERBOSE(#TABLE ": downcasting for type %s: ", typeid(*INPUT.get()).name());
+  // The const play is needed to silence a warning about typeid
+  // having side-effects
+  auto const &obj = *INPUT.get();
+  std::size_t rtti_code = typeid(obj).hash_code();
+  SWIG_VERBOSE(#TABLE ": downcasting for type %s: ", typeid(obj).name());
   if (TABLE.count(rtti_code) > 0) {
     swig_type_info *info = TABLE.at(rtti_code);
     SWIG_VERBOSE("found %s (%s)\n", info->str, info->name);

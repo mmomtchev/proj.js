@@ -29,6 +29,8 @@ napi = import('node-api')
 dependencies = [
   dependency('sqlite3', method : 'pkg-config')
 ]
+proj_cxx_options = ''
+proj_link_options = ''
 if get_option('tiff')
   dependencies += dependency('libtiff-4', method : 'pkg-config')
   enable_tiff = true
@@ -46,10 +48,16 @@ if get_option('debug')
 endif
 wasm = meson.get_compiler('cpp').get_id() == 'emscripten'
 if wasm
-  add_project_arguments([ '-Wno-potentially-evaluated-expression' ], language: [ 'cpp' ])
+  add_project_arguments(['-fexceptions' ], language: [ 'cpp' ])
   # Recent emnapi versions require POSIX_C_SOURCE
   add_project_arguments([ '-D_POSIX_C_SOURCE=200112L' ], language: [ 'c' ])
-  add_project_link_arguments([ '-sBINARYEN_EXTRA_PASSES="--enable-bulk-memory,--enable-threads,--converge,-Oz"' ], language: [ 'cpp', 'c' ])
+  add_project_link_arguments([
+    '-sBINARYEN_EXTRA_PASSES="--enable-bulk-memory,--enable-threads,--converge,-Oz"',
+    '-fexceptions'
+    ], language: [ 'cpp', 'c' ])
+  # Without these catch in C++ does not work with emscripten
+  proj_cxx_options += ' -fexceptions'
+  proj_link_options +=  '-fexceptions'
 endif
 
 # Build PROJ and its dependencies
@@ -73,6 +81,11 @@ if meson.get_compiler('cpp').get_id() == 'msvc'
   add_global_arguments([ '/bigobj' ], language: 'cpp')
 endif
 
+# Alas, there are still a number of JS typemaps that do this
+if meson.get_compiler('cpp').get_id() != 'msvc'
+  add_project_arguments([ '-Wno-unused-variable' ], language: 'cpp')
+endif
+
 cmake_opts = cmake.subproject_options()
 # Build proj as a static library to be included in a shared module
 cmake_opts.add_cmake_defines([
@@ -85,6 +98,8 @@ cmake_opts.add_cmake_defines([
   { 'CMAKE_DISABLE_FIND_PACKAGE_Threads': true },
   { 'CMAKE_POSITION_INDEPENDENT_CODE'   : true },
   { 'CMAKE_INSTALL_DATADIR'             : data_dir },
+  { 'CMAKE_CXX_FLAGS'                   : proj_cxx_options },
+  { 'CMAKE_SHARED_LINKER_FLAGS'         : proj_link_options },
   # The PROJ CMake hasn't been updated with those policies (but it works)
   { 'CMAKE_POLICY_WARNING_CMP0112'      : false },
   { 'CMAKE_POLICY_WARNING_CMP0126'      : false }
@@ -110,7 +125,8 @@ main_target = napi.extension_module(
     'environments': ['web','webview','worker'],
     # Export the FS subsystem
     'exported_runtime_methods': ['emnapiInit', 'FS']
-  }
+  },
+  gnu_symbol_visibility : 'hidden'
 )
 
 # When compiling to WASM, build a second bundle specifically for Node.js
@@ -126,9 +142,25 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
       'environments': ['node'],
       # Export the FS subsystem
       'exported_runtime_methods': ['emnapiInit', 'FS']
-    }
+    },
+    gnu_symbol_visibility : 'hidden'
   )
 endif
+
+# The C API bundle
+capi_target = napi.extension_module(
+  'proj_capi',
+  'swig/capi_wrap.cc',
+  include_directories : [ 'src' ],
+  install             : true,
+  dependencies        : dependencies,
+  node_api_options: {
+    'swig': true,
+    'environments': ['web','webview','worker'],
+    'exported_runtime_methods': ['emnapiInit', 'FS']
+  },
+  gnu_symbol_visibility : 'hidden'
+)
 
 # --------------------
 # The special case of proj.db

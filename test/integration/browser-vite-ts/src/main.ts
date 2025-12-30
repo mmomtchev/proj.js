@@ -3,6 +3,7 @@ import * as chai from 'chai';
 const assert: Chai.AssertStatic = chai.assert;
 
 import qPROJ from 'proj.js';
+import qPROJ_CAPI from 'proj.js/capi';
 import type * as PROJ from 'proj.js';
 
 // @ts-ignore
@@ -10,7 +11,7 @@ import proj_db_url from 'proj.js/proj.db?url';
 
 // This loads proj.db into the environment
 // when it hasn't been already inlined
-async function loadProjDb(PROJ: Awaited<typeof qPROJ>) {
+async function loadProjDb(PROJ: Awaited<typeof qPROJ | typeof qPROJ_CAPI>) {
   console.log(`Loading proj.db from ${proj_db_url}`);
   const proj_db_data = new Uint8Array(await (await fetch(proj_db_url)).arrayBuffer());
   console.log(`Downloaded ${proj_db_data.length} bytes`);
@@ -68,4 +69,54 @@ describe('PROJ', () => {
       assert.closeTo(c1.v[1], 5427937.523, 1e-3);
     })
   );
+
+  describe('PROJ', () => {
+    before('load proj.db', (done) => {
+      qPROJ_CAPI.then((PROJ) => {
+        if (!PROJ.proj_js_inline_projdb) {
+          loadProjDb(PROJ).then(() => done()).catch(done);
+        } else {
+          console.log('proj.db is inlined in the WASM bundle');
+          done();
+        }
+      }).catch(done);
+    });
+
+    it('PROJ C-API quickstart', () =>
+      qPROJ_CAPI.then((PROJ) => {
+        console.time('proj_create_crs_to_crs');
+        const P = PROJ.proj_create_crs_to_crs(
+          'EPSG:4326', '+proj=utm +zone=32 +datum=WGS84');
+        console.timeEnd('proj_create_crs_to_crs');
+        console.log(P.toString());
+        assert.instanceOf(P, PROJ.PJ);
+
+        console.time('proj_normalize_for_visualization');
+        const norm = PROJ.proj_normalize_for_visualization(P);
+        console.timeEnd('proj_normalize_for_visualization');
+        console.log(norm.toString());
+        assert.instanceOf(norm, PROJ.PJ);
+
+        console.time('proj_coord');
+        const a = PROJ.proj_coord(12, 55, 0, 0);
+        console.timeEnd('proj_coord');
+        assert.instanceOf(a, PROJ.PJ_COORD);
+
+        console.time('proj_trans');
+        const b = PROJ.proj_trans(P, PROJ.PJ_FWD, a);
+        console.timeEnd('proj_trans');
+        console.log(`easting: ${b.enu.e}, northing: ${b.enu.n}`);
+        assert.instanceOf(b, PROJ.PJ_COORD);
+
+        console.time('proj_trans');
+        const c = PROJ.proj_trans(P, PROJ.PJ_INV, b);
+        console.timeEnd('proj_trans');
+        console.log(`longitude: ${c.lp.lam}, latitude: ${c.lp.phi}`);
+        assert.instanceOf(c, PROJ.PJ_COORD);
+
+        assert.closeTo(c.lp.lam, 12, 1e-5);
+        assert.closeTo(c.lp.phi, 55, 1e-5);
+      })
+    );
+  });
 });
