@@ -9,39 +9,37 @@ describe('CRS with automatic import', () => {
 
   let dbContext: PROJ.DatabaseContext;
   let authFactory: PROJ.AuthorityFactory;
-  let authFactoryEPSG: PROJ.AuthorityFactory;
 
   before('init', async () => {
     PROJ = await qPROJ;
     dbContext = PROJ.DatabaseContext.create();
-    authFactory = PROJ.AuthorityFactory.create(dbContext, 'string');
-    authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
+    authFactory = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
   });
 
   it('identify', () => {
-    const crs = authFactoryEPSG.createCoordinateReferenceSystem('4326');
+    const crs = authFactory.createCoordinateReferenceSystem('4326');
     assertInstanceOf(crs, PROJ.CRS);
 
     assert.lengthOf(crs.identify(authFactory), 0);
-    const id = crs.identify(authFactoryEPSG);
+    const id = crs.identify(authFactory);
     assert.lengthOf(id, 1);
     assertInstanceOf(id[0][0], PROJ.CRS);
     assert.strictEqual(id[0][1], 100);
   });
 
   it('identify (return std::list of std::pair)', () => {
-    const crs = authFactoryEPSG.createCoordinateReferenceSystem('4326');
+    const crs = authFactory.createCoordinateReferenceSystem('4326');
     assertInstanceOf(crs, PROJ.CRS);
 
     assert.lengthOf(crs.identify(authFactory), 0);
-    const id = crs.identify(authFactoryEPSG);
+    const id = crs.identify(authFactory);
     assert.lengthOf(id, 1);
     assertInstanceOf(id[0][0], PROJ.CRS);
     assert.strictEqual(id[0][1], 100);
   });
 
   it('canonicalBounds (return NULL CRS reference)', () => {
-    const crs = authFactoryEPSG.createCoordinateReferenceSystem('4326');
+    const crs = authFactory.createCoordinateReferenceSystem('4326');
     assertInstanceOf(crs, PROJ.CRS);
 
     const bounds = crs.canonicalBoundCRS();
@@ -56,12 +54,20 @@ describe('CRS with automatic import', () => {
   });
 
   it('isDynamic (return bool)', () => {
-    const crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
+    const crs = authFactory.createCoordinateReferenceSystem('3857');
     assert.isBoolean(crs.isDynamic());
   });
 
+  it('getCRSInfoList() (return a structured object from a C++ struct)', () => {
+    const list = authFactory.getCRSInfoList();
+    assert.isArray(list);
+    assert.strictEqual(list[0].authName, 'EPSG');
+    assert.isString(list[0].code);
+    assert.isNumber(list[0].east_lon_degree);
+  });
+
   it('extract GeographicCRS (return CRS)', () => {
-    const crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
+    const crs = authFactory.createCoordinateReferenceSystem('3857');
     const geographic = crs.extractGeographicCRS();
     assertInstanceOf(geographic, PROJ.CRS);
     assertInstanceOf(geographic, PROJ.SingleCRS);

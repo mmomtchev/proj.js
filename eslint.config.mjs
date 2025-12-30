@@ -95,8 +95,6 @@ export default [{
   files: ['swig/*.d.*ts'],
 
   rules: {
-    // TODO: there are a few instances of any left in the C++ API
-    '@typescript-eslint/no-explicit-any': 'off',
     'indent': 'off'
   }
 }, {

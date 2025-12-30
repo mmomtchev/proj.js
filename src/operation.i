@@ -1,3 +1,11 @@
+// Ignore move constructors
+%ignore GridDescription(GridDescription &&);
+
+// https://github.com/mmomtchev/swig/issues/145
+// (never mind the Microsoft-style method name)
+%rename("substitutePROJAlternativeGridNamesPointMotion")
+  osgeo::proj::operation::PointMotionOperation::substitutePROJAlternativeGridNames;
+
 %nn_shared_ptr(osgeo::proj::coordinates::CoordinateMetadata);
 %nn_shared_ptr(osgeo::proj::operation::CoordinateOperation);
 %nn_shared_ptr(osgeo::proj::operation::Transformation);
