@@ -39,7 +39,9 @@ function Mocha() {
       const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
       console.timeEnd('AuthorityFactory.createCoordinateReferenceSystem()');
       console.time('createFromUserInput()');
-      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as typeof PROJ['CRS'];
+      // This is very awkward because create-react-app imposes TypeScript 4 which does not support proj.js .d.ts
+      // You should consider switching to Vite & TypeScript 5
+      const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as typeof sourceCRS;
       console.timeEnd('createFromUserInput()');
       console.time('CoordinateOperationFactory.create().createOperations()');
       const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
