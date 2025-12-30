@@ -16,22 +16,10 @@ describe('CRS with automatic import', () => {
     authFactory = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
   });
 
-  it('identify', () => {
-    const crs = authFactory.createCoordinateReferenceSystem('4326');
-    assertInstanceOf(crs, PROJ.CRS);
-
-    assert.lengthOf(crs.identify(authFactory), 0);
-    const id = crs.identify(authFactory);
-    assert.lengthOf(id, 1);
-    assertInstanceOf(id[0][0], PROJ.CRS);
-    assert.strictEqual(id[0][1], 100);
-  });
-
   it('identify (return std::list of std::pair)', () => {
     const crs = authFactory.createCoordinateReferenceSystem('4326');
     assertInstanceOf(crs, PROJ.CRS);
 
-    assert.lengthOf(crs.identify(authFactory), 0);
     const id = crs.identify(authFactory);
     assert.lengthOf(id, 1);
     assertInstanceOf(id[0][0], PROJ.CRS);
