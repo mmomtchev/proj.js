@@ -49,7 +49,7 @@ jobs:
       wasm: false
       id: native-${{ matrix.platform }}-${{ matrix.enable_tiff && 'tiff' || 'no_tiff'}}
       enable_tiff: ${{ matrix.enable_tiff }}
-      #regen_swig: true
+      regen_swig: true
 
   build-standalone:
     name: Standalone build native ${{ matrix.platform && '' || '' }}

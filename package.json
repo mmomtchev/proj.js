@@ -164,6 +164,9 @@
     },
     "buildConfigurations": {
       "generate": {
+        "devDependencies": {
+          "@mmomtchev/swig-xpack": "5.0.12-1"
+        },
         "actions": {
           "generate": [
             "{{ properties.commandInit }}",
