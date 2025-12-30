@@ -13,10 +13,12 @@ async function loadProjDb() {
   const proj_db_path = process.env.PROJ_DB_PATH ?
     process.env.PROJ_DB_PATH : 
     path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'lib', 'binding', 'proj', 'proj.db');
+  // eslint-disable-next-line no-console
   console.log(`Loading proj.db from ${proj_db_path}`);
   const proj_db_data = await fs.promises.readFile(proj_db_path);
   assert.throws(() => {
-    PROJ.loadDatabase('text' as any);
+    // @ts-expect-error
+    PROJ.loadDatabase('text');
   }, /Uint8Array/);
   PROJ.loadDatabase(proj_db_data);
 }

@@ -8,13 +8,11 @@ describe('metadata with automatic import', () => {
 
   let dbContext: PROJ.DatabaseContext;
   let authFactory: PROJ.AuthorityFactory;
-  let authFactoryEPSG: PROJ.AuthorityFactory;
 
   before('init', async () => {
     PROJ = await qPROJ;
     dbContext = PROJ.DatabaseContext.create();
-    authFactory = PROJ.AuthorityFactory.create(dbContext, 'string');
-    authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
+    authFactory = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
   });
 
   it('static properties', () => {
@@ -23,7 +21,7 @@ describe('metadata with automatic import', () => {
   });
 
   it('IdentifiedObject properties', () => {
-    const crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
+    const crs = authFactory.createCoordinateReferenceSystem('3857');
     const metadata = crs.identifiers();
     assert.isArray(metadata);
     for (const m of metadata) {

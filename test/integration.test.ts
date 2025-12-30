@@ -45,7 +45,7 @@ describe('integration tests', function() {
           execSync(install, { env });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         } catch (e: any) {
-          console.log('stdout', e.stdout.toString());
+          console.error('stdout', e.stdout.toString());
           console.error('stderr', e.stderr.toString());
           throw e;
         }

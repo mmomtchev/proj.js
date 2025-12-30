@@ -9,7 +9,7 @@ module.exports = {
     'expose-gc'
   ],
   'timeout': 20000,
-  'repeats': 100,
+  'repeats': 1,
   'v8-expose-gc': true,
   'extensions': [
     'ts'

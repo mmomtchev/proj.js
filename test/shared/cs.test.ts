@@ -9,16 +9,14 @@ describe('CoordinateSystem with automatic import', () => {
 
   let dbContext: PROJ.DatabaseContext;
   let authFactory: PROJ.AuthorityFactory;
-  let authFactoryEPSG: PROJ.AuthorityFactory;
   let crs: PROJ.CRS;
   let geoCRS: PROJ.GeographicCRS;
 
   before('init', async () => {
     PROJ = await qPROJ;
     dbContext = PROJ.DatabaseContext.create();
-    authFactory = PROJ.AuthorityFactory.create(dbContext, 'string');
-    authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
-    crs = authFactoryEPSG.createCoordinateReferenceSystem('3857');
+    authFactory = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
+    crs = authFactory.createCoordinateReferenceSystem('3857');
     geoCRS = crs.extractGeographicCRS();
   });
 
