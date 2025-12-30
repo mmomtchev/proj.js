@@ -84,6 +84,7 @@ describe('C-API special typemaps', () => {
       assert.isString(element.category);
       assert.isString(element.name);
       assert.isString(element.code);
+      // @ts-ignore not a public interface
       assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
@@ -98,6 +99,7 @@ describe('C-API special typemaps', () => {
       assert.instanceOf(element, PROJ.PROJ_CELESTIAL_BODY_INFO);
       assert.isString(element.auth_name);
       assert.isString(element.name);
+      // @ts-ignore not a public interface
       assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
@@ -118,6 +120,7 @@ describe('C-API special typemaps', () => {
       assert.isNumber(element.east_lon_degree);
       assert.isNumber(element.north_lat_degree);
       assert.isNumber(element.type);
+      // @ts-ignore not a public interface
       assert.strictEqual(element.parent, list);
     }
     assert.isAbove(count, 0);
@@ -138,10 +141,12 @@ describe('C-API special typemaps', () => {
     assert.isNumber(confidence[0]);
     assert.strictEqual(confidence[0], 100);
     assert.instanceOf(result.get(0), PROJ.PJ);
+    // @ts-ignore not a public interface
     assert.strictEqual(result.get(0).parent, result);
 
     for (const el of result) {
       assert.instanceOf(el, PROJ.PJ);
+      // @ts-ignore not a public interface
       assert.strictEqual(el.parent, result);
     }
   });
@@ -292,7 +297,7 @@ describe('C-API special typemaps', () => {
       const expected = PROJ.proj_trans(op, PROJ.PJ_FWD, pj_coords[i]);
       // Scientific precision
       assert.closeTo(PROJ.proj_xy_dist(translated[i], expected), 0, 1e-9);
-    }    
+    }
   });
 
   it('proj_trans_generic', () => {
