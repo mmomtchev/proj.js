@@ -62,6 +62,16 @@ cd test/browser && npx webpack serve --mode=production
 # then open http://localhost:8030/
 ```
 
+Enable ASAN or any other `meson` option and create a debug build:
+
+```shell
+npx xpm run prepare --config native-debug
+npx xpm run configure --config native-debug -- -Db_sanitize=address
+npx xpm run build --config native-debug
+```
+
+The VS Code `launch.json` contains the command that must be launched in order to use the debugger.
+
 # Usage
 
 This package is a `magickwand.js`-style `npm` package with an automatic import that resolves to either the native module or the WASM module depending on the environment.
@@ -199,3 +209,11 @@ npm install proj.js --proj_js_binary_host=https://overriden-host.com/overriden-p
 ```ini
 proj_js_binary_host=https://overriden-host.com/overriden-path
 ```
+
+# Strategies for reducing the bundle size
+
+Currently, the size of the WASM bundle renders it impractical for a normal website on the Internet. There are a number of 
+* `PROJ` can be enriched with conditional compilation exported to CMake options which will be exported to `npm` options through `hadron`. When generating the bindings, SWIG won't generate any code if the function is disabled by conditional compilation. It can accept the usual `-D...` CLI option. Typemaps do not increase the code size unless they are actually used to wrap a function. This is the best approach that will lead to the best results.
+* The project's two entry points - `proj.i` and `proj_capi.i` - can also be enriched with `%ignore` directives controlled by `-D...` macros. This will result savings only from the SWIG bindings themselves without reducing the `PROJ.a` archive.
+* Alternatively, a third entry point, for a specially trimmed ultra-light WASM bundle, can be added. In this case, I will consider adding an automatic build and distribution point for this bundle.
+* As a last option, `emscripten` has a very interesting feature that allows to split the bundle in two pieces, a main bundle and a loadable addon to be downloaded and parsed only if this part of the code is invoked. The split of the module is determined by the code coverage of a user routine. This means you write some JavaScript code that uses `proj.js`, you launch it, and all the called functions become part of the main module. My first tests show that this can lead to up to 60% reduction of the size of the main bundle if calling only the C API quickstart. This works without sacrificing any features - but at the cost of a very significant one-time latency when calling a new function for the first time.
