@@ -31,9 +31,9 @@ jobs:
           - ubuntu-24.04
           - windows-2019
           - windows-2022
-          - macos-12
-          - macos-latest
-        node-version: [18.x, 20.x, 22.x]
+          - macos-15
+          - macos-lntel
+        node-version: [18.x, 20.x, 22.x, 24.x]
 
     steps:
       - name: Use Node.js ${{ matrix.node-version }}
@@ -84,9 +84,9 @@ jobs:
           - ubuntu-24.04
           - windows-2019
           - windows-2022
-          - macos-12
-          - macos-latest
-        node-version: [18.x, 20.x, 22.x]
+          - macos-15
+          - macos-intel
+        node-version: [18.x, 20.x, 22.x, 24.x]
 
     steps:
       - name: Use Node.js ${{ matrix.node-version }}
@@ -96,7 +96,7 @@ jobs:
       - name: Setup emscripten (WASM)
         uses: mymindstorm/setup-emsdk@v14
         with:
-          version: 3.1.68
+          version: 4.0.8
       - name: Create package.json
         shell: bash
         run: |
