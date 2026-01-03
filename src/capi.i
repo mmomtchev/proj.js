@@ -692,7 +692,7 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
 
 // TODO: SWIG JavaScript has a built-in arrays_javascript
 // but it works only for numbers
-%define PJ_LIST(TYPE, NAME)
+%define PJ_LIST(TYPE, TSTYPE, NAME)
 %typemap(out) TYPE *NAME {
   // Create a new JS array
   Napi::Array array = Napi::Array::New(env);
@@ -715,7 +715,7 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
   // Our own result is the array
   $result = array;
 }
-%typemap(ts) TYPE *NAME "PJ_LIST_ELEMENT[]";
+%typemap(ts) TYPE *NAME #TSTYPE "[]";
 %enddef
 
 %extend PJ_LIST {
@@ -724,9 +724,9 @@ PROJ_OPAQUE_TYPE_WITH_DESTROY(PJ_AREA, proj_area_destroy);
   }
 }
 
-PJ_LIST(PJ_OPERATIONS, proj_list_operations);
-PJ_LIST(PJ_ELLPS, proj_list_ellps);
-PJ_LIST(PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
+PJ_LIST(PJ_OPERATIONS, PJ_LIST_ELEMENT, proj_list_operations);
+PJ_LIST(PJ_ELLPS, PJ_ELLPS, proj_list_ellps);
+PJ_LIST(PJ_PRIME_MERIDIANS, PJ_PRIME_MERIDIANS, proj_list_prime_meridians);
 
 /**
  * ================================
