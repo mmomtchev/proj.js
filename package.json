@@ -55,7 +55,7 @@
     "lint": "npx eslint",
     "preversion": "npm run lint && npm run test",
     "postversion": "git push && git push --tags && node ./scripts/publish-packages.mjs",
-    "postpublish": "gh workflow run test-package.yml -F version=$npm_package_version",
+    "postpublish": "gh workflow run test-package.yml -F package=proj.js@$npm_package_version",
     "dev": "cd test/browser && npx webpack serve --mode=production",
     "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/native/proj.node.p/swig_proj_wrap.cc.o ../swig/proj_wrap.cc",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
