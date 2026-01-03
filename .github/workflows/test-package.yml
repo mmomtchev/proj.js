@@ -32,7 +32,7 @@ jobs:
           - windows-2019
           - windows-2022
           - macos-15
-          - macos-lntel
+          - macos-15-intel
         node-version: [18.x, 20.x, 22.x, 24.x]
 
     steps:
@@ -46,9 +46,11 @@ jobs:
           echo '{ "type": "module" }' > package.json
       - name: Install dependencies
         run: |
-          npm i chai@4.3.7 mocha typescript ts-node tsconfig-paths  \
-            @types/chai@4.3.14 @types/mocha @types/node             \
-            karma karma-chrome-launcher karma-mocha webpack webpack-cli ts-loader
+          npm i chai mocha typescript ts-node tsconfig-paths  \
+            @types/chai @types/mocha @types/node             \
+            karma karma-chrome-launcher karma-mocha          \
+            karma-verbose-reporter karma-chrome-launcher     \
+            glob webpack webpack-cli ts-loader
         shell: bash
       - name: Download the package
         uses: robinraju/release-downloader@v1.11
@@ -61,7 +63,9 @@ jobs:
         shell: bash
       - name: Set up the unit tests
         shell: bash
-        run: mv node_modules/proj.js/test .
+        run: |
+          cp -R node_modules/proj.js/test .
+          cp node_modules/proj.js/tsconfig.json .
       - name: Run the Node.js unit tests
         shell: bash
         run: |
@@ -71,6 +75,13 @@ jobs:
         env:
           TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
+
+      - name: Run the browser tests (macOS / Windows)
+        if: runner.os != 'Linux'
+        run: cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs
+      - name: Run the browser tests (Linux)
+        if: runner.os == 'Linux'
+        run: cd test/browser && npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
 
 
   test_npm_rebuild:
@@ -85,7 +96,7 @@ jobs:
           - windows-2019
           - windows-2022
           - macos-15
-          - macos-intel
+          - macos-15-intel
         node-version: [18.x, 20.x, 22.x, 24.x]
 
     steps:
@@ -103,9 +114,11 @@ jobs:
           echo '{ "type": "module" }' > package.json
       - name: Install dependencies
         run: |
-          npm i chai@4.3.7 mocha typescript ts-node tsconfig-paths  \
-            @types/chai@4.3.14 @types/mocha @types/node             \
-            karma karma-chrome-launcher karma-mocha webpack webpack-cli ts-loader
+          npm i chai mocha typescript ts-node tsconfig-paths  \
+            @types/chai @types/mocha @types/node             \
+            karma karma-chrome-launcher karma-mocha          \
+            karma-verbose-reporter karma-chrome-launcher     \
+            glob webpack webpack-cli ts-loader
         shell: bash
       - name: Download the package
         uses: robinraju/release-downloader@v1.11
@@ -122,7 +135,9 @@ jobs:
         shell: bash
       - name: Set up the unit tests
         shell: bash
-        run: mv node_modules/proj.js/test .
+        run: |
+          cp -R node_modules/proj.js/test .
+          cp node_modules/proj.js/tsconfig.json .
       - name: Run the Node.js unit tests
         shell: bash
         run: |
@@ -132,10 +147,10 @@ jobs:
         env:
           TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
-      - name: Run the npm package integration tests
-        run:
-          npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
-            --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
-            --reporter=tap --v8-expose-gc --timeout 5000 test/integration.test.ts
-        env:
-          MOCHA_NPM_INSTALL: npm install npm install ${{ inputs.download && format('{0}/{1}', github.workspace, inputs.package) || inputs.package }}
+
+      - name: Run the browser tests (macOS / Windows)
+        if: runner.os != 'Linux'
+        run: cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs
+      - name: Run the browser tests (Linux)
+        if: runner.os == 'Linux'
+        run: cd test/browser && npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
