@@ -1,0 +1,14 @@
+{
+  "name": "browser-vanilla-js",
+  "version": "1.0.0",
+  "description": "browser vanilla js",
+  "scripts": {
+    "build": "rollup -c rollup.config.cjs"
+  },
+  "dependencies": {
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@web/rollup-plugin-import-meta-assets": "^2.3.0",
+    "rollup": "^4.55.1",
+    "rollup-plugin-copy": "^3.5.0"
+  }
+}
