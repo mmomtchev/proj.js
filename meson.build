@@ -77,9 +77,11 @@ if meson.get_compiler('cpp').get_id() == 'msvc'
   add_global_arguments([ '/bigobj' ], language: 'cpp')
 endif
 
-# Alas, there are still a number of JS typemaps that do this
 if meson.get_compiler('cpp').get_id() != 'msvc'
+  # Alas, there are still a number of JS typemaps that do this
   add_project_arguments([ '-Wno-unused-variable' ], language: 'cpp')
+  # PROJ exports its own dependencies but we do not need them
+  add_project_arguments([ '-Wno-unused-command-line-argument' ], language: ['c', 'cpp'])
 endif
 
 cmake_opts = cmake.subproject_options()
@@ -116,9 +118,6 @@ main_target = napi.extension_module(
   include_directories : [ 'src' ],
   install             : true,
   dependencies        : dependencies,
-  # PROJ exports its own dependencies but we do not need them
-  cpp_args            : [ '-Wno-unused-command-line-argument' ],
-  c_args              : [ '-Wno-unused-command-line-argument' ],
   node_api_options: {
     'swig': true,
     # Node.js is excluded from the WASM loader on purpose:
@@ -139,8 +138,6 @@ if meson.get_compiler('cpp').get_id() == 'emscripten'
     include_directories : [ 'src' ],
     install             : true,
     dependencies        : dependencies,
-    cpp_args            : [ '-Wno-unused-command-line-argument' ],
-    c_args              : [ '-Wno-unused-command-line-argument' ],
     node_api_options: {
       'swig': true,
       'environments': ['node'],
@@ -158,8 +155,6 @@ capi_target = napi.extension_module(
   include_directories : [ 'src' ],
   install             : true,
   dependencies        : dependencies,
-  cpp_args            : [ '-Wno-unused-command-line-argument' ],
-  c_args              : [ '-Wno-unused-command-line-argument' ],
   node_api_options: {
     'swig': true,
     'environments': ['web','webview','worker'],
