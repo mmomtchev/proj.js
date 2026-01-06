@@ -23,3 +23,11 @@ window.proj_js.then(async (PROJ) => {
   div.appendChild(text);
   document.getElementsByTagName('body')[0].appendChild(div);
 });
+
+if (window.it) {
+  it('PROJ is there', () => {
+    if (!(window.proj_js instanceof Promise))
+      throw new Error('window.proj_js is not registered');
+  });
+}
+
