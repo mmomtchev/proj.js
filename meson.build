@@ -103,7 +103,8 @@ cmake_opts.add_cmake_defines([
   { 'CMAKE_SHARED_LINKER_FLAGS'         : proj_link_options },
   # The PROJ CMake hasn't been updated with those policies (but it works)
   { 'CMAKE_POLICY_WARNING_CMP0112'      : false },
-  { 'CMAKE_POLICY_WARNING_CMP0126'      : false }
+  { 'CMAKE_POLICY_WARNING_CMP0126'      : false },
+  { 'CMAKE_PROJECT_TOP_LEVEL_INCLUDES'  : 'CheckCSourceCompiles' }
 ])
 
 cmake_proj = cmake.subproject('PROJ', options: cmake_opts)
