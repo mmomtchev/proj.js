@@ -169,7 +169,7 @@ const bool proj_js_inline_projdb = false;
 %define OUTPUT_DATA_LENGTH(TYPE)
 %typemap(out) (TYPE *OUTPUT_DATA, size_t OUTPUT_LENGTH) {
   Napi::Array array = Napi::Array::New(env, $2);
-  for (int i = 0; i < $2; i++) {
+  for (size_t i = 0; i < $2; i++) {
     Napi::Value js_val;
     $typemap(out, TYPE, 1=$1[i], result=js_val);
     array.Set(i, js_val);
@@ -978,7 +978,7 @@ public:
     return proj_list_get_count(list);
   }
   PJ *PJ_OBJ_LIST_WRAPPER::get(PJ_CONTEXT *ctx, size_t i) {
-    if (i >= proj_list_get_count(list)) {
+    if (i >= static_cast<size_t>(proj_list_get_count(list))) {
       throw std::runtime_error{"Out of bounds"};
     }
     return proj_list_get(ctx, list, i);

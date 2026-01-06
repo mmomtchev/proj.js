@@ -26,17 +26,13 @@ data_dir = meson.project_source_root() / 'lib' / 'binding'
 # This is what parses the options
 napi = import('node-api')
 
-dependencies = [
-  dependency('sqlite3', method : 'pkg-config')
-]
+dependencies = []
 proj_cxx_options = ''
 proj_link_options = ''
 if get_option('tiff')
-  dependencies += dependency('libtiff-4', method : 'pkg-config')
   enable_tiff = true
 endif
 if get_option('curl') and meson.get_compiler('cpp').get_id() != 'emscripten'
-  dependencies += dependency('libcurl',   method : 'pkg-config')
   enable_curl = true
 endif
 if get_option('inline_projdb') and meson.get_compiler('cpp').get_id() == 'emscripten'
@@ -101,6 +97,9 @@ cmake_opts.add_cmake_defines([
   { 'CMAKE_INSTALL_DATADIR'             : data_dir },
   { 'CMAKE_CXX_FLAGS'                   : proj_cxx_options },
   { 'CMAKE_SHARED_LINKER_FLAGS'         : proj_link_options },
+  # The PROJ CMake hasn't been updated with those policies (but it works)
+  { 'CMAKE_POLICY_WARNING_CMP0126'      : false },
+  { 'CMAKE_POLICY_WARNING_CMP0156'      : false },
   # TODO: This won't be needed with PROJ 9.8.0
   { 'CMAKE_PROJECT_TOP_LEVEL_INCLUDES'  : 'CheckCSourceCompiles' }
 ])
