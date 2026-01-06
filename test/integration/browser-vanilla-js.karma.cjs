@@ -18,6 +18,9 @@ module.exports = function (config) {
       { pattern: 'browser-vanilla-js/index.js', included: true },
       { pattern: 'browser-vanilla-js/build/assets/*', served: true, included: false }
     ],
+    proxies: {
+      '/build/assets/': '/base/browser-vanilla-js/build/assets/',
+    },
     exclude: [
     ],
     preprocessors: {
