@@ -18,6 +18,7 @@ npm run build
 * `browser-vite-esm` browser, vite, ES6 modules, `"type": "module"`
 * `browser-vite-ts` browser, vite, TypeScript transpiled to ES6, `"type": "module"`
 * `browser-react-ts` browser, React, create-react-app, TypeScript transpiled to CJS
+* `browser-vanilla-js` browser, vanilla JS
 
 # Node.js
 

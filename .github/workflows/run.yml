@@ -181,7 +181,8 @@ jobs:
       run: |
         npm link --ignore-scripts
         npm run test:integration
-
+      env:
+        NODE_OPTIONS: --no-warnings
 
   asan:
     runs-on: ubuntu-latest
