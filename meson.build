@@ -101,9 +101,7 @@ cmake_opts.add_cmake_defines([
   { 'CMAKE_INSTALL_DATADIR'             : data_dir },
   { 'CMAKE_CXX_FLAGS'                   : proj_cxx_options },
   { 'CMAKE_SHARED_LINKER_FLAGS'         : proj_link_options },
-  # The PROJ CMake hasn't been updated with those policies (but it works)
-  { 'CMAKE_POLICY_WARNING_CMP0112'      : false },
-  { 'CMAKE_POLICY_WARNING_CMP0126'      : false },
+  # TODO: This won't be needed with PROJ 9.8.0
   { 'CMAKE_PROJECT_TOP_LEVEL_INCLUDES'  : 'CheckCSourceCompiles' }
 ])
 
