@@ -94,7 +94,7 @@ jobs:
         npx xpm run -q conan -- version
         echo path=`npx xpm run -q conan -- config home` >> $GITHUB_OUTPUT
     - name: Cache conan artifacts
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       if: inputs.conan_cache
       with:
         path: ${{ steps.conan_home.outputs.path }}
