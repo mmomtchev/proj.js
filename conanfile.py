@@ -28,7 +28,7 @@ class PROJDependencies(ConanFile):
     'curl':  npm_option('curl', True) and npm_option('curl-conan', True)
   }
 
-  generators = [ 'MesonToolchain', 'PkgConfigDeps', 'CMakeDeps' ]
+  generators = [ 'MesonToolchain', 'CMakeDeps' ]
 
   def requirements(self):
     if self.options.curl and self.settings.arch != 'wasm':
