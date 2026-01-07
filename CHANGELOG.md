@@ -1,6 +1,7 @@
 ## 0.9.2
 
 * Update `PROJ` to 9.7.1
+* Render the 3rd and 4rd arguments to the `PJ_COORD` constructor optional
 
 # 0.9.1
 

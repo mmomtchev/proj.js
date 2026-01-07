@@ -156,6 +156,12 @@ const bool proj_js_inline_projdb = false;
   PJ_COORD(double x, double y, double z, double t) {
     return new PJ_COORD(proj_coord(x, y, z, t));
   }
+  PJ_COORD(double x, double y, double z) {
+    return new PJ_COORD(proj_coord(x, y, z, 0));
+  }
+  PJ_COORD(double x, double y) {
+    return new PJ_COORD(proj_coord(x, y, 0, 0));
+  }
 }
 
 // These are usually optional
