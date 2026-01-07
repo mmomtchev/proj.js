@@ -13,8 +13,7 @@ export default function (PROJ) {
   const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
 
   const transformer = list[0].coordinateTransformer();
-  const c0 = new PROJ.PJ_COORD;
-  c0.v = [49, 2, 0, 0];
+  const c0 = new PROJ.PJ_COORD(49, 2);
   const c1 = transformer.transform(c0);
   assert.closeTo(c1.v[0], 426857.988, 1e-3);
   assert.closeTo(c1.v[1], 5427937.523, 1e-3);

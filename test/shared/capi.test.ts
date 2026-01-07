@@ -288,7 +288,7 @@ describe('C-API special typemaps', () => {
       [12.0125000, 37.9875000],
       [2.0000000, 45.5000000]
     ];
-    const pj_coords = coords.map((c) => new PROJ.PJ_COORD(c[0], c[1], 0, 0));
+    const pj_coords = coords.map((c) => new PROJ.PJ_COORD(c[0], c[1]));
     const op = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857');
     const translated = PROJ.proj_trans_array(op, PROJ.PJ_FWD, pj_coords);
     assert.isArray(translated);
