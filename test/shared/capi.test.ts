@@ -13,6 +13,43 @@ describe('C-API special typemaps', () => {
     }).catch(done);
   });
 
+  it('construct PJ_COORD', () => {
+    const c = new PROJ.PJ_COORD;
+    assert.instanceOf(c, PROJ.PJ_COORD);
+    const c1 = new PROJ.PJ_COORD(2.23337, 48.8051);
+    assert.instanceOf(c1, PROJ.PJ_COORD);
+    const c2 = new PROJ.PJ_COORD(2.23337, 48.8051, 0);
+    assert.instanceOf(c2, PROJ.PJ_COORD);
+    const c3 = new PROJ.PJ_COORD(2.23337, 48.8051, 0, 0);
+    assert.instanceOf(c3, PROJ.PJ_COORD);
+    const c4 = PROJ.proj_coord(2.23337, 48.8051, 0, 0);
+    assert.instanceOf(c4, PROJ.PJ_COORD);
+
+    assert.closeTo(PROJ.proj_xyz_dist(c1, c2), 0, 1e-9);
+    assert.closeTo(PROJ.proj_xyz_dist(c1, c3), 0, 1e-9);
+    assert.closeTo(PROJ.proj_xyz_dist(c1, c4), 0, 1e-9);
+  });
+
+  it('use a number array instead of PJ_COORD', () => {
+    const P = PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857');
+
+    const a = PROJ.proj_trans(P, PROJ.PJ_FWD, [2.23337, 48.8051]);
+    const b = PROJ.proj_trans(P, PROJ.PJ_FWD, [2.23337, 48.8051, 0, 0]);
+    const c = PROJ.proj_trans(P, PROJ.PJ_FWD, new PROJ.PJ_COORD(2.23337, 48.8051, 0, 0));
+
+    assert.closeTo(PROJ.proj_xyz_dist(a, b), 0, 1e-9);
+    assert.closeTo(PROJ.proj_xyz_dist(a, c), 0, 1e-9);
+    assert.closeTo(PROJ.proj_xyz_dist(new PROJ.PJ_COORD(2.23337, 48.8051), [2.23337, 48.8051]), 0, 1e-9);
+  });
+
+  it('proj_roundtrip', () => {
+    const r = PROJ.proj_roundtrip(PROJ.proj_create_crs_to_crs('EPSG:4326', 'EPSG:3857'), PROJ.PJ_FWD,
+      500, new PROJ.PJ_COORD(2.23337, 48.8051));
+    assert.isNumber(r);
+    // Astonishing stability
+    assert.closeTo(r, 0, 1e-9);
+  });
+
   it('proj_log_func', () => {
     const msgs: string[] = [];
     PROJ.proj_log_func(((err, msg) => {

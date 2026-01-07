@@ -164,6 +164,28 @@ const bool proj_js_inline_projdb = false;
   }
 }
 
+// Accept also a [number, number, number, number]
+// for each function that expects a PJ_COORD
+%typemap(in) PJ_COORD a, PJ_COORD b, PJ_COORD coord {
+  if ($input.IsArray()) {
+    Napi::Array array = $input.As<Napi::Array>();
+    if (array.Length() < 2 || array.Length() > 4)
+      SWIG_Raise("PJ_COORD arrays must have 2 to 4 elements");
+    double coords[4];
+    for (size_t i = 0; i < 4; i++) {
+      if (i < array.Length()) {
+        $typemap(in, double, input=array.Get(i), 1=coords[i]);
+      } else {
+        coords[i] = 0;
+      }
+    }
+    $1 = proj_coord(coords[0], coords[1], coords[2], coords[3]);
+  } else {
+    $typemap(in, PJ_COORD);
+  }
+}
+%typemap(ts) PJ_COORD a, PJ_COORD b, PJ_COORD coord  "PJ_COORD | JS_COORD";
+
 // These are usually optional
 // (this is a problem only with TypeScript - SWIG wil always
 // transform JS null to C++ nullptr)

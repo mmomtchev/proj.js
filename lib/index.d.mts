@@ -22,5 +22,10 @@ declare module '../swig/proj.d.ts' {
   function loadDatabase(db: Uint8Array): void;
 }
 
+/*
+ * Extra types for PROJ
+ */
+export type JS_COORD = [number, number] | [number, number, number] | [number, number, number, number];
+
 declare const bindings: Promise<typeof PROJ>;
 export default bindings;
