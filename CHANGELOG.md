@@ -2,6 +2,7 @@
 
 * Update `PROJ` to 9.7.1
 * Render the 3rd and 4rd arguments to the `PJ_COORD` constructor optional
+* Accept an array of 2, 3 or 4 numbers for each method expecting a `PJ_COORD`
 
 # 0.9.1
 

@@ -37,5 +37,10 @@ declare module '../swig/proj_capi.d.ts' {
   }
 }
 
+/*
+ * Extra types for PROJ
+ */
+export type JS_COORD = [number, number] | [number, number, number] | [number, number, number, number];
+
 declare const bindings: Promise<typeof PROJ>;
 export default bindings;
