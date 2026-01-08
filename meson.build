@@ -29,20 +29,20 @@ napi = import('node-api')
 dependencies = []
 proj_cxx_options = ''
 proj_link_options = ''
+wasm = host_machine.cpu_family() == 'wasm32' or host_machine.cpu_family() == 'wasm64'
 if get_option('tiff')
   enable_tiff = true
 endif
-if get_option('curl') and meson.get_compiler('cpp').get_id() != 'emscripten'
+if get_option('curl') and not wasm
   enable_curl = true
 endif
-if get_option('inline_projdb') and meson.get_compiler('cpp').get_id() == 'emscripten'
+if get_option('inline_projdb') and wasm
   add_project_arguments([ '-DINLINE_PROJDB' ], language: 'cpp')
   inline_projdb = true
 endif
 if get_option('debug')
   add_project_arguments([ '-DDEBUG' ], language: [ 'cpp', 'c' ])
 endif
-wasm = meson.get_compiler('cpp').get_id() == 'emscripten'
 if wasm
   add_project_arguments(['-fexceptions' ], language: [ 'cpp' ])
   # Recent emnapi versions require POSIX_C_SOURCE
@@ -131,7 +131,7 @@ main_target = napi.extension_module(
 )
 
 # When compiling to WASM, build a second bundle specifically for Node.js
-if meson.get_compiler('cpp').get_id() == 'emscripten'
+if wasm
   node_target = napi.extension_module(
     module_name + '_node',
     sources,
