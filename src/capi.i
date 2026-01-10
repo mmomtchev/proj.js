@@ -436,8 +436,15 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
   north_lat_degree: number,
   allow_deprecated?: boolean,
   celestial_body_name?: string
-} | undefined
+}
 %}
+
+// Alas, the char * typemap has a freearg,match="in" component
+// that cannot be made to automatically work recursively
+// https://github.com/mmomtchev/swig/issues/179
+%typemap(freearg) const PROJ_CRS_LIST_PARAMETERS *params {
+  %delete_array(buf1);
+}
 
 /**
  * ==================================================================
