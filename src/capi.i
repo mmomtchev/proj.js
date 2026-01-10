@@ -372,51 +372,40 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
 %ignore proj_get_crs_list_parameters_create;
 %ignore proj_celestial_body_list_destroy;
 
-%typemap(in) const PROJ_CRS_LIST_PARAMETERS *params (PROJ_CRS_LIST_PARAMETERS crs_list_params) {
+%typemap(in) const PROJ_CRS_LIST_PARAMETERS *params {
+  $1 = proj_get_crs_list_parameters_create();
   if (!$input.IsObject()) {
     SWIG_Raise("PROJ_CRS_LIST_PARAMETERS *params must be an object");
   }
   Napi::Object params = $input.ToObject();
 
   if (!params.Get("bbox_valid").IsUndefined()) {
-    $typemap(in, bool, input=params.Get("bbox_valid"), 1=crs_list_params.bbox_valid, argnum=bbox_valid);
-  } else {
-    crs_list_params.bbox_valid = false;
+    $typemap(in, bool, input=params.Get("bbox_valid"), 1=$1->bbox_valid, argnum=bbox_valid);
   }
-  if (crs_list_params.bbox_valid) {
+  if ($1->bbox_valid) {
     // These are mandatory only if bbox_valid is true
-    $typemap(in, bool, input=params.Get("crs_area_of_use_contains_bbox"), 1=crs_list_params.crs_area_of_use_contains_bbox, argnum=crs_area_of_use_contains_bbox);
-    $typemap(in, double, input=params.Get("west_lon_degree"), 1=crs_list_params.west_lon_degree, argnum=west_lon_degree);
-    $typemap(in, double, input=params.Get("south_lat_degree"), 1=crs_list_params.south_lat_degree, argnum=south_lat_degree);
-    $typemap(in, double, input=params.Get("east_lon_degree"), 1=crs_list_params.east_lon_degree, argnum=east_lon_degree);
-    $typemap(in, double, input=params.Get("north_lat_degree"), 1=crs_list_params.north_lat_degree, argnum=north_lat_degree);
+    $typemap(in, bool, input=params.Get("crs_area_of_use_contains_bbox"), 1=$1->crs_area_of_use_contains_bbox, argnum=crs_area_of_use_contains_bbox);
+    $typemap(in, double, input=params.Get("west_lon_degree"), 1=$1->west_lon_degree, argnum=west_lon_degree);
+    $typemap(in, double, input=params.Get("south_lat_degree"), 1=$1->south_lat_degree, argnum=south_lat_degree);
+    $typemap(in, double, input=params.Get("east_lon_degree"), 1=$1->east_lon_degree, argnum=east_lon_degree);
+    $typemap(in, double, input=params.Get("north_lat_degree"), 1=$1->north_lat_degree, argnum=north_lat_degree);
   }
   if (!params.Get("types").IsUndefined()) {
     // This special typemap is already defined above for proj_create_from_name
     // It creates the array with a shared_ptr that is local to the wrapper
-    $typemap(in, (PJ_TYPE *types, size_t typesCount), input=params.Get("types"), 1=crs_list_params.types, 2=crs_list_params.typesCount, argnum=types);
-  } else {
-    crs_list_params.types = nullptr;
-    crs_list_params.typesCount = 0;
+    $typemap(in, (PJ_TYPE *types, size_t typesCount), input=params.Get("types"), 1=$1->types, 2=$1->typesCount, argnum=types);
   }
   if (!params.Get("allow_deprecated").IsUndefined()) {
-    $typemap(in, bool, input=params.Get("allow_deprecated"), 1=crs_list_params.allow_deprecated, argnum=allow_deprecated);
-  } else {
-    crs_list_params.allow_deprecated = false;
+    $typemap(in, bool, input=params.Get("allow_deprecated"), 1=$1->allow_deprecated, argnum=allow_deprecated);
   }
   if (!params.Get("celestial_body_name").IsUndefined()) {
-    $typemap(in, char *, input=params.Get("celestial_body_name"), 1=crs_list_params.celestial_body_name, argnum=celestial_body_name);
-  } else {
-    crs_list_params.celestial_body_name = nullptr;
+    $typemap(in, char *, input=params.Get("celestial_body_name"), 1=$1->celestial_body_name, argnum=celestial_body_name);
   }
-
-  $1 = &crs_list_params;
 }
 
 // The whole argument is optional
-%typemap(default) const PROJ_CRS_LIST_PARAMETERS *params (PROJ_CRS_LIST_PARAMETERS crs_list_params) {
-  $1 = &crs_list_params;
-  memset(&crs_list_params, 0, sizeof(crs_list_params));
+%typemap(default) const PROJ_CRS_LIST_PARAMETERS *params {
+  $1 = proj_get_crs_list_parameters_create();
 }
 
 // This is what the user will supply
@@ -442,8 +431,9 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
 // Alas, the char * typemap has a freearg,match="in" component
 // that cannot be made to automatically work recursively
 // https://github.com/mmomtchev/swig/issues/179
-%typemap(freearg) const PROJ_CRS_LIST_PARAMETERS *params {
+%typemap(freearg, match="in") const PROJ_CRS_LIST_PARAMETERS *params {
   %delete_array(buf1);
+  proj_get_crs_list_parameters_destroy($1);
 }
 
 /**
