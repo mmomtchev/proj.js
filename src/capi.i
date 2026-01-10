@@ -431,7 +431,7 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
 // Alas, the char * typemap has a freearg,match="in" component
 // that cannot be made to automatically work recursively
 // https://github.com/mmomtchev/swig/issues/179
-%typemap(freearg, match="in") const PROJ_CRS_LIST_PARAMETERS *params {
+%typemap(freearg) const PROJ_CRS_LIST_PARAMETERS *params {
   %delete_array(buf1);
   proj_get_crs_list_parameters_destroy($1);
 }
