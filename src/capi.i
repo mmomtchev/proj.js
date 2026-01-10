@@ -372,8 +372,13 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
 %ignore proj_get_crs_list_parameters_create;
 %ignore proj_celestial_body_list_destroy;
 
-%typemap(in) const PROJ_CRS_LIST_PARAMETERS *params {
+// The whole argument is optional
+%typemap(default) const PROJ_CRS_LIST_PARAMETERS *params {
   $1 = proj_get_crs_list_parameters_create();
+}
+
+%typemap(in) const PROJ_CRS_LIST_PARAMETERS *params {
+  // the default typemap has already created the structure
   if (!$input.IsObject()) {
     SWIG_Raise("PROJ_CRS_LIST_PARAMETERS *params must be an object");
   }
@@ -401,11 +406,6 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
   if (!params.Get("celestial_body_name").IsUndefined()) {
     $typemap(in, char *, input=params.Get("celestial_body_name"), 1=$1->celestial_body_name, argnum=celestial_body_name);
   }
-}
-
-// The whole argument is optional
-%typemap(default) const PROJ_CRS_LIST_PARAMETERS *params {
-  $1 = proj_get_crs_list_parameters_create();
 }
 
 // This is what the user will supply
