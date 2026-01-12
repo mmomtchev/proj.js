@@ -3,6 +3,7 @@
 * Update `PROJ` to 9.7.1
 * Render the 3rd and 4rd arguments to the `PJ_COORD` constructor optional
 * Accept an array of 2, 3 or 4 numbers for each method expecting a `PJ_COORD`
+* Redesign the `proj_get_crs_info_list_from_database` wrapper to accept a single JS object argument with all the search settings
 
 # 0.9.1
 

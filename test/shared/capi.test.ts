@@ -143,7 +143,7 @@ describe('C-API special typemaps', () => {
   });
 
   it('proj_get_crs_info_list_from_database', () => {
-    const list = PROJ.proj_get_crs_info_list_from_database('EPSG', null);
+    const list = PROJ.proj_get_crs_info_list_from_database('EPSG');
     assert.instanceOf(list, PROJ.PROJ_CRS_INFO_CONTAINER);
     let count = 0;
     for (const element of list) {
@@ -367,19 +367,78 @@ describe('C-API special typemaps', () => {
       assert.closeTo(coords[i], expected[i], 1e-9);
   });
 
-  it('PROJ_CRS_LIST_PARAMETERS', () => {
-    const params = new PROJ.PROJ_CRS_LIST_PARAMETERS;
-    assert.deepEqual(params.getTypes(), []);
-    params.setTypes([PROJ.PJ_TYPE_GEOGRAPHIC_2D_CRS]);
-    assert.deepEqual(params.getTypes(), [PROJ.PJ_TYPE_GEOGRAPHIC_2D_CRS]);
-    const list = PROJ.proj_get_crs_info_list_from_database('EPSG', params);
-    let atLeastOne = false;
-    for (const p of list) {
-      atLeastOne = true;
-      assert.instanceOf(p, PROJ.PROJ_CRS_INFO);
-      assert.strictEqual(p.auth_name, 'EPSG');
-    }
-    assert.isTrue(atLeastOne);
+  describe('proj_get_crs_info_list_from_database', () => {
+    it('default', () => {
+      const list = PROJ.proj_get_crs_info_list_from_database('EPSG');
+      let length = 0;
+      for (const p of list) {
+        length++;
+        assert.instanceOf(p, PROJ.PROJ_CRS_INFO);
+        assert.strictEqual(p.auth_name, 'EPSG');
+      }
+      assert.isAbove(length, 2000);
+    });
+    it('types', () => {
+      const list = PROJ.proj_get_crs_info_list_from_database('EPSG', {
+        types: [PROJ.PJ_TYPE_GEOGRAPHIC_2D_CRS]
+      });
+      let length = 0;
+      for (const p of list) {
+        length++;
+        assert.instanceOf(p, PROJ.PROJ_CRS_INFO);
+        assert.strictEqual(p.auth_name, 'EPSG');
+      }
+      assert.isAbove(length, 100);
+      assert.isBelow(length, 1000);
+    });
+    it('area', () => {
+      const list = PROJ.proj_get_crs_info_list_from_database('EPSG', {
+        bbox_valid: true,
+        west_lon_degree: -152,
+        south_lat_degree: -18,
+        east_lon_degree: -148,
+        north_lat_degree: -16,
+        crs_area_of_use_contains_bbox: true,
+        celestial_body_name: 'Earth'
+      });
+      let length = 0;
+      for (const p of list) {
+        length++;
+        assert.instanceOf(p, PROJ.PROJ_CRS_INFO);
+        assert.strictEqual(p.auth_name, 'EPSG');
+      }
+      assert.isAbove(length, 10);
+      assert.isBelow(length, 500);
+    });
+    it('invalid settings', () => {
+      assert.throws(() => {
+        // @ts-expect-error
+        PROJ.proj_get_crs_info_list_from_database('EPSG', { types: ['invalid'] });
+      }, /PJ_TYPE/);
+      assert.throws(() => {
+        PROJ.proj_get_crs_info_list_from_database('EPSG', {
+          bbox_valid: true,
+          // @ts-expect-error
+          west_lon_degree: 'x'
+        });
+      }, /crs_area_of_use_contains_bbox/);
+      assert.throws(() => {
+        PROJ.proj_get_crs_info_list_from_database('EPSG', {
+          bbox_valid: true,
+          crs_area_of_use_contains_bbox: false,
+          // @ts-expect-error
+          west_lon_degree: 'x'
+        });
+      }, /double/);
+      assert.throws(() => {
+        // @ts-expect-error
+        PROJ.proj_get_crs_info_list_from_database('EPSG', {
+          bbox_valid: true,
+          crs_area_of_use_contains_bbox: false,
+          west_lon_degree: -12
+        });
+      }, /double/);
+    });
   });
 
   it('PJ_FACTORS', () => {

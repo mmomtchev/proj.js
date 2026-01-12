@@ -366,45 +366,74 @@ OUTPUT_DATA_LENGTH(PJ_COORD)
  * ========================
  */
 
-// This is an ordinary structure which must be enriched
-// with constructor/destructor and conversions for the types
-%apply        std::vector             RETURN        { std::vector<int> getTypes };
-%typemap(ts)  std::vector<int>        getTypes      "PJ_TYPE[]";
-%apply        std::vector const       &INPUT        { const std::vector<int> &paramTypes };
-%typemap(ts)  const std::vector<int>  &paramTypes   "PJ_TYPE[]";
+// Replace this complex C interface with a single object argument
+// for proj_get_crs_info_list_from_database
+%ignore PROJ_CRS_LIST_PARAMETERS;
+%ignore proj_get_crs_list_parameters_create;
+%ignore proj_celestial_body_list_destroy;
 
-// As these cannot be used from JS they must be replaced with
-// setters/getters. Alas, a typedef anonymous struct cannot have
-// ignores so we cannot ignore only PROJ_CRS_LIST_PARAMETERS::types.
-// Thus we ignore all member variables called types but not any
-// eventual function arguments.
-%rename("$ignore", %$isvariable) types;
-%rename("$ignore", %$isvariable) typesCount;
+// The whole argument is optional
+%typemap(default) const PROJ_CRS_LIST_PARAMETERS *params {
+  $1 = proj_get_crs_list_parameters_create();
+}
 
-%extend PROJ_CRS_LIST_PARAMETERS {
-  PROJ_CRS_LIST_PARAMETERS() {
-    return proj_get_crs_list_parameters_create();
+%typemap(in) const PROJ_CRS_LIST_PARAMETERS *params {
+  // the default typemap has already created the structure
+  if (!$input.IsObject()) {
+    SWIG_Raise("PROJ_CRS_LIST_PARAMETERS *params must be an object");
   }
-  ~PROJ_CRS_LIST_PARAMETERS() {
-    if ($self->types && $self->typesCount)
-      delete [] $self->types;
-    proj_get_crs_list_parameters_destroy($self);
+  Napi::Object params = $input.ToObject();
+
+  if (!params.Get("bbox_valid").IsUndefined()) {
+    $typemap(in, bool, input=params.Get("bbox_valid"), 1=$1->bbox_valid, argnum=bbox_valid);
   }
-  std::vector<int> getTypes() {
-    std::vector<int> r;
-    for (size_t i = 0; i < $self->typesCount; i++)
-      r.push_back($self->types[i]);
-    return r;
+  if ($1->bbox_valid) {
+    // These are mandatory only if bbox_valid is true
+    $typemap(in, bool, input=params.Get("crs_area_of_use_contains_bbox"), 1=$1->crs_area_of_use_contains_bbox, argnum=crs_area_of_use_contains_bbox);
+    $typemap(in, double, input=params.Get("west_lon_degree"), 1=$1->west_lon_degree, argnum=west_lon_degree);
+    $typemap(in, double, input=params.Get("south_lat_degree"), 1=$1->south_lat_degree, argnum=south_lat_degree);
+    $typemap(in, double, input=params.Get("east_lon_degree"), 1=$1->east_lon_degree, argnum=east_lon_degree);
+    $typemap(in, double, input=params.Get("north_lat_degree"), 1=$1->north_lat_degree, argnum=north_lat_degree);
   }
-  void setTypes(std::vector<int> const &paramTypes) {
-    if ($self->types && $self->typesCount)
-      delete [] $self->types;
-    PJ_TYPE *types = new PJ_TYPE[paramTypes.size()];
-    for (size_t i = 0; i < paramTypes.size(); i++)
-      types[i] = static_cast<PJ_TYPE>(paramTypes[i]);
-    $self->types = types;
-    $self->typesCount = paramTypes.size();
+  if (!params.Get("types").IsUndefined()) {
+    // This special typemap is already defined above for proj_create_from_name
+    // It creates the array with a shared_ptr that is local to the wrapper
+    $typemap(in, (PJ_TYPE *types, size_t typesCount), input=params.Get("types"), 1=$1->types, 2=$1->typesCount, argnum=types);
   }
+  if (!params.Get("allow_deprecated").IsUndefined()) {
+    $typemap(in, bool, input=params.Get("allow_deprecated"), 1=$1->allow_deprecated, argnum=allow_deprecated);
+  }
+  if (!params.Get("celestial_body_name").IsUndefined()) {
+    $typemap(in, char *, input=params.Get("celestial_body_name"), 1=$1->celestial_body_name, argnum=celestial_body_name);
+  }
+}
+
+// This is what the user will supply
+%typemap(ts) const PROJ_CRS_LIST_PARAMETERS *params %{
+{
+  types?: PJ_TYPE[],
+  bbox_valid?: false,
+  allow_deprecated?: boolean,
+  celestial_body_name?: string
+} | {
+  types?: PJ_TYPE[],
+  bbox_valid: true,
+  crs_area_of_use_contains_bbox: boolean,
+  west_lon_degree: number,
+  south_lat_degree: number,
+  east_lon_degree: number,
+  north_lat_degree: number,
+  allow_deprecated?: boolean,
+  celestial_body_name?: string
+}
+%}
+
+// Alas, the char * typemap has a freearg,match="in" component
+// that cannot be made to automatically work recursively
+// https://github.com/mmomtchev/swig/issues/179
+%typemap(freearg) const PROJ_CRS_LIST_PARAMETERS *params {
+  %delete_array(buf1);
+  proj_get_crs_list_parameters_destroy($1);
 }
 
 /**
