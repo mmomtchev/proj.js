@@ -1,4 +1,4 @@
-## 0.9.2
+## 0.9.2 2026-01-25
 
 * Update `PROJ` to 9.7.1
 * Render the 3rd and 4rd arguments to the `PJ_COORD` constructor optional
@@ -6,7 +6,7 @@
 * Redesign the `proj_get_crs_info_list_from_database` wrapper to accept a single JS object argument with all the search settings
 * Update `hadron` to the official 1.1 release and fix compilation with the latest `emsdk`
 
-# 0.9.1
+# 0.9.1 2026-01-03
 
 * Include a second entry point, `proj.js/capi` with the old C API - this module is smaller and the setup is slightly faster
 * Migrate to the new `hadron` build system
