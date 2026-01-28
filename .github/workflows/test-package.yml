@@ -53,7 +53,7 @@ jobs:
             glob webpack webpack-cli ts-loader
         shell: bash
       - name: Download the package
-        uses: robinraju/release-downloader@v1.11
+        uses: robinraju/release-downloader@v1.12
         with:
           tag: ${{ github.ref_name }}
           fileName: ${{ inputs.package }}
@@ -121,7 +121,7 @@ jobs:
             glob webpack webpack-cli ts-loader
         shell: bash
       - name: Download the package
-        uses: robinraju/release-downloader@v1.11
+        uses: robinraju/release-downloader@v1.12
         with:
           tag: ${{ github.ref_name }}
           fileName: ${{ inputs.package }}
