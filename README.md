@@ -217,3 +217,13 @@ Currently, the size of the WASM bundle renders it impractical for a normal websi
 * The project's two entry points - `proj.i` and `proj_capi.i` - can also be enriched with `%ignore` directives controlled by `-D...` macros. This will result savings only from the SWIG bindings themselves without reducing the `PROJ.a` archive.
 * Alternatively, a third entry point, for a specially trimmed ultra-light WASM bundle, can be added. In this case, I will consider adding an automatic build and distribution point for this bundle.
 * As a last option, `emscripten` has a very interesting feature that allows to split the bundle in two pieces, a main bundle and a loadable addon to be downloaded and parsed only if this part of the code is invoked. The split of the module is determined by the code coverage of a user routine. This means you write some JavaScript code that uses `proj.js`, you launch it, and all the called functions become part of the main module. My first tests show that this can lead to up to 60% reduction of the size of the main bundle if calling only the C API quickstart. This works without sacrificing any features - but at the cost of a very significant one-time latency when calling a new function for the first time.
+
+# Using `proj.js` with Server-Side Rendering
+
+As `proj.js` works both in Node.js (as native) code and the browser (as a WASM bundle), it is compatible with frameworks that render partially on the server and in the client - with Next.js being the best example.
+
+However this support comes with one important caveat - `proj.js` binary objects are not compatible between the native code and the WASM bundle and cannot be directly hydrated on the client.
+
+This means that a web application that uses both builds of `proj.js` at the same time will have to manually serialize all coordinates to JavaScript arrays when transferring them to the client before recreating the `PJ` objects in the browser.
+
+Further, while it is possible to use the WASM bundle even on the backend - at the price of a considerable loss of performance - this won't solve this problem as currently WASM objects cannot be serialized at all.
