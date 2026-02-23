@@ -55,23 +55,19 @@ jobs:
           cp -R node_modules/proj.js/test .
           cd test && npm install
       - name: Run the Node.js unit tests
-        shell: bash
-        run: |
-          npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
-            --require ts-node/esm.mjs --require node/wasm.node_js.proj_db.ts --types mocha     \
-            --reporter=tap --v8-expose-gc --timeout 5000 node/*.test.ts shared/*.test.ts
+        run: npm run test:nodejs
         working-directory: ${{ github.workspace }}/test
         env:
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
 
       - name: Run the browser tests (macOS / Windows)
         if: runner.os != 'Linux'
-        run: npx webpack --mode=production && npx karma start ./karma.conf.cjs
-        working-directory: ${{ github.workspace }}/test/browser
+        run: npm run test:browser
+        working-directory: ${{ github.workspace }}/test
       - name: Run the browser tests (Linux)
         if: runner.os == 'Linux'
-        run: npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
-        working-directory: ${{ github.workspace }}/test/browser
+        run: xvfb-run npm run test:browser
+        working-directory: ${{ github.workspace }}/test
 
 
   test_npm_rebuild:
@@ -117,20 +113,16 @@ jobs:
           cp -R node_modules/proj.js/test .
           cd test && npm install
       - name: Run the Node.js unit tests
-        shell: bash
-        run: |
-          npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
-            --require ts-node/esm.mjs --require node/wasm.node_js.proj_db.ts --types mocha     \
-            --reporter=tap --v8-expose-gc --timeout 5000 node/*.test.ts shared/*.test.ts
+        run: npm run test:nodejs
         working-directory: ${{ github.workspace }}/test
         env:
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
 
       - name: Run the browser tests (macOS / Windows)
         if: runner.os != 'Linux'
-        run: npx webpack --mode=production && npx karma start ./karma.conf.cjs
-        working-directory: ${{ github.workspace }}/test/browser
+        run: npm run test:browser
+        working-directory: ${{ github.workspace }}/test
       - name: Run the browser tests (Linux)
         if: runner.os == 'Linux'
-        run: npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
-        working-directory: ${{ github.workspace }}/test/browser
+        run: xvfb-run npm run test:browser
+        working-directory: ${{ github.workspace }}/test
