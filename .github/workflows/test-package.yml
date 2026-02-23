@@ -45,6 +45,7 @@ jobs:
         with:
           tag: ${{ github.ref_name }}
           fileName: ${{ inputs.package }}
+          out-file-path: ./test
         if: inputs.download
       - name: Install proj.js from ${{ inputs.package }}
         working-directory: ${{ github.workspace }}/test
@@ -101,6 +102,7 @@ jobs:
         with:
           tag: ${{ github.ref_name }}
           fileName: ${{ inputs.package }}
+          out-file-path: ./test
         if: inputs.download
       - name: Install proj.js from ${{ inputs.package }}
         working-directory: ${{ github.workspace }}/test
