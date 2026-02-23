@@ -287,5 +287,5 @@ jobs:
       uses: codecov/codecov-action@v5.5.2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        directory: coverage
+        directory: test/coverage
         slug: mmomtchev/proj.js
