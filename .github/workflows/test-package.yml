@@ -47,13 +47,15 @@ jobs:
           fileName: ${{ inputs.package }}
         if: inputs.download
       - name: Install proj.js from ${{ inputs.package }}
+        working-directory: ${{ github.workspace }}/test
         run: npm install ${{ inputs.package }} --foreground-scripts --verbose
         shell: bash
       - name: Set up the unit tests
+        working-directory: ${{ github.workspace }}/test
         shell: bash
         run: |
-          cp -R node_modules/proj.js/test .
-          cd test && npm install
+          cp -R node_modules/proj.js/test/*
+          npm install
       - name: Run the Node.js unit tests
         run: npm run test:nodejs
         working-directory: ${{ github.workspace }}/test
@@ -101,6 +103,7 @@ jobs:
           fileName: ${{ inputs.package }}
         if: inputs.download
       - name: Install proj.js from ${{ inputs.package }}
+        working-directory: ${{ github.workspace }}/test
         run: |
           npm install ${{ inputs.package }}               \
             --foreground-scripts --verbose                \
@@ -108,10 +111,11 @@ jobs:
             ${{ runner.os == 'Linux' && '--build-wasm-from-source' || '' }}
         shell: bash
       - name: Set up the unit tests
+        working-directory: ${{ github.workspace }}/test
         shell: bash
         run: |
-          cp -R node_modules/proj.js/test .
-          cd test && npm install
+          cp -R node_modules/proj.js/test/*
+          npm install
       - name: Run the Node.js unit tests
         run: npm run test:nodejs
         working-directory: ${{ github.workspace }}/test
