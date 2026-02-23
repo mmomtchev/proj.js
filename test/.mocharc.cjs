@@ -1,7 +1,7 @@
 module.exports = {
   'spec': [
-    'test/node/*.test.[tj]s',
-    'test/shared/*.test.[tj]s'
+    'node/*.test.[tj]s',
+    'shared/*.test.[tj]s'
   ],
   'node-option': [
     'no-warnings',
@@ -16,6 +16,6 @@ module.exports = {
   ],
   'require': [
     'ts-node/register',
-    'test/node/wasm.node_js.proj_db.ts'
+    'node/wasm.node_js.proj_db.ts'
   ]
 };
