@@ -9,7 +9,7 @@
     "test:browser": "npx webpack --mode=production && npx karma start ./browser/karma.conf.cjs",
     "test:integration": "npx mocha integration.test.ts",
     "start": "npx webpack serve --mode=production",
-    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../build/native/proj.node.p/swig_proj_wrap.cc.o ../swig/proj_wrap.cc",
+    "gcov": "mkdir -p coverage && cd coverage && gcov -o ../../build/native/proj.node.p/swig_proj_wrap.cc.o ../../swig/proj_wrap.cc",
     "lcov": "npx c8 report --reporter=text-lcov > coverage/tests.lcov"
   },
   "repository": {
