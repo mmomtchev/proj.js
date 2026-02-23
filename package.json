@@ -59,7 +59,9 @@
     "preversion": "npm run lint && npm run test",
     "postversion": "git push && git push --tags && node ./scripts/publish-packages.mjs",
     "postpublish": "gh workflow run test-package.yml -F package=proj.js@$npm_package_version",
-    "dev": "npm run start -w test"
+    "dev": "npm run start -w test",
+    "gcov": "npm run gcov -w test",
+    "lcov": "npm run gcov -w test"
   },
   "repository": {
     "type": "git",
