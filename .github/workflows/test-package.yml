@@ -40,18 +40,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Create package.json
-        shell: bash
-        run: |
-          echo '{ "type": "module" }' > package.json
-      - name: Install dependencies
-        run: |
-          npm i chai mocha typescript ts-node tsconfig-paths  \
-            @types/chai @types/mocha @types/node             \
-            karma karma-chrome-launcher karma-mocha          \
-            karma-verbose-reporter karma-chrome-launcher     \
-            glob webpack webpack-cli ts-loader
-        shell: bash
       - name: Download the package
         uses: robinraju/release-downloader@v1.12
         with:
@@ -65,23 +53,25 @@ jobs:
         shell: bash
         run: |
           cp -R node_modules/proj.js/test .
-          cp node_modules/proj.js/tsconfig.json .
+          cd test && npm install
       - name: Run the Node.js unit tests
         shell: bash
         run: |
           npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
-            --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
-            --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
+            --require ts-node/esm.mjs --require node/wasm.node_js.proj_db.ts --types mocha     \
+            --reporter=tap --v8-expose-gc --timeout 5000 node/*.test.ts shared/*.test.ts
+        working-directory: ${{ github.workspace }}/test
         env:
-          TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
 
       - name: Run the browser tests (macOS / Windows)
         if: runner.os != 'Linux'
-        run: cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs
+        run: npx webpack --mode=production && npx karma start ./karma.conf.cjs
+        working-directory: ${{ github.workspace }}/test/browser
       - name: Run the browser tests (Linux)
         if: runner.os == 'Linux'
-        run: cd test/browser && npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
+        run: npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
+        working-directory: ${{ github.workspace }}/test/browser
 
 
   test_npm_rebuild:
@@ -108,18 +98,6 @@ jobs:
         uses: mymindstorm/setup-emsdk@v14
         with:
           version: 4.0.23
-      - name: Create package.json
-        shell: bash
-        run: |
-          echo '{ "type": "module" }' > package.json
-      - name: Install dependencies
-        run: |
-          npm i chai mocha typescript ts-node tsconfig-paths  \
-            @types/chai @types/mocha @types/node             \
-            karma karma-chrome-launcher karma-mocha          \
-            karma-verbose-reporter karma-chrome-launcher     \
-            glob webpack webpack-cli ts-loader
-        shell: bash
       - name: Download the package
         uses: robinraju/release-downloader@v1.12
         with:
@@ -137,20 +115,22 @@ jobs:
         shell: bash
         run: |
           cp -R node_modules/proj.js/test .
-          cp node_modules/proj.js/tsconfig.json .
+          cd test && npm install
       - name: Run the Node.js unit tests
         shell: bash
         run: |
           npx mocha --no-warnings --experimental-specifier-resolution=node --loader=ts-node/esm     \
-            --require ts-node/esm.mjs --require test/node/wasm.node_js.proj_db.ts --types mocha     \
-            --reporter=tap --v8-expose-gc --timeout 5000 test/node/*.test.ts test/shared/*.test.ts
+            --require ts-node/esm.mjs --require node/wasm.node_js.proj_db.ts --types mocha     \
+            --reporter=tap --v8-expose-gc --timeout 5000 node/*.test.ts shared/*.test.ts
+        working-directory: ${{ github.workspace }}/test
         env:
-          TS_NODE_PROJECT: ${{ github.workspace }}/test/tsconfig.standalone.json
           PROJ_DB_PATH: ${{ github.workspace }}/node_modules/proj.js/lib/binding/proj/proj.db
 
       - name: Run the browser tests (macOS / Windows)
         if: runner.os != 'Linux'
-        run: cd test/browser && npx webpack --mode=production && npx karma start ./karma.conf.cjs
+        run: npx webpack --mode=production && npx karma start ./karma.conf.cjs
+        working-directory: ${{ github.workspace }}/test/browser
       - name: Run the browser tests (Linux)
         if: runner.os == 'Linux'
-        run: cd test/browser && npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
+        run: npx webpack --mode=production && xvfb-run npx karma start ./karma.conf.cjs
+        working-directory: ${{ github.workspace }}/test/browser

@@ -174,9 +174,6 @@ jobs:
       if: runner.os == 'Linux'
       run: xvfb-run npm run test:browser
 
-    - name: Test building the webpack project
-      run: npm run build:webpack
-
     - name: Test the integration of the npm package
       run: |
         npm link --ignore-scripts
@@ -276,6 +273,7 @@ jobs:
         npx xpm install
     
     - name: Run the Node.js tests
+      working-directory: ${{ github.workspace }}/test
       run: npx c8 npm run test:nodejs
 
     - name: Collect code coverage

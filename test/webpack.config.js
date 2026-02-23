@@ -36,10 +36,10 @@ export default [
    * This is the configuration you need to create a webpage
    */
   {
-    entry: './index.ts',
+    entry: './browser/index.ts',
     output: {
       filename: 'bundle.js',
-      path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'build')
+      path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'browser', 'build')
     },
     module: {
       rules: [
@@ -62,7 +62,7 @@ export default [
     devServer: {
       port: 8030,
       static: {
-        directory: path.dirname(fileURLToPath(import.meta.url))
+        directory: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'browser')
       },
       devMiddleware: {
         'publicPath': '/build'
@@ -77,12 +77,12 @@ export default [
    */
   {
     entry: [
-      './wasm.browser.proj_db.ts',
-      ...glob.sync('../shared/*.test.ts', { posix: true })
+      './browser/wasm.browser.proj_db.ts',
+      ...glob.sync('./shared/*.test.ts', { posix: true, dotRelative: true })
     ],
     output: {
       filename: 'bundle-mocha.js',
-      path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'build')
+      path: path.resolve(path.dirname(fileURLToPath(import.meta.url)), 'browser', 'build')
     },
     module: {
       rules: [
