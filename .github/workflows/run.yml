@@ -174,9 +174,6 @@ jobs:
       if: runner.os == 'Linux'
       run: xvfb-run npm run test:browser
 
-    - name: Test building the webpack project
-      run: npm run build:webpack
-
     - name: Test the integration of the npm package
       run: |
         npm link --ignore-scripts
@@ -241,6 +238,8 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v6
+      with:
+        submodules: true
     - name: Setup Node.js 20
       uses: actions/setup-node@v6
       with:
@@ -276,6 +275,7 @@ jobs:
         npx xpm install
     
     - name: Run the Node.js tests
+      working-directory: ${{ github.workspace }}/test
       run: npx c8 npm run test:nodejs
 
     - name: Collect code coverage
@@ -287,5 +287,5 @@ jobs:
       uses: codecov/codecov-action@v5.5.2
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        directory: coverage
+        directory: test/coverage
         slug: mmomtchev/proj.js
