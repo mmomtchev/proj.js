@@ -100,7 +100,7 @@
     "@types/chai": "^5.0.1",
     "@types/mocha": "^10.0.6",
     "@types/node": "^25.0.0",
-    "@types/tar": "^6.1.13",
+    "@types/tar": "^7.0.87",
     "@typescript-eslint/eslint-plugin": "^8.10.0",
     "@typescript-eslint/parser": "^8.10.0",
     "c8": "^11.0.0",
