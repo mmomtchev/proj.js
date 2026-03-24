@@ -1,6 +1,7 @@
 import { assert } from 'chai';
 import qPROJ from 'proj.js';
-import type * as PROJ from 'proj.js';
+// TODO: fix the import with TypeScript 6 (requires SWIG JSE 5.0.13)
+//import type * as PROJ from 'proj.js';
 
 it('TS (transpiled to ES6) import test', (done) => {
   qPROJ.then((PROJ) => {
@@ -9,7 +10,7 @@ it('TS (transpiled to ES6) import test', (done) => {
     const coord_op_ctxt = PROJ.CoordinateOperationContext.create(authFactory, null, 0);
     const authFactoryEPSG = PROJ.AuthorityFactory.create(dbContext, 'EPSG');
     const sourceCRS = authFactoryEPSG.createCoordinateReferenceSystem('4326');
-    const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext) as PROJ.CRS;
+    const targetCRS = PROJ.createFromUserInput('+proj=utm +zone=31 +datum=WGS84 +type=crs', dbContext);
     const list = PROJ.CoordinateOperationFactory.create().createOperations(sourceCRS, targetCRS, coord_op_ctxt);
 
     const transformer = list[0].coordinateTransformer();
