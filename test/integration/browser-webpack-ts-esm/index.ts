@@ -1,3 +1,4 @@
+/// <reference types="@types/mocha" />
 import * as chai from 'chai';
 
 const assert: Chai.AssertStatic = chai.assert;
