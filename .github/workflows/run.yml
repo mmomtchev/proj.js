@@ -221,12 +221,13 @@ jobs:
         npx xpm install
 
     - name: Get ASAN libname
-      run: echo LD_PRELOAD=$(gcc --print-file-name=libasan.so) >> $GITHUB_ENV
+      run: echo ASAN_LIB=$(gcc --print-file-name=libasan.so) >> $GITHUB_ENV
     
     - name: Run the Node.js tests
       run: npm run test:nodejs
       env:
         LSAN_OPTIONS: suppressions=${{ github.workspace }}/test/napi-leaks-suppression.txt
+        LD_PRELOAD: ${{ env.ASAN_LIB }}
 
 
   codecov:
