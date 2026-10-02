@@ -67,7 +67,7 @@ jobs:
         node-version: 20
 
     - name: Setup emscripten (WASM)
-      uses: mymindstorm/setup-emsdk@v14
+      uses: mymindstorm/setup-emsdk@v15
       if: inputs.wasm
       with:
         version: 4.0.23
