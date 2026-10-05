@@ -1,3 +1,8 @@
+/*
+ * Extra types for PROJ
+ */
+export type JS_COORD = [number, number] | [number, number, number] | [number, number, number, number];
+
 import type * as PROJ from '../swig/proj_capi.d.ts';
 export type * from '../swig/proj_capi.d.ts';
 
@@ -36,11 +41,6 @@ declare module '../swig/proj_capi.d.ts' {
     get(i: number): PJ;
   }
 }
-
-/*
- * Extra types for PROJ
- */
-export type JS_COORD = [number, number] | [number, number, number] | [number, number, number, number];
 
 declare const bindings: Promise<typeof PROJ>;
 export default bindings;
