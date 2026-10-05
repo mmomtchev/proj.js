@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "downlevelIteration": true,
     "esModuleInterop": true,
     "target": "es2020",
     "module": "node16",
