@@ -97,7 +97,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       - name: Setup emscripten (WASM)
-        uses: mymindstorm/setup-emsdk@v15
+        uses: mymindstorm/setup-emsdk@v16
         with:
           version: 4.0.23
       - name: Download the package
