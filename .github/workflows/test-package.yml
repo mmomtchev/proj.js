@@ -52,7 +52,7 @@ jobs:
         run: npm install ${{ inputs.package }} --foreground-scripts --verbose
         shell: bash
       - name: Checkout the unit tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           sparse-checkout: 'test/*'
           sparse-checkout-cone-mode: false
@@ -116,7 +116,7 @@ jobs:
             ${{ runner.os == 'Linux' && '--build-wasm-from-source' || '' }}
         shell: bash
       - name: Checkout the unit tests
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           sparse-checkout: 'test/*'
           sparse-checkout-cone-mode: false
